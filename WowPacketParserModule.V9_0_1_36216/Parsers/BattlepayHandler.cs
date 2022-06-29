@@ -110,27 +110,16 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE)]
         public static void HandletBattlePayGetProductListResponse(Packet packet)
         {
-            BattlePayProduct Product = new BattlePayProduct
-            {
-                ProductID = 0,
-                NormalPriceFixedPoint = 0,
-                CurrentPriceFixedPoint = 0,
-                Type = 0,
-                WebsiteType = 0,
-                CustomValue = 0,
-                ChoiceType = 0,
-                CurrencyID = 0,
-                Flags = 0,
-                DisplayInfoID = 0,
-                SpellID = 0,
-                CreatureID = 0,
-                ClassMask = 0,
-                ScriptName = ""
-            };
+            uint _productid_ = 0;
+            uint _normalprice_ = 0;
+            uint _currentprice_ = 0;
+            int _type_ = 0;
+            uint _choicetype_ = 0;
+            uint _flags_ = 0;
+            uint _displayid_ = 0;
 
             packet.ReadUInt32("Result");
             var currencyid = packet.ReadUInt32("CurrencyID");
-            Product.CurrencyID = currencyid;
 
             var ProductInfoSize = packet.ReadUInt32("ProductInfoSize");
             var int36 = packet.ReadUInt32("ProductSize");
@@ -140,12 +129,8 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             for (uint index = 0; index < ProductInfoSize; index++)
             {
                 var productid = packet.ReadInt32("ProductID", index);
-                Product.ProductID = ((uint)productid);
                 var normalprice = packet.ReadInt64("NormalPriceFixedPoint", index);
-                Product.NormalPriceFixedPoint = ((uint)normalprice);
                 var currentprice = packet.ReadInt64("CurrentPriceFixedPoint", index);
-                Product.CurrentPriceFixedPoint = ((uint)currentprice);
-
                 var ProductIDsSize = packet.ReadInt32("ProductIDsSize", index);
                 packet.ReadInt32("UnkInt2", index);
                 packet.ReadInt32("UnkInt3", index);
@@ -165,22 +150,37 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 packet.ResetBitReader();
 
                 var choicetype = packet.ReadBits("ChoiceType", 7, index);
-                Product.ChoiceType = ((uint)choicetype);
 
                 var HasBattlepayDisplayInfo = packet.ReadBit("HasBattlepayDisplayInfo", index);
 
                 if (HasBattlepayDisplayInfo)
                     ReadBattlepayDisplayInfo(packet, index);
+
+                for (uint p = 0; p < int36; p++)
+                {
+                    if (p == index)
+                    {
+                        _normalprice_ = ((uint)normalprice);
+                        _currentprice_ = ((uint)currentprice);
+                        _choicetype_ = choicetype;
+                    }
+                }
+
             }
+
             //////////////////////////////////////////////////////////////
 
             for (uint j = 0; j < int36; j++)
             {
-                var productid = packet.ReadUInt32("ProductId", j);
+                var _productid = packet.ReadUInt32("ProductId", j);
+                _productid_ = _productid;
                 var type = packet.ReadByte("Type", j);
+                _type_ = type;
                 var flags = packet.ReadUInt32("Flags", j);
+                _flags_ = flags;
                 packet.ReadUInt32("UnkInt1", j);
                 var displayid = packet.ReadUInt32("DisplayId", j);
+                _displayid_ = displayid;
                 packet.ReadUInt32("ItemId", j);
                 packet.ReadUInt32("UnkInt4", j);
                 packet.ReadUInt32("UnkInt5", j);
@@ -189,16 +189,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 packet.ReadUInt32("UnkInt7", j);
                 packet.ReadUInt32("UnkInt8", j);
                 packet.ReadUInt32("UnkInt9", j);
-
-                for (uint index = 0; index < ProductInfoSize; index++)
-                {
-                    if (Storage.BattlePayProducts[Product].Item1.ProductID == productid)
-                    {
-                        Storage.BattlePayProducts[Product].Item1.Type = ((uint)type);
-                        Storage.BattlePayProducts[Product].Item1.Flags = ((uint)flags);
-                        Storage.BattlePayProducts[Product].Item1.DisplayInfoID = ((uint)displayid);
-                    }
-                }
 
                 packet.ResetBitReader();
 
@@ -210,6 +200,28 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 if (UnkBits)
                     packet.ReadBits("PetResultVariable", 4, j);
+
+                for (uint index = 0; index < int36; index++)
+                {
+                    BattlePayProduct Product = new BattlePayProduct
+                    {
+                        ProductID = ((uint)_productid_),
+                        NormalPriceFixedPoint = ((uint)_normalprice_),
+                        CurrentPriceFixedPoint = ((uint)_currentprice_),
+                        Type = ((uint)_type_),
+                        WebsiteType = 0,
+                        CustomValue = 0,
+                        ChoiceType = ((uint)_choicetype_),
+                        CurrencyID = currencyid,
+                        Flags = ((uint)_flags_),
+                        DisplayInfoID = ((uint)_displayid_),
+                        SpellID = 0,
+                        CreatureID = 0,
+                        ClassMask = 0,
+                        ScriptName = ""
+                    };
+                    Storage.BattlePayProducts.Add(Product, packet.TimeSpan);
+                }
 
                 // battlepay product item
                 for (uint g = 0; g < ItemsSize; g++)
@@ -236,7 +248,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     BattlePayProductItem ProductItem = new BattlePayProductItem
                     {
                         ID = id,
-                        ProductID = productid,
+                        ProductID = _productid,
                         ItemID = itemid,
                         Quantity = quantity,
                         DisplayID = ((uint)DisplayInfo),
@@ -254,10 +266,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             ///////////////////////////////////////////////
             for (int i = 0; i < int20; i++)
             {
-                var groupid = packet.ReadInt32("GroupID", i);
+                var _groupid = packet.ReadInt32("GroupID", i);
                 var iconfiledataid = packet.ReadInt32("IconFileDataID", i);
                 var displaytype = packet.ReadByte("DisplayType", i);
-                var ordering = packet.ReadInt32("Ordering", i);
+                var _ordering = packet.ReadInt32("Ordering", i);
                 packet.ReadInt32("unkt", i);
 
                 packet.ResetBitReader();
@@ -271,10 +283,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProductGroup ProductGroup = new BattlePayProductGroup
                 {
-                    GroupID = ((uint)groupid),
+                    GroupID = ((uint)_groupid),
                     IconFileDataID = ((uint)iconfiledataid),
                     DisplayType = displaytype,
-                    Ordering = ((uint)ordering),
+                    Ordering = ((uint)_ordering),
                     Name = name
                 };
                 Storage.BattlePayProductGroups.Add(ProductGroup, packet.TimeSpan);
@@ -286,20 +298,31 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             for (uint i = 0; i < int26; i++)
             {
                 var entryid = packet.ReadUInt32("EntryID", i);
-                packet.ReadUInt32("GroupID", i);
-                packet.ReadUInt32("ProductID", i);
-                packet.ReadInt32("Ordering", i);
-                packet.ReadInt32("VasServiceType", i);
-                packet.ReadByte("StoreDeliveryType", i);
+                var groupid_ = packet.ReadUInt32("GroupID", i);
+                var productid_ = packet.ReadUInt32("ProductID", i);
+                var ordering_ = packet.ReadInt32("Ordering", i);
+                var vasservicetype = packet.ReadInt32("VasServiceType", i);
+                var storedeliverytype = packet.ReadByte("StoreDeliveryType", i);
 
                 packet.ResetBitReader();
 
                 var bit5172 = packet.ReadBit("HasBattlepayDisplayInfo", i);
                 if (bit5172)
                     ReadBattlepayDisplayInfo(packet, i);
+
+                BattlePayShopEntry ShopEntry = new BattlePayShopEntry
+                {
+                    EntryID = entryid,
+                    GroupID = groupid_,
+                    ProductID = productid_,
+                    Ordering = ((uint)ordering_),
+                    VasServiceType = ((uint)vasservicetype),
+                    StoreDeliveryType = storedeliverytype,
+                    DisplayInfoID = bit5172
+                };
+                Storage.BattlePayShopEntries.Add(ShopEntry, packet.TimeSpan);
             }
 
-            Storage.BattlePayProducts.Add(Product, packet.TimeSpan);
         }
 
         private static void ReadBattlePayDistributionObject(Packet packet, params object[] index)
