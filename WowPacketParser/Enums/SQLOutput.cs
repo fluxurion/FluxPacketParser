@@ -12,6 +12,7 @@
         battlepay_display_info,
         battlepay_display_info_visuals,
         battlepay_product,
+        battlepay_product_item,
         broadcast_text,
         broadcast_text_locale,
         conversation_actor_template,

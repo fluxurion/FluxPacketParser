@@ -171,8 +171,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 if (HasBattlepayDisplayInfo)
                     ReadBattlepayDisplayInfo(packet, index);
-
-                Storage.BattlePayProducts.Add(Product, packet.TimeSpan);
             }
             //////////////////////////////////////////////////////////////
 
@@ -216,10 +214,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 // battlepay product item
                 for (uint g = 0; g < ItemsSize; g++)
                 {
-                    packet.ReadUInt32("Id", g);
+                    var id = packet.ReadUInt32("Id", g);
                     packet.ReadByte("UnkByte", g);
-                    packet.ReadUInt32("ItemID", g);
-                    packet.ReadUInt32("Quantity", g);
+                    var itemid = packet.ReadUInt32("ItemID", g);
+                    var quantity = packet.ReadUInt32("Quantity", g);
                     packet.ReadUInt32("UnkInt1", g);
                     packet.ReadUInt32("UnkInt2", g);
 
@@ -235,6 +233,16 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     if (DisplayInfo)
                         ReadBattlepayDisplayInfo(packet, g);
 
+                    BattlePayProductItem ProductItem = new BattlePayProductItem
+                    {
+                        ID = id,
+                        ProductID = productid,
+                        ItemID = itemid,
+                        Quantity = quantity,
+                        DisplayID = ((uint)DisplayInfo),
+                        PetResult = ((uint)PetResult),
+                    };
+                    Storage.BattlePayProductItems.Add(ProductItem, packet.TimeSpan);
                 }
                 packet.ReadWoWString("Name", UnkString, j);
                 if (HasDisplayInfo)
@@ -290,6 +298,8 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 if (bit5172)
                     ReadBattlepayDisplayInfo(packet, i);
             }
+
+            Storage.BattlePayProducts.Add(Product, packet.TimeSpan);
         }
 
         private static void ReadBattlePayDistributionObject(Packet packet, params object[] index)
