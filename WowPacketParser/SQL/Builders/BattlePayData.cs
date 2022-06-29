@@ -38,5 +38,19 @@ namespace WowPacketParser.SQL.Builders
 
             return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfos.OrderBy(x => x.Item1.DisplayInfoId).ToArray() : Storage.BattlePayDisplayInfos.ToArray(), templateDb, x => string.Empty);
         }
+
+        [BuilderMethod]
+        public static string BattlePayDisplayInfoVisualData()
+        {
+            if (Storage.BattlePayDisplayInfoVisuals.IsEmpty())
+                return string.Empty;
+
+            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.battlepay_display_info_visuals))
+                return string.Empty;
+
+            var templateDb = SQLDatabase.Get(Storage.BattlePayDisplayInfoVisuals);
+
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfoVisuals.OrderBy(x => x.Item1.DisplayInfoId).ToArray() : Storage.BattlePayDisplayInfoVisuals.ToArray(), templateDb, x => string.Empty);
+        }
     }
 }

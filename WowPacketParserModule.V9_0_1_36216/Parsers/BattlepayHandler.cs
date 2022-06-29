@@ -75,10 +75,19 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             {
                 packet.ResetBitReader();
                 var ProductName = packet.ReadBits(10);
-                packet.ReadInt32("Visual", idx, j);
-                packet.ReadInt32("Visual", idx, j);
+                var displayid = packet.ReadInt32("Visual", idx, j);
+                var visualid = packet.ReadInt32("Visual", idx, j);
                 packet.ReadInt32("unktvisual", idx, j);
-                packet.ReadWoWString("ProductName", ProductName, idx, j);
+                var productname = packet.ReadWoWString("ProductName", ProductName, idx, j);
+
+                BattlePayDisplayInfoVisual DisplayInfoVisual = new BattlePayDisplayInfoVisual
+                {
+                    DisplayInfoId = ((uint)packet.Position),
+                    DisplayId = ((uint)displayid),
+                    VisualId = ((uint)visualid),
+                    ProductName = productname
+                };
+                Storage.BattlePayDisplayInfoVisuals.Add(DisplayInfoVisual, packet.TimeSpan);
             }
 
             BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo

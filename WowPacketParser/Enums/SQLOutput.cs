@@ -10,6 +10,7 @@
         areatrigger_template,
         battlepay_product_group,
         battlepay_display_info,
+        battlepay_display_info_visuals,
         broadcast_text,
         broadcast_text_locale,
         conversation_actor_template,
