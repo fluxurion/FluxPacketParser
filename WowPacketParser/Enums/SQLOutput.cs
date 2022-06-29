@@ -9,6 +9,7 @@
         areatrigger_create_properties_spline_point,
         areatrigger_template,
         battlepay_product_group,
+        battlepay_display_info,
         broadcast_text,
         broadcast_text_locale,
         conversation_actor_template,

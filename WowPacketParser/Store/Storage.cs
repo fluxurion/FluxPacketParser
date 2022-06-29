@@ -141,6 +141,7 @@ namespace WowPacketParser.Store
 
         //Battle Pay
         public static readonly DataBag<BattlePayProductGroup> BattlePayProductGroups = new DataBag<BattlePayProductGroup>(new List<SQLOutput> { SQLOutput.battlepay_product_group });
+        public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_display_info });
 
         public static void ClearContainers()
         {

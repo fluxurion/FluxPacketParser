@@ -45,16 +45,19 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             var bit21496 = packet.ReadInt32("unktint2", idx);
             var bit21500 = packet.ReadInt32("unktint3", idx);
 
-            if (bit4)
-                packet.ReadInt32("CreatureDisplayInfoID", idx);
-            if (bit12)
-                packet.ReadInt32("FileDataID", idx);
+            var creaturedisplayinfoid = 0;
+            var filedataid = 0;
 
-            packet.ReadWoWString("Name1", bits16, idx);
-            packet.ReadWoWString("Name2", bits529, idx);
-            packet.ReadWoWString("Name3", bits1042, idx);
-            packet.ReadWoWString("Name4", bits5139, idx);
-            packet.ReadWoWString("Name5", bits9236, idx);
+            if (bit4)
+                creaturedisplayinfoid = packet.ReadInt32("CreatureDisplayInfoID", idx);
+            if (bit12)
+                filedataid = packet.ReadInt32("FileDataID", idx);
+
+            var name1 = packet.ReadWoWString("Name1", bits16, idx);
+            var name2 = packet.ReadWoWString("Name2", bits529, idx);
+            var name3 = packet.ReadWoWString("Name3", bits1042, idx);
+            var name4 = packet.ReadWoWString("Name4", bits5139, idx);
+            var name5 = packet.ReadWoWString("Name5", bits9236, idx);
 
             if (bit9240)
                 packet.ReadInt32("flags", idx);
@@ -77,11 +80,26 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 packet.ReadInt32("unktvisual", idx, j);
                 packet.ReadWoWString("ProductName", ProductName, idx, j);
             }
+
+            BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo
+            {
+                DisplayInfoId = ((uint)packet.Position),
+                CreatureDisplayInfoID = ((uint)creaturedisplayinfoid),
+                FileDataID = ((uint)filedataid),
+                DisplayCardWidth = ((uint)bit13392),
+                Name1 = name1,
+                Name2 = name2,
+                Name3 = name3,
+                Name4 = name4,
+                Name5 = name5,
+                Flags = bit9240
+            };
+            Storage.BattlePayDisplayInfos.Add(DisplayInfo, packet.TimeSpan);
         }
         //This Struct is OK
         private static void ReadBattlePayProduct915(Packet packet, params object[] idx)
         {
-            packet.ReadInt32("ProductID", idx);
+            var productid = packet.ReadInt32("ProductID", idx);
             packet.ReadInt64("NormalPriceFixedPoint", idx);
             packet.ReadInt64("CurrentPriceFixedPoint", idx);
 
@@ -132,7 +150,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             for (uint j = 0; j < int36; j++)
             {
-                packet.ReadUInt32("ProductId", j);
+                var productid = packet.ReadUInt32("ProductId", j);
                 packet.ReadByte("Type", j);
                 packet.ReadUInt32("Flags", j);
                 packet.ReadUInt32("UnkInt1", j);
@@ -220,7 +238,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             for (uint i = 0; i < int26; i++)
             {
-                packet.ReadUInt32("EntryID", i);
+                var entryid = packet.ReadUInt32("EntryID", i);
                 packet.ReadUInt32("GroupID", i);
                 packet.ReadUInt32("ProductID", i);
                 packet.ReadInt32("Ordering", i);
@@ -256,7 +274,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             if (bit5248)
             {
-                packet.ReadUInt32("ProductId", index);
+                var productid = packet.ReadUInt32("ProductId", index);
                 packet.ReadByte("Type", index);
                 packet.ReadUInt32("Flags", index);
                 packet.ReadUInt32("UnkInt1", index);
