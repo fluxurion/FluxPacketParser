@@ -1,6 +1,9 @@
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Proto;
+using WowPacketParser.Store;
+using WowPacketParser.Store.Objects;
 
 /// <summary>
 /// struc of battlepay by NORDRASSIL WOW
@@ -182,24 +185,35 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
 
             }
+
             // Todo OK
             ///////////////////////////////////////////////
             for (int i = 0; i < int20; i++)
             {
-                packet.ReadInt32("GroupID", i);
-                packet.ReadInt32("IconFileDataID", i);
-                packet.ReadByte("DisplayType", i);
-                packet.ReadInt32("Ordering", i);
+                var groupid = packet.ReadInt32("GroupID", i);
+                var iconfiledataid = packet.ReadInt32("IconFileDataID", i);
+                var displaytype = packet.ReadByte("DisplayType", i);
+                var ordering = packet.ReadInt32("Ordering", i);
                 packet.ReadInt32("unkt", i);
 
                 packet.ResetBitReader();
 
                 var bits4 = packet.ReadBits("nameLength", 8, i);
                 var bits7 = packet.ReadBits("IsAvailableDescription", 24, i);
-                packet.ReadWoWString("Name", bits4, i);
+                var name = packet.ReadWoWString("Name", bits4, i);
                 if (bits7 > 1)
                     packet.ReadWoWString("Description", bits7, i);
 
+
+                BattlePayProductGroup ProductGroup = new BattlePayProductGroup
+                {
+                    GroupID = ((uint)groupid),
+                    IconFileDataID = ((uint)iconfiledataid),
+                    DisplayType = displaytype,
+                    Ordering = ((uint)ordering),
+                    Name = name
+                };
+                Storage.BattlePayProductGroups.Add(ProductGroup, packet.TimeSpan);
             }
             //Ok
             ///////////////////////////////////////////////////////////

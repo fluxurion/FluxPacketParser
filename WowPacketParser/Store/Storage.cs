@@ -139,6 +139,9 @@ namespace WowPacketParser.Store
         public static readonly DataBag<PlayerChoiceResponseRewardFactionTemplate> PlayerChoiceResponseRewardFactions = new DataBag<PlayerChoiceResponseRewardFactionTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
         public static readonly DataBag<PlayerChoiceResponseRewardItemTemplate> PlayerChoiceResponseRewardItems = new DataBag<PlayerChoiceResponseRewardItemTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
 
+        //Battle Pay
+        public static readonly DataBag<BattlePayProductGroup> BattlePayProductGroups = new DataBag<BattlePayProductGroup>(new List<SQLOutput> { SQLOutput.battlepay_product_group });
+
         public static void ClearContainers()
         {
             SniffData.Clear();
@@ -240,6 +243,8 @@ namespace WowPacketParser.Store
             PlayerChoiceResponseRewardCurrencies.Clear();
             PlayerChoiceResponseRewardFactions.Clear();
             PlayerChoiceResponseRewardItems.Clear();
+
+            BattlePayProductGroups.Clear();
         }
     }
 }
