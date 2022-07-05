@@ -41,9 +41,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_displayinfo` (
      */
     public sealed record BattlePayDisplayInfo : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("HasCreatureDisplayInfoID", true)]
         public uint HasCreatureDisplayInfoID;
 

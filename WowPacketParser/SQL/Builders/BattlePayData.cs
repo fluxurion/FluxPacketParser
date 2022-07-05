@@ -33,7 +33,7 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.BattlePayDisplayInfos);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfos.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayDisplayInfos.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfos.OrderBy(x => x.Item1.bits16).ToArray() : Storage.BattlePayDisplayInfos.ToArray(), templateDb, x => string.Empty);
         }
 
         [BuilderMethod]
@@ -47,7 +47,7 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.BattlePayVisuals);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayVisuals.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayVisuals.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayVisuals.OrderBy(x => x.Item1.Visual2).ToArray() : Storage.BattlePayVisuals.ToArray(), templateDb, x => string.Empty);
         }
 
         [BuilderMethod]
@@ -75,7 +75,7 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.BattlePayProductLinks);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayProductLinks.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayProductLinks.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayProductLinks.OrderBy(x => x.Item1.LinkID).ToArray() : Storage.BattlePayProductLinks.ToArray(), templateDb, x => string.Empty);
         }
 
         [BuilderMethod]

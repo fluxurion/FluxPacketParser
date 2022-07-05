@@ -75,7 +75,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             // BATTLEPAY DISPLAYINFO
             BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo
             {
-                Entry = ((uint)packet.Position),
                 HasCreatureDisplayInfoID = ((uint)bit4),
                 HasFileDataID = ((uint)bit12),
                 bits16 = ((uint)bits16),
@@ -116,7 +115,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayVisual Visual = new BattlePayVisual
                 {
-                    Entry = ((uint)packet.Position),
                     Visual1 = ((uint)visual1),
                     Visual2 = ((uint)visual2),
                     Visual3 = ((uint)visual3),
@@ -158,8 +156,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                     BattlePayProductLink ProductLink = new BattlePayProductLink
                     {
-                        Entry = ((uint)packet.Position),
-                        LinkID = ((uint)j),
+                        LinkID = index,
                         ProductID = ((uint)productid_),
                     };
                     Storage.BattlePayProductLinks.Add(ProductLink, packet.TimeSpan);
@@ -183,7 +180,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProductInfo ProductInfo = new BattlePayProductInfo
                 {
-                    Entry = ((uint)packet.Position),
+                    Entry = index,
                     ProductID = ((uint)productid),
                     NormalPriceFixedPoint = ((uint)normalprice),
                     CurrentPriceFixedPoint = ((uint)currentprice),
@@ -254,7 +251,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                     BattlePayItem Item = new BattlePayItem
                     {
-                        Entry = ((uint)packet.Position),
+                        Entry = j,
                         ID = ((uint)id),
                         UnkByte = ((uint)unkbyte),
                         ItemID = ((uint)itemid),
@@ -275,7 +272,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProduct Product = new BattlePayProduct
                 {
-                    Entry = ((uint)packet.Position),
+                    Entry = j,
                     ProductID = ((uint)productid),
                     Type = ((uint)type),
                     Flags = ((uint)flags),
@@ -320,7 +317,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayGroup Group = new BattlePayGroup
                 {
-                    Entry = ((uint)packet.Position),
+                    Entry = ((uint)i),
                     GroupID = ((uint)groupid),
                     IconFileDataID = ((uint)iconfiledataid),
                     DisplayType = ((uint)displaytype),
@@ -352,7 +349,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayShop Shop = new BattlePayShop
                 {
-                    Entry = ((uint)packet.Position),
+                    Entry = i,
                     ID = ((uint)entryid),
                     GroupID = ((uint)groupid),
                     ProductID = ((uint)productid),

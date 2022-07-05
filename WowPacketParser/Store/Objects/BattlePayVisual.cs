@@ -19,9 +19,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_visual` (
      */
     public sealed record BattlePayVisual : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("Visual1", true)]
         public uint Visual1;
 

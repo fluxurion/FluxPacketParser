@@ -17,9 +17,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_productlink` (
      */
     public sealed record BattlePayProductLink : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("LinkID", true)]
         public uint LinkID;
 
