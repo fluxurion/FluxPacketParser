@@ -4,6 +4,7 @@ using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
+using System.Collections.Generic;
 
 namespace WowPacketParserModule.V9_0_1_36216.Parsers
 {
@@ -100,7 +101,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             {
                 packet.ResetBitReader();
                 var ProductName = packet.ReadBits(10);
-                var ProductDesc = packet.ReadBits(10);
                 var visual1 = packet.ReadInt32("Visual", idx, j);
                 var visual2 = packet.ReadInt32("Visual", idx, j);
 				var visual3 = packet.ReadInt32("unktvisual", idx, j);
@@ -142,13 +142,14 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var UnkInt4 = packet.ReadInt32("UnkInt4", index);
 
                 // Biggest ProductIDsSize is 10 but instead of new table which would be hard to follow, i add them to a text blob
-                var subproducts = "";
+                List<string> subproducts = new List<string>();
                 for (int j = 0; j < ProductIDsSize; j++)
                 {
                     var subproductid = packet.ReadInt32("ProductIDs", index, j);
 
-                    subproducts = subproducts + " " + subproductid.ToString();
+                    subproducts.Add(subproductid.ToString());
                 }
+                string subproducts_string = string.Join(",", subproducts);
 
                 var UnkInts = 0;
                 //Biggest UnkIntsSize is 1 so no need new table
@@ -171,7 +172,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     ProductId = ((uint)productid),
                     NormalPriceFixedPoint = ((uint)normalprice),
                     CurrentPriceFixedPoint = ((uint)currentprice),
-                    ProductIds = subproducts,
+                    ProductIds = subproducts_string,
                     Unk1 = ((uint)UnkInt2),
                     Unk2 = ((uint)UnkInt3),
                     UnkInts = ((uint)UnkInts),
