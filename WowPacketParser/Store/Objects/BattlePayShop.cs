@@ -39,5 +39,8 @@ CREATE TABLE IF NOT EXISTS `battlepay_shop` (
 
         [DBFieldName("StoreDeliveryType")]
         public uint StoreDeliveryType;
+
+        [DBFieldName("DisplayInfoID")]
+        public uint DisplayInfoEntry;
     }
 }

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_item` (
         [DBFieldName("PetResult", true)]
         public uint PetResult;
 
-        [DBFieldName("DisplayInfo", true)]
-        public uint DisplayInfo;
+        [DBFieldName("Display", true)]
+        public uint Display;
     }
 }

@@ -245,7 +245,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                         UnkInt2 = ((uint)UnkInt2_),
                         IsPet = ((uint)HasPet),
                         PetResult = ((uint)PetResult),
-                        DisplayInfo = ((uint)DisplayInfo)
+                        Display = ((uint)DisplayInfo)
                     };
                     Storage.BattlePayItems.Add(Item, packet.TimeSpan);
                 }
@@ -309,7 +309,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             }
 
             // BATTLEPAY SHOP
-            for (uint i = 0; i < ShopSize; i++)
+            for (uint i = 1; i < ShopSize+1; i++) // starting from 1 cuz we add to sql with auto increment and auto increment starts from 1
             {
                 var entryid = packet.ReadUInt32("EntryID", i);
                 var groupid = packet.ReadUInt32("GroupID", i);
@@ -332,6 +332,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     Ordering = ((uint)ordering),
                     VasServiceType = ((uint)vasservicetype),
                     StoreDeliveryType = ((uint)storedeliverytype),
+                    DisplayInfoEntry = i
                 };
                 Storage.BattlePayShops.Add(Shop, packet.TimeSpan);
 
