@@ -25,9 +25,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_item` (
      */
     public sealed record BattlePayItem : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("ID", true)]
         public uint ID;
 
@@ -47,15 +44,12 @@ CREATE TABLE IF NOT EXISTS `battlepay_item` (
         public uint UnkInt2;
 
         [DBFieldName("HasPet", true)]
-        public uint HasPet;
+        public uint IsPet;
 
         [DBFieldName("PetResult", true)]
         public uint PetResult;
 
         [DBFieldName("DisplayInfo", true)]
         public uint DisplayInfo;
-
-        [DBFieldName("PetResultVariable", true)]
-        public uint PetResultVariable;
     }
 }

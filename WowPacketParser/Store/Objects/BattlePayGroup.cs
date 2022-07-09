@@ -24,9 +24,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_group` (
      */
     public sealed record BattlePayGroup : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("GroupID", true)]
         public uint GroupID;
 
@@ -39,14 +36,8 @@ CREATE TABLE IF NOT EXISTS `battlepay_group` (
         [DBFieldName("Ordering")]
         public uint Ordering;
 
-        [DBFieldName("Unkt")]
-        public uint Unkt;
-
-        [DBFieldName("NameLength")]
-        public uint NameLength;
-
-        [DBFieldName("IsAvailableDescription")]
-        public uint IsAvailableDescription;
+        [DBFieldName("Unk")]
+        public uint Unk;
 
         [DBFieldName("Name")]
         public string Name;

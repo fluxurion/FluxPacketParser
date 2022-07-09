@@ -7,6 +7,7 @@ using WowPacketParser.Store.Objects;
 
 namespace WowPacketParserModule.V9_0_1_36216.Parsers
 {
+
     public static class BattlePayHandler
     {
         [Parser(Opcode.CMSG_BATTLE_PAY_GET_PRODUCT_LIST)]
@@ -75,31 +76,22 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             // BATTLEPAY DISPLAYINFO
             BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo
             {
-                HasCreatureDisplayInfoID = ((uint)bit4),
-                HasFileDataID = ((uint)bit12),
-                bits16 = ((uint)bits16),
-                bits529 = ((uint)bits529),
-                bits5139 = ((uint)bits5139),
-                bits9236 = ((uint)bits9236),
-                bits13396 = ((uint)bits13396),
-                bits17493 = ((uint)bits17493),
-                VisualsSize = ((uint)bit9272),
-                unktint1 = ((uint)bit13392),
-                unktint2 = ((uint)bit21496),
-                unktint3 = ((uint)bit21500),
-                CreatureDisplayInfoID = ((uint)creaturedisplayinfoid),
-                FileDataID = ((uint)filedataid),
+                CreatureDisplayID = ((uint)creaturedisplayinfoid),
+                VisualID = ((uint)filedataid),
                 Name1 = name1,
                 Name2 = name2,
                 Name3 = name3,
                 Name4 = name4,
                 Name5 = name5,
-                Flags = ((uint)flags),
-                Unkt2Id = ((uint)Unkt2Id),
-                Unkt4Id = ((uint)Unkt4Id),
-                Unkt3Id = ((uint)Unkt3Id),
                 Name6 = name6,
                 Name7 = name7,
+                Flags = ((uint)flags),
+                Unk1 = ((uint)Unkt2Id),
+                Unk2 = ((uint)Unkt4Id),
+                Unk3 = ((uint)Unkt3Id),
+				UnkInt1 = ((uint)bit13392),
+				UnkInt2 = ((uint)bit21496),
+				UnkInt3 = ((uint)bit21500),
             };
             Storage.BattlePayDisplayInfos.Add(DisplayInfo, packet.TimeSpan);
 
@@ -108,17 +100,18 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             {
                 packet.ResetBitReader();
                 var ProductName = packet.ReadBits(10);
+                var ProductDesc = packet.ReadBits(10);
                 var visual1 = packet.ReadInt32("Visual", idx, j);
                 var visual2 = packet.ReadInt32("Visual", idx, j);
-                var visual3 = packet.ReadInt32("unktvisual", idx, j);
+				var visual3 = packet.ReadInt32("unktvisual", idx, j);
                 var productname = packet.ReadWoWString("ProductName", ProductName, idx, j);
 
                 BattlePayVisual Visual = new BattlePayVisual
                 {
-                    Visual1 = ((uint)visual1),
-                    Visual2 = ((uint)visual2),
-                    Visual3 = ((uint)visual3),
-                    ProductName = productname,
+                    DisplayId = ((uint)visual1),
+                    VisualId = ((uint)visual2),
+                    Unk = ((uint)visual3),
+                    Name = productname,
                 };
                 Storage.BattlePayVisuals.Add(Visual, packet.TimeSpan);
             }
@@ -148,18 +141,13 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 var UnkInt4 = packet.ReadInt32("UnkInt4", index);
 
-                // Biggest ProductIDsSize is 10 so need new table to link them
-                // BATTLEPAY PRODUCTLINKS
+                // Biggest ProductIDsSize is 10 but instead of new table which would be hard to follow, i add them to a text blob
+                var subproducts = "";
                 for (int j = 0; j < ProductIDsSize; j++)
                 {
-                    var productid_ = packet.ReadInt32("ProductIDs", index, j);
+                    var subproductid = packet.ReadInt32("ProductIDs", index, j);
 
-                    BattlePayProductLink ProductLink = new BattlePayProductLink
-                    {
-                        LinkID = index,
-                        ProductID = ((uint)productid_),
-                    };
-                    Storage.BattlePayProductLinks.Add(ProductLink, packet.TimeSpan);
+                    subproducts = subproducts + " " + subproductid.ToString();
                 }
 
                 var UnkInts = 0;
@@ -180,18 +168,15 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProductInfo ProductInfo = new BattlePayProductInfo
                 {
-                    Entry = index,
-                    ProductID = ((uint)productid),
+                    ProductId = ((uint)productid),
                     NormalPriceFixedPoint = ((uint)normalprice),
                     CurrentPriceFixedPoint = ((uint)currentprice),
-                    ProductIDsSize = ((uint)ProductIDsSize),
-                    UnkInt2 = ((uint)UnkInt2),
-                    UnkInt3 = ((uint)UnkInt3),
-                    UnkIntsSize = ((uint)UnkIntsSize),
-                    UnkInt4 = ((uint)UnkInt4),
+                    ProductIds = subproducts,
+                    Unk1 = ((uint)UnkInt2),
+                    Unk2 = ((uint)UnkInt3),
                     UnkInts = ((uint)UnkInts),
-                    ChoiceType = ((uint)choicetype),
-                    HasBattlepayDisplayInfo = ((uint)HasBattlepayDisplayInfo),
+                    Unk3 = ((uint)UnkInt4),
+                    ChoiceType = ((uint)choicetype)
                 };
                 Storage.BattlePayProductInfos.Add(ProductInfo, packet.TimeSpan);
 
@@ -251,17 +236,15 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                     BattlePayItem Item = new BattlePayItem
                     {
-                        Entry = j,
                         ID = ((uint)id),
                         UnkByte = ((uint)unkbyte),
                         ItemID = ((uint)itemid),
                         Quantity = ((uint)quantity),
                         UnkInt1 = ((uint)UnkInt1_),
                         UnkInt2 = ((uint)UnkInt2_),
-                        HasPet = ((uint)HasPet),
+                        IsPet = ((uint)HasPet),
                         PetResult = ((uint)PetResult),
-                        DisplayInfo = ((uint)DisplayInfo),
-                        PetResultVariable = ((uint)PetResultVariable_),
+                        DisplayInfo = ((uint)DisplayInfo)
                     };
                     Storage.BattlePayItems.Add(Item, packet.TimeSpan);
                 }
@@ -272,25 +255,21 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProduct Product = new BattlePayProduct
                 {
-                    Entry = j,
                     ProductID = ((uint)productid),
                     Type = ((uint)type),
                     Flags = ((uint)flags),
-                    UnkInt1 = ((uint)UnkInt1),
-                    DisplayID = ((uint)displayid),
-                    ItemID = ((uint)ItemId),
-                    UnkInt4 = ((uint)UnkInt4),
-                    UnkInt5 = ((uint)UnkInt5),
-                    UnkInt6 = ((uint)UnkInt6),
-                    UnkInt7 = ((uint)UnkInt7),
-                    UnkInt8 = ((uint)UnkInt8),
-                    UnkInt9 = ((uint)UnkInt9),
-                    NameSize = ((uint)UnkString),
+                    Unk1 = ((uint)UnkInt1),
+                    DisplayId = ((uint)displayid),
+                    ItemId = ((uint)ItemId),
+                    Unk4 = ((uint)UnkInt4),
+                    Unk5 = ((uint)UnkInt5),
+                    Unk6 = ((uint)UnkInt6),
+                    Unk7 = ((uint)UnkInt7),
+                    Unk8 = ((uint)UnkInt8),
+                    Unk9 = ((uint)UnkInt9),
+                    UnkString = ((uint)UnkString),
                     UnkBit = ((uint)UnkBit),
                     UnkBits = ((uint)UnkBits),
-                    ItemsSize = ((uint)ItemsSize),
-                    HasDisplayInfo = ((uint)HasDisplayInfo),
-                    PetResultVariable = ((uint)PetResultVariable),
                     Name = name,
                 };
                 Storage.BattlePayProducts.Add(Product, packet.TimeSpan);
@@ -317,14 +296,11 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayGroup Group = new BattlePayGroup
                 {
-                    Entry = ((uint)i),
                     GroupID = ((uint)groupid),
                     IconFileDataID = ((uint)iconfiledataid),
                     DisplayType = ((uint)displaytype),
                     Ordering = ((uint)ordering),
-                    Unkt = ((uint)unkt),
-                    NameLength = ((uint)bits4),
-                    IsAvailableDescription = ((uint)bits7),
+                    Unk = ((uint)unkt),
                     Name = name,
                     Description = description,
                 };
@@ -349,14 +325,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayShop Shop = new BattlePayShop
                 {
-                    Entry = i,
-                    ID = ((uint)entryid),
+                    EntryID = ((uint)entryid),
                     GroupID = ((uint)groupid),
                     ProductID = ((uint)productid),
                     Ordering = ((uint)ordering),
                     VasServiceType = ((uint)vasservicetype),
                     StoreDeliveryType = ((uint)storedeliverytype),
-                    HasBattlepayDisplayInfo = ((uint)bit5172),
                 };
                 Storage.BattlePayShops.Add(Shop, packet.TimeSpan);
 

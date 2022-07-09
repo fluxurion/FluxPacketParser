@@ -22,11 +22,8 @@ CREATE TABLE IF NOT EXISTS `battlepay_shop` (
      */
     public sealed record BattlePayShop : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
-        [DBFieldName("ID", true)]
-        public uint ID;
+        [DBFieldName("EntryID", true)]
+        public uint EntryID;
 
         [DBFieldName("GroupID", true)]
         public uint GroupID;
@@ -42,8 +39,5 @@ CREATE TABLE IF NOT EXISTS `battlepay_shop` (
 
         [DBFieldName("StoreDeliveryType")]
         public uint StoreDeliveryType;
-
-        [DBFieldName("HasBattlepayDisplayInfo")]
-        public uint HasBattlepayDisplayInfo;
     }
 }

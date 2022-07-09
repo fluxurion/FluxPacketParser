@@ -11,7 +11,6 @@
         battlepay_displayinfo,
         battlepay_visual,
         battlepay_productinfo,
-        battlepay_productlink,
         battlepay_product,
         battlepay_item,
         battlepay_group,

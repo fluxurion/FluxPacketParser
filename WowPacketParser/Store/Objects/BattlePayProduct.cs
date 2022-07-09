@@ -34,9 +34,6 @@ CREATE TABLE IF NOT EXISTS `battlepay_product` (
      */
     public sealed record BattlePayProduct : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
-
         [DBFieldName("ProductID", true)]
         public uint ProductID;
 
@@ -46,50 +43,41 @@ CREATE TABLE IF NOT EXISTS `battlepay_product` (
         [DBFieldName("Flags", true)]
         public uint Flags;
 
-        [DBFieldName("UnkInt1", true)]
-        public uint UnkInt1;
+        [DBFieldName("Unk1", true)]
+        public uint Unk1;
 
-        [DBFieldName("DisplayID", true)]
-        public uint DisplayID;
+        [DBFieldName("DisplayId", true)]
+        public uint DisplayId;
 
-        [DBFieldName("ItemID", true)]
-        public uint ItemID;
+        [DBFieldName("ItemId", true)]
+        public uint ItemId;
 
-        [DBFieldName("UnkInt4", true)]
-        public uint UnkInt4;
+        [DBFieldName("Unk4", true)]
+        public uint Unk4;
 
-        [DBFieldName("UnkInt5", true)]
-        public uint UnkInt5;
+        [DBFieldName("Unk5", true)]
+        public uint Unk5;
 
-        [DBFieldName("UnkInt6", true)]
-        public uint UnkInt6;
+        [DBFieldName("Unk6", true)]
+        public uint Unk6;
 
-        [DBFieldName("UnkInt7", true)]
-        public uint UnkInt7;
+        [DBFieldName("Unk7", true)]
+        public uint Unk7;
 
-        [DBFieldName("UnkInt8", true)]
-        public uint UnkInt8;
+        [DBFieldName("Unk8", true)]
+        public uint Unk8;
 
-        [DBFieldName("UnkInt9", true)]
-        public uint UnkInt9;
+        [DBFieldName("Unk9", true)]
+        public uint Unk9;
 
-        [DBFieldName("NameSize")]
-        public uint NameSize;
+        [DBFieldName("UnkString")]
+        public uint UnkString;
 
         [DBFieldName("UnkBit", true)]
         public uint UnkBit;
 
         [DBFieldName("UnkBits", true)]
         public uint UnkBits;
-
-        [DBFieldName("ItemsSize", true)]
-        public uint ItemsSize;
-
-        [DBFieldName("HasDisplayInfo", true)]
-        public uint HasDisplayInfo;
-
-        [DBFieldName("PetResultVariable", true)]
-        public uint PetResultVariable;
 
         [DBFieldName("Name")]
         public string Name;

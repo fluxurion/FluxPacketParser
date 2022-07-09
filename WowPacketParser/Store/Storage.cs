@@ -143,7 +143,6 @@ namespace WowPacketParser.Store
         public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_displayinfo });
         public static readonly DataBag<BattlePayVisual> BattlePayVisuals = new DataBag<BattlePayVisual>(new List<SQLOutput> { SQLOutput.battlepay_visual });
         public static readonly DataBag<BattlePayProductInfo> BattlePayProductInfos = new DataBag<BattlePayProductInfo>(new List<SQLOutput> { SQLOutput.battlepay_productinfo });
-        public static readonly DataBag<BattlePayProductLink> BattlePayProductLinks = new DataBag<BattlePayProductLink>(new List<SQLOutput> { SQLOutput.battlepay_productlink });
         public static readonly DataBag<BattlePayProduct> BattlePayProducts = new DataBag<BattlePayProduct>(new List<SQLOutput> { SQLOutput.battlepay_product });
         public static readonly DataBag<BattlePayItem> BattlePayItems = new DataBag<BattlePayItem>(new List<SQLOutput> { SQLOutput.battlepay_item });
         public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_group });
