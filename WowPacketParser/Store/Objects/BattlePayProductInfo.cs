@@ -8,6 +8,9 @@ namespace WowPacketParser.Store.Objects
 
     public sealed record BattlePayProductInfo : IDataModel
     {
+        [DBFieldName("Entry", true)]
+        public uint Entry;
+
         [DBFieldName("ProductId", true)]
         public uint ProductId;
 

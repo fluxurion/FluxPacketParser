@@ -7,6 +7,9 @@ namespace WowPacketParser.Store.Objects
     [DBTableName("battlepay_displayinfo")]
     public sealed record BattlePayDisplayInfo : IDataModel
     {
+        [DBFieldName("Entry", true)]
+        public uint Entry;
+
         [DBFieldName("CreatureDisplayID", true)]
         public uint CreatureDisplayID;
 
