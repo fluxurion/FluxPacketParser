@@ -77,7 +77,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             // BATTLEPAY DISPLAYINFO
             BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo
             {
-                Entry = ((uint)counter),
+                Entry = ((uint)counter)+1,
                 CreatureDisplayID = ((uint)creaturedisplayinfoid),
                 VisualID = ((uint)filedataid),
                 Name1 = name1,
@@ -174,7 +174,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayProductInfo ProductInfo = new BattlePayProductInfo
                 {
-                    Entry = index,
+                    Entry = index+1,
                     ProductId = ((uint)productid),
                     NormalPriceFixedPoint = ((uint)normalprice),
                     CurrentPriceFixedPoint = ((uint)currentprice),
@@ -333,7 +333,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 BattlePayShop Shop = new BattlePayShop
                 {
-                    Entry = i,
+                    Entry = i+1,
                     EntryID = ((uint)entryid),
                     GroupID = ((uint)groupid),
                     ProductID = ((uint)productid),

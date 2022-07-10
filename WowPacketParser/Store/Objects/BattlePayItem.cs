@@ -6,23 +6,6 @@ namespace WowPacketParser.Store.Objects
 {
     [DBTableName("battlepay_item")]
 
-    /*
-DROP TABLE IF EXISTS `battlepay_item`;
-CREATE TABLE IF NOT EXISTS `battlepay_item` (
-  `Entry` int(10) unsigned NOT NULL AUTO_INCREMENT,  
-  `ID` int(10) unsigned DEFAULT 0,  
-  `UnkByte` int(10) unsigned DEFAULT 0,  
-  `ItemID` int(10) unsigned DEFAULT 0,  
-  `Quantity` int(10) unsigned DEFAULT 0,  
-  `UnkInt1` int(10) unsigned DEFAULT 0,  
-  `UnkInt2` int(10) unsigned DEFAULT 0,  
-  `HasPet` int(10) unsigned DEFAULT 0,  
-  `PetResult` int(10) unsigned DEFAULT 0,  
-  `DisplayInfo` int(10) unsigned DEFAULT 0,  
-  `PetResultVariable` int(10) unsigned DEFAULT 0,  
-  UNIQUE KEY `Entry` (`Entry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-     */
     public sealed record BattlePayItem : IDataModel
     {
         [DBFieldName("ID", true)]

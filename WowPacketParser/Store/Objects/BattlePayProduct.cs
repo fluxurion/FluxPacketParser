@@ -6,32 +6,6 @@ namespace WowPacketParser.Store.Objects
 {
     [DBTableName("battlepay_product")]
 
-    /*
-DROP TABLE IF EXISTS `battlepay_product`;
-CREATE TABLE IF NOT EXISTS `battlepay_product` (
-  `Entry` int(10) unsigned NOT NULL AUTO_INCREMENT,  
-  `ProductID` int(10) unsigned DEFAULT 0,
-  `Type` int(10) unsigned DEFAULT 0,
-  `Flags` int(10) unsigned DEFAULT 0,
-  `UnkInt1` int(10) unsigned DEFAULT 0,
-  `DisplayID` int(10) unsigned DEFAULT 0,
-  `ItemID` int(10) unsigned DEFAULT 0,
-  `UnkInt4` int(10) unsigned DEFAULT 0,
-  `UnkInt5` int(10) unsigned DEFAULT 0,
-  `UnkInt6` int(10) unsigned DEFAULT 0,
-  `UnkInt7` int(10) unsigned DEFAULT 0,
-  `UnkInt8` int(10) unsigned DEFAULT 0,
-  `UnkInt9` int(10) unsigned DEFAULT 0,
-  `NameSize` int(10) unsigned DEFAULT 0,
-  `UnkBit` int(10) unsigned DEFAULT 0,
-  `UnkBits` int(10) unsigned DEFAULT 0,
-  `ItemsSize` int(10) unsigned DEFAULT 0,
-  `HasDisplayInfo` int(10) unsigned DEFAULT 0,
-  `PetResultVariable` int(10) unsigned DEFAULT 0,
-  `Name` varchar(255) DEFAULT NULL,
-  UNIQUE KEY `Entry` (`Entry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-     */
     public sealed record BattlePayProduct : IDataModel
     {
         [DBFieldName("ProductID", true)]
