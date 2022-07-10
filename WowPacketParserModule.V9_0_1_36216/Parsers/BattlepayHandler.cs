@@ -95,7 +95,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 				UnkInt2 = ((uint)bit21496),
 				UnkInt3 = ((uint)bit21500),
             };
-            if (counter > 0)
+            if (counter < 1000)
                 Storage.BattlePayDisplayInfos.Add(DisplayInfo, packet.TimeSpan);
 
             // BATTLEPAY VISUALS
@@ -240,7 +240,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                         PetResultVariable_ = packet.ReadBits("PetResultVariable", 4, g);
 
                     if (DisplayInfo)
-                        ReadBattlepayDisplayInfo(packet, 0, g);
+                        ReadBattlepayDisplayInfo(packet, 1000, g);
 
                     BattlePayItem Item = new BattlePayItem
                     {
@@ -260,7 +260,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var name = packet.ReadWoWString("Name", UnkString, j);
 
                 if (HasDisplayInfo)
-                    ReadBattlepayDisplayInfo(packet, 0, j);
+                    ReadBattlepayDisplayInfo(packet, 2000, j);
 
                 BattlePayProduct Product = new BattlePayProduct
                 {
@@ -413,12 +413,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                         packet.ReadBits("PetResultVariable", 4, g);
 
                     if (DisplayInfo)
-                        ReadBattlepayDisplayInfo(packet, 0, g);
+                        ReadBattlepayDisplayInfo(packet, 3000, g);
 
                 }
                 packet.ReadWoWString("Name", UnkString, index);
                 if (HasDisplayInfo)
-                    ReadBattlepayDisplayInfo(packet, 0, index);
+                    ReadBattlepayDisplayInfo(packet, 4000, index);
             }
         }
 
