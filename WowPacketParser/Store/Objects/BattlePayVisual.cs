@@ -19,5 +19,8 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("Unk", true)]
         public uint Unk;
+
+        [DBFieldName("DisplayInfoEntry")]
+        public uint DisplayInfoEntry;
     }
 }

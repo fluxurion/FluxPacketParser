@@ -114,6 +114,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     VisualId = ((uint)visual2),
                     Unk = ((uint)visual3),
                     Name = productname,
+                    DisplayInfoEntry = ((uint)counter) + 1,
                 };
                 Storage.BattlePayVisuals.Add(Visual, packet.TimeSpan);
             }

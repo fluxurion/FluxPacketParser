@@ -36,7 +36,7 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.BattlePayVisuals);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayVisuals.OrderBy(x => x.Item1.Name).ToArray() : Storage.BattlePayVisuals.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayVisuals.OrderBy(x => x.Item1.VisualId).ToArray() : Storage.BattlePayVisuals.ToArray(), templateDb, x => string.Empty);
         }
 
         [BuilderMethod]
