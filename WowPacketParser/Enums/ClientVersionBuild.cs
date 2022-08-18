@@ -398,6 +398,9 @@ namespace WowPacketParser.Enums
         V9_2_5_44232 = 44232,
         V9_2_5_44325 = 44325,
         V9_2_5_44730 = 44730,
+        V9_2_5_44908 = 44908,
+
+        V9_2_7_45114 = 45114,
 
         // Classic
         V1_13_2_31446 = 31446,
@@ -428,6 +431,7 @@ namespace WowPacketParser.Enums
 
         v1_13_5_34713 = 34713,
         v1_13_5_34911 = 34911,
+        v1_13_5_35000 = 35000,
         V1_13_5_35100 = 35100,
         V1_13_5_35186 = 35186,
         V1_13_5_35753 = 35753,
@@ -491,6 +495,12 @@ namespace WowPacketParser.Enums
         V1_14_3_43037 = 43037, // ptr
         V1_14_3_43086 = 43086, // ptr
         V1_14_3_43154 = 43154, // both live and ptr
+        V1_14_3_43401 = 43401, // both live and ptr
+        V1_14_3_43639 = 43639, // both live and ptr
+        V1_14_3_44016 = 44016, // both live and ptr
+        V1_14_3_44170 = 44170, // both live and ptr
+        V1_14_3_44403 = 44403, // both live and ptr
+        V1_14_3_44834 = 44834, // both live and ptr
 
         // TBC Classic
         V2_5_1_38598 = 38598, // ptr
@@ -540,6 +550,7 @@ namespace WowPacketParser.Enums
         V2_5_4_44036 = 44036, // both live and ptr
         V2_5_4_44171 = 44171, // both live and ptr
         V2_5_4_44400 = 44400, // both live and ptr
+        V2_5_4_44833 = 44833, // both live and ptr
 
         // Battle.net - should probably not mix this but oh well
         BattleNetV37165 = 37165,
