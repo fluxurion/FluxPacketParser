@@ -170,6 +170,7 @@ message PacketEmote {
 message PacketPlaySound {
   uint32 sound = 1;
   UniversalGuid source = 2;
+  uint32 broadcastTextId = 3;
 }
 
 message PacketPlayObjectSound {
@@ -189,7 +190,7 @@ message PacketGossipHello {
 
 message GossipMessageOption {
   uint32 optionIndex = 1;
-  int32 optionIcon = 2;
+  int32 optionNpc = 2;
   string text = 3;
   bool boxCoded = 4;
   uint32 boxCost = 5;

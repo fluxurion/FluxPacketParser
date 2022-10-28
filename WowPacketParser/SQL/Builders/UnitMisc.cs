@@ -178,6 +178,10 @@ namespace WowPacketParser.SQL.Builders
                     if (!(npc.Map.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.MapFilters)))
                         continue;
 
+                // Ignore pets
+                if (npc.Guid.GetHighType() == HighGuidType.Pet)
+                    continue;
+
                 uint modelId = (uint)npc.UnitData.DisplayID;
                 if (modelId == 0)
                     continue;
@@ -493,6 +497,12 @@ namespace WowPacketParser.SQL.Builders
                 result += SQLUtil.Compare(store, SQLDatabase.Get(Storage.GossipMenuOptions.Values), t => t.BroadcastTextIDHelper);
             }
 
+            // `gossip_menu_option_addon`
+            if (!Storage.GossipMenuOptionAddons.IsEmpty() && Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.gossip_menu_option))
+            {
+                result += SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.GossipMenuOptionAddons.OrderBy(x => x.Item1.MenuID).ToArray() : Storage.GossipMenuOptionAddons.ToArray(), SQLDatabase.Get(Storage.GossipMenuOptionAddons), x => string.Empty);
+            }
+
             return result;
         }
 
@@ -609,6 +619,9 @@ namespace WowPacketParser.SQL.Builders
                         break;
                     case TargetedDatabase.Shadowlands:
                         expansionBaseLevel = 60;
+                        break;
+                    case TargetedDatabase.Dragonflight:
+                        expansionBaseLevel = 70;
                         break;
                 }
             }

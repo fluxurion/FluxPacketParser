@@ -133,6 +133,17 @@ namespace WowPacketParser.Parsing.Parsers
             }
         }
 
+        public static void AddGossipOptionAddon(int? garrTalentTreeID, TimeSpan timeSpan, bool checkDelay = false)
+        {
+            if (garrTalentTreeID != 0)
+                if (LastGossipOption.HasSelection)
+                    if (!checkDelay || (timeSpan - LastGossipOption.TimeSpan).Duration() <= TimeSpan.FromMilliseconds(2500))
+                        Storage.GossipMenuOptionAddons.Add(new GossipMenuOptionAddon { MenuID = LastGossipOption.MenuId, OptionID = LastGossipOption.OptionIndex, GarrTalentTreeID = garrTalentTreeID }, timeSpan);
+
+            LastGossipOption.Reset();
+            TempGossipOptionPOI.Reset();
+        }
+
         [Parser(Opcode.SMSG_GOSSIP_POI)]
         public static void HandleGossipPoi(Packet packet)
         {
@@ -611,13 +622,16 @@ namespace WowPacketParser.Parsing.Parsers
                 };
 
                 gossipOption.OptionID = packet.ReadUInt32("OptionID", i);
-                gossipOption.OptionIcon = packet.ReadByteE<GossipOptionIcon>("Icon", i);
+                gossipOption.OptionNpc = packet.ReadByteE<GossipOptionNpc>("OptionNPC", i);
                 gossipOption.BoxCoded = packet.ReadBool("Box", i);
                 gossipOption.BoxMoney = packet.ReadUInt32("Required money", i);
                 gossipOption.OptionText = packet.ReadCString("Text", i);
                 var boxText = packet.ReadCString("Box Text", i);
-                gossipOption.FillOptionType(guid);
+
                 gossipOption.FillBroadcastTextIDs();
+
+                if (Settings.TargetedDatabase < TargetedDatabase.Shadowlands)
+                    gossipOption.FillOptionType(guid);
 
                 if (!string.IsNullOrEmpty(boxText))
                     gossipOption.BoxText = boxText;
@@ -625,7 +639,7 @@ namespace WowPacketParser.Parsing.Parsers
                 packetGossip.Options.Add(new GossipMessageOption()
                 {
                     OptionIndex = gossipOption.OptionID.Value,
-                    OptionIcon = (int)gossipOption.OptionIcon,
+                    OptionNpc = (int)gossipOption.OptionNpc,
                     BoxCoded = gossipOption.BoxCoded.Value,
                     BoxCost = gossipOption.BoxMoney.Value,
                     Text = gossipOption.OptionText,

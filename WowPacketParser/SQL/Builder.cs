@@ -121,10 +121,7 @@ namespace WowPacketParser.SQL
 
             var units = Storage.Objects.IsEmpty()
                 ? new Dictionary<WowGuid, Unit>()                                                               // empty dict if there are no objects
-                : Storage.Objects.Where(
-                    obj =>
-                        obj.Value.Item1.Type == ObjectType.Unit && obj.Key.GetHighType() != HighGuidType.Pet && // remove pets
-                        !obj.Value.Item1.IsTemporarySpawn())                                                    // remove temporary spawns
+                : Storage.Objects.Where(obj => obj.Value.Item1.Type == ObjectType.Unit)
                     .OrderBy(pair => pair.Value.Item2)                                                          // order by spawn time
                     .ToDictionary(obj => obj.Key, obj => obj.Value.Item1 as Unit);
 
@@ -181,6 +178,8 @@ namespace WowPacketParser.SQL
                     return new List<TargetedDatabase> { TargetedDatabase.BattleForAzeroth, TargetedDatabase.Classic };
                 case ClientType.Shadowlands: // == ClientType.BurningCrusadeClassic
                     return new List<TargetedDatabase> { TargetedDatabase.Shadowlands, TargetedDatabase.Classic };
+                case ClientType.Dragonflight:
+                    return new List<TargetedDatabase> { TargetedDatabase.Dragonflight };
                 default:
                     return new List<TargetedDatabase>();
             }

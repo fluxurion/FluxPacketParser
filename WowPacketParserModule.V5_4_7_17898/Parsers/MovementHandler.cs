@@ -3092,6 +3092,25 @@ namespace WowPacketParserModule.V5_4_7_17898.Parsers
             packet.WriteGuid("Guid", guid);
         }
 
+        [Parser(Opcode.SMSG_MOVE_UNROOT)]
+        public static void HandleMoveUnroot(Packet packet)
+        {
+            var guid = new byte[8];
+
+            packet.StartBitStream(guid, 0, 6, 4, 1, 2, 3, 7, 5);
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 3);
+            packet.ReadXORByte(guid, 6);
+            packet.ReadXORByte(guid, 4);
+            packet.ReadUInt32("SequenceIndex");
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(guid, 7);
+            packet.ReadXORByte(guid, 2);
+
+            packet.WriteGuid("Guid", guid);
+        }
+
         [Parser(Opcode.CMSG_MOVE_TIME_SKIPPED)]
         public static void HandleMoveTimeSkipped(Packet packet)
         {
@@ -3882,6 +3901,109 @@ namespace WowPacketParserModule.V5_4_7_17898.Parsers
             var guid = packet.StartBitStream(0, 7, 6, 2, 5, 1, 4, 3);
             packet.ParseBitStream(guid, 5, 4, 0, 1, 3, 7, 6, 2);
             packet.WriteGuid("Guid", guid);
+        }
+
+        [Parser(Opcode.SMSG_MOVE_APPLY_MOVEMENT_FORCE)]
+        public static void HandleMoveApplyMovementForce(Packet packet)
+        {
+            var pos = new Vector3();
+            var guid = new byte[8];
+
+            guid[5] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            packet.ReadBits("Type", 2);
+            guid[6] = packet.ReadBit();
+            guid[1] = packet.ReadBit();
+            guid[2] = packet.ReadBit();
+            guid[3] = packet.ReadBit();
+            guid[0] = packet.ReadBit();
+            guid[7] = packet.ReadBit();
+
+            pos.Z = packet.ReadSingle();
+            packet.ReadSingle("Magnitude");
+            packet.ReadXORByte(guid, 4);
+            packet.ReadUInt32("SequenceIndex");
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(guid, 7);
+            pos.X = packet.ReadSingle();
+            packet.ReadXORByte(guid, 6);
+            packet.ReadXORByte(guid, 3);
+            packet.ReadUInt32("ID");
+            pos.Y = packet.ReadSingle();
+            packet.ReadXORByte(guid, 2);
+            packet.ReadUInt32("TransportID");
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 0);
+
+            packet.WriteGuid("Guid", guid);
+            packet.AddValue("Direction", pos);
+        }
+
+        [Parser(Opcode.SMSG_MOVE_TELEPORT)]
+        public static void HandleMoveTeleport548(Packet packet)
+        {
+            var moverGUID = new byte[8];
+            var transportGUID = new byte[8];
+
+            Vector3 pos = new Vector3
+            {
+                X = packet.ReadSingle(),
+                Z = packet.ReadSingle(),
+                Y = packet.ReadSingle()
+            };
+
+            packet.WriteLine($"Destination: X: {pos.X}, Y: {pos.Y}, Z: {pos.Z}");
+            packet.ReadUInt32("SequenceIndex");
+            packet.ReadSingle("Facing");
+
+            moverGUID[5] = packet.ReadBit();
+            moverGUID[4] = packet.ReadBit();
+            moverGUID[6] = packet.ReadBit();
+            moverGUID[7] = packet.ReadBit();
+            moverGUID[3] = packet.ReadBit();
+            moverGUID[0] = packet.ReadBit();
+
+            bool hasTransportGuid = packet.ReadBit("HasTransport");
+
+            if (hasTransportGuid)
+            {
+                transportGUID = packet.StartBitStream(6, 4, 2, 5, 3, 0, 7, 1);
+            }
+
+            bool hasVehicle = packet.ReadBit("Has Vehicle");
+            moverGUID[1] = packet.ReadBit();
+
+            if (hasVehicle)
+            {
+                packet.ReadBit("VehicleExitTeleport");
+                packet.ReadBit("VehicleExitVoluntary");
+            }
+
+            moverGUID[2] = packet.ReadBit();
+
+            packet.ReadXORByte(moverGUID, 2);
+            packet.ReadXORByte(moverGUID, 5);
+
+            if (hasTransportGuid)
+            {
+                packet.ParseBitStream(transportGUID, 2, 1, 4, 0, 6, 5, 7, 3);
+            }
+
+            packet.ReadXORByte(moverGUID, 0);
+            packet.ReadXORByte(moverGUID, 4);
+
+            if (hasVehicle)
+                packet.ReadByte("VehicleSeatIndex");
+
+            packet.ReadXORByte(moverGUID, 3);
+            packet.ReadXORByte(moverGUID, 6);
+            packet.ReadXORByte(moverGUID, 1);
+            packet.ReadXORByte(moverGUID, 7);
+
+            packet.WriteGuid("MoverGUID", moverGUID);
+
+            if (hasTransportGuid)
+                packet.WriteGuid("TransportGUID", transportGUID);
         }
     }
 }
