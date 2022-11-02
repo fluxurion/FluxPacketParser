@@ -163,7 +163,6 @@ namespace WowPacketParser.Enums.Version.V9_2_5_43903
             {Opcode.CMSG_CHARACTER_CHECK_UPGRADE, 0x36C2},
             {Opcode.CMSG_CHARACTER_RENAME_REQUEST, 0x36BD},
             {Opcode.CMSG_CHARACTER_UPGRADE_MANUAL_UNREVOKE_REQUEST, 0x36C0},
-            {Opcode.CMSG_CHARACTER_UPGRADE_START, 0x36C1},
             {Opcode.CMSG_CHAR_CUSTOMIZE, 0x368B},
             {Opcode.CMSG_CHAR_DELETE, 0x369A},
             {Opcode.CMSG_CHAR_RACE_OR_FACTION_CHANGE, 0x3691},
