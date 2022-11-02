@@ -169,6 +169,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadInt32("MaxCharacterLevel");
             var raceUnlockCount = packet.ReadUInt32("RaceUnlockCount");
             var unlockedConditionalAppearanceCount = packet.ReadUInt32("UnlockedConditionalAppearanceCount");
+            packet.ReadUInt32("10_0_0_newvalue");
 
             if (hasDisabledClassesMask)
                 packet.ReadUInt32("DisabledClassesMask");
