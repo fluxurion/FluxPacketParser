@@ -23,9 +23,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             var bit4 = packet.ReadBit("HasCreatureDisplayInfoID", idx);
             var bit12 = packet.ReadBit("HasFileDataID", idx);
 
-            var bits16 = packet.ReadBits(10);
-            var bits529 = packet.ReadBits(10);
-            var bits1042 = packet.ReadBits(13);
+            // check if wrong todo
+            var bits16 = packet.ReadBits(10); // 6+4 = 10 good
+            var bits529 = packet.ReadBits(10); // might be 8 bits here
+            var bits1042 = packet.ReadBits(13); //
             var bits5139 = packet.ReadBits(13);
             var bits9236 = packet.ReadBits(13);
 
@@ -357,15 +358,18 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadInt32("ProductID", index);
 
             packet.ReadPackedGuid128("TargetPlayer", index);
+            packet.ReadPackedGuid128("UnkGuid", index);
             packet.ReadInt32("TargetVirtualRealm", index);
             packet.ReadInt32("TargetNativeRealm", index);
 
             packet.ReadInt64("PurchaseID", index);
 
+            packet.ReadInt32("Unk55AC", index);
+
             packet.ResetBitReader();
 
+            // 2 bits good
             var bit5248 = packet.ReadBit("HasBattlePayProduct", index);
-
             packet.ReadBit("Revoked", index);
 
             if (bit5248)
@@ -386,6 +390,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 packet.ResetBitReader();
 
+                // unsure about 8 bit read here
                 var UnkString = packet.ReadBits("UnkString", 8, index);
                 var UnkBit = packet.ReadBit("UnkBit", index);
                 var UnkBits = packet.ReadBit("UnkBits", index);
@@ -429,6 +434,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadUInt32("Result");
 
             packet.ResetBitReader();
+            // 8 + (8 - 5) = 11 good
             var int6 = packet.ReadBits("BattlePayDistributionObjectCount", 11);
             for (uint index = 0; index < int6; index++)
                 ReadBattlePayDistributionObject(packet, index);
@@ -439,6 +445,16 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         {
             ReadBattlePayDistributionObject(packet);
         }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET)]
+        public static void HandleBattlePayDistributionAssignToTarget(Packet packet)
+        {
+            packet.ReadInt32("ClientToken");
+            packet.ReadUInt64("DistributionID");
+            packet.ReadPackedGuid128("TargetCharacter");
+            packet.ReadInt32("ProductChoice");
+        }
+
 
 
     }
