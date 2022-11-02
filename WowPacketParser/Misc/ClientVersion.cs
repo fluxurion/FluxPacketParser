@@ -423,6 +423,8 @@ namespace WowPacketParser.Misc
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_0_0_46181, new DateTime(2022, 10, 20, 21, 30, 00)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_0_0_46293, new DateTime(2022, 10, 25, 16, 20, 00)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_0_0_46313, new DateTime(2022, 10, 26, 04, 45, 00)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_0_0_46340, new DateTime(2022, 10, 28, 00, 20, 00)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_0_0_46366, new DateTime(2022, 10, 30, 00, 50, 00)),
 
             // no classic info, pkt contain build in header
         };
@@ -844,6 +846,8 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V10_0_0_46181:
                 case ClientVersionBuild.V10_0_0_46293:
                 case ClientVersionBuild.V10_0_0_46313:
+                case ClientVersionBuild.V10_0_0_46340:
+                case ClientVersionBuild.V10_0_0_46366:
                     return ClientVersionBuild.V10_0_0_46181;
                 //Classic
                 case ClientVersionBuild.V1_13_2_31446:
@@ -995,6 +999,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V3_4_0_46158:
                 case ClientVersionBuild.V3_4_0_46182:
                 case ClientVersionBuild.V3_4_0_46248:
+                case ClientVersionBuild.V3_4_0_46368:
                     return ClientVersionBuild.V3_4_0_45166;
                 case ClientVersionBuild.BattleNetV37165:
                     return ClientVersionBuild.BattleNetV37165;
@@ -1396,6 +1401,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V3_4_0_46158:
                 case ClientVersionBuild.V3_4_0_46182:
                 case ClientVersionBuild.V3_4_0_46248:
+                case ClientVersionBuild.V3_4_0_46368:
                     return true;
                 default:
                     return false;
