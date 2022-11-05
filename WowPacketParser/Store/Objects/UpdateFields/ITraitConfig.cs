@@ -1,7 +1,7 @@
 ﻿
 namespace WowPacketParser.Store.Objects.UpdateFields
 {
-    public interface IActivePlayerUnk340
+    public interface ITraitConfig
     {
     }
 }
