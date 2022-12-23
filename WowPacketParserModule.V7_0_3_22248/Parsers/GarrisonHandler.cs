@@ -402,6 +402,7 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
 
             packet.ReadBit("Succeeded");
             packet.ReadBit("LegionUnkBit");
+            packet.ReadBit("SLUnkBit");
         }
 
         [Parser(Opcode.SMSG_GARRISON_UPDATE_FOLLOWER)]
