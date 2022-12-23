@@ -125,6 +125,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void ReadPVPBracketData(Packet packet, params object[] idx)
         {
             packet.ReadByte("Bracket", idx);
+            packet.ReadInt32("Unused3", idx);
             packet.ReadInt32("Rating", idx);
             packet.ReadInt32("Rank", idx);
             packet.ReadInt32("WeeklyPlayed", idx);
@@ -135,58 +136,25 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadInt32("SeasonBestRating", idx);
             packet.ReadInt32("PvpTierID", idx);
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_1_0_39185))
-                packet.ReadInt32("WeeklyBestWinPvpTierID", idx);
+            packet.ReadInt32("WeeklyBestWinPvpTierID", idx);
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_1_5_40772))
             {
-                packet.ReadInt32("Unused1", idx);
-                packet.ReadInt32("Unused2", idx);
-            }
-            packet.ResetBitReader();
+            packet.ReadInt32("Unused1", idx);
+            packet.ReadInt32("Unused2", idx);
+            packet.ReadInt32("RoundsSeasonPlayed", idx);
+            packet.ReadInt32("RoundsSeasonWon", idx);
+            packet.ReadInt32("RoundsWeeklyPlayed", idx);
+            packet.ReadInt32("RoundsWeeklyWon", idx);
+
             packet.ReadBit("Disqualified", idx);
-        }
-
-        [Parser(Opcode.SMSG_PLAYER_CHOICE_CLEAR)]
-        public static void HandleEmpty(Packet packet)
-        {
-        }
-
-        [Parser(Opcode.SMSG_ENUM_CHARACTERS_RESULT)]
-        public static void HandleEnumCharactersResult(Packet packet)
-        {
-            packet.ReadBit("Success");
-            packet.ReadBit("IsDeletedCharacters");
-            packet.ReadBit("IsNewPlayerRestrictionSkipped");
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_0_2_36639))
-                packet.ReadBit("IsNewPlayerRestricted");
-
-            packet.ReadBit("IsNewPlayer");
-
-            var hasDisabledClassesMask = packet.ReadBit("HasDisabledClassesMask");
-            packet.ReadBit("IsAlliedRacesCreationAllowed");
-
-            var charsCount = packet.ReadUInt32("CharactersCount");
-            packet.ReadInt32("MaxCharacterLevel");
-            var raceUnlockCount = packet.ReadUInt32("RaceUnlockCount");
-            var unlockedConditionalAppearanceCount = packet.ReadUInt32("UnlockedConditionalAppearanceCount");
-
-            if (hasDisabledClassesMask)
-                packet.ReadUInt32("DisabledClassesMask");
-
-            for (var i = 0u; i < unlockedConditionalAppearanceCount; ++i)
-                V8_0_1_27101.Parsers.CharacterHandler.ReadUnlockedConditionalAppearance(packet, "UnlockedConditionalAppearances", i);
-
-            for (var i = 0u; i < charsCount; ++i)
-                ReadCharactersListEntry(packet, i, "Characters");
-
-            for (var i = 0u; i < raceUnlockCount; ++i)
-                V7_0_3_22248.Parsers.CharacterHandler.ReadRaceUnlockData(packet, i, "RaceUnlockData");
+            packet.ResetBitReader();
         }
 
         [Parser(Opcode.SMSG_INSPECT_RESULT)]
         public static void HandleInspectResult(Packet packet)
         {
-            ReadPlayerModelDisplayInfo(packet, "DisplayInfo");
+            V9_0_1_36216.Parsers.CharacterHandler.ReadPlayerModelDisplayInfo(packet, "DisplayInfo");
             var glyphCount = packet.ReadUInt32("GlyphsCount");
             var talentCount = packet.ReadUInt32("TalentsCount");
             var pvpTalentCount = packet.ReadUInt32("PvpTalentsCount");
@@ -209,8 +177,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ResetBitReader();
             var hasGuildData = packet.ReadBit("HasGuildData");
             var hasAzeriteLevel = packet.ReadBit("HasAzeriteLevel");
+            packet.ResetBitReader();
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 7; i++)
                 ReadPVPBracketData(packet, i, "PVPBracketData");
 
             if (hasGuildData)
@@ -253,11 +222,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("Result");
         }
 
-        [Parser(Opcode.CMSG_CHECK_CHARACTER_NAME_AVAILABILITY)]
-        public static void HandleCheckCharacterNameAvailability(Packet packet)
-        {
-            packet.ReadUInt32("SequenceIndex");
-            packet.ReadWoWString("Character Name", packet.ReadBits(6));
+            packet.ReadInt32("Level", "TraitInspectData");
+            packet.ReadInt32("ChrSpecializationID", "TraitInspectData");
+            TraitHandler.ReadTraitConfig(packet, "TraitInspectData", "Traits");
         }
     }
 }

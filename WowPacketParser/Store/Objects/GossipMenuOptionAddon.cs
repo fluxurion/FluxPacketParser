@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using WowPacketParser.Enums;
+﻿using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.SQL;
 
 namespace WowPacketParser.Store.Objects
 {
-    [DBTableName("gossip_menu_option_addon")]
+    [DBTableName("gossip_menu_option_addon", TargetedDatabaseFlag.Shadowlands)]
     public sealed record GossipMenuOptionAddon : IDataModel
     {
         [DBFieldName("MenuID", true)]

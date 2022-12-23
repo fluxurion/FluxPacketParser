@@ -8,7 +8,7 @@ namespace WowPacketParser.Store.Objects
     [DBTableName("gossip_menu_option")]
     public sealed record GossipMenuOption : IDataModel
     {
-        //[DBFieldName("GossipOptionID", TargetedDatabase.Dragonflight)]
+        [DBFieldName("GossipOptionID", TargetedDatabaseFlag.Dragonflight)]
         public int? GossipOptionID;
 
         [DBFieldName("MenuID", true)]
@@ -17,8 +17,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("OptionID", true)]
         public uint? OptionID;
 
-        [DBFieldName("OptionIcon", TargetedDatabase.Zero, TargetedDatabase.Shadowlands)]
-        [DBFieldName("OptionNpc", TargetedDatabase.Shadowlands)]
+        [DBFieldName("OptionIcon", TargetedDatabaseFlag.TillBattleForAzeroth)]
+        [DBFieldName("OptionNpc", TargetedDatabaseFlag.SinceShadowlands)]
         public GossipOptionNpc? OptionNpc;
 
         [DBFieldName("OptionText")]
@@ -27,13 +27,13 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("OptionBroadcastTextId")]
         public int? OptionBroadcastTextId;
 
-        [DBFieldName("OptionType", TargetedDatabase.Zero, TargetedDatabase.Shadowlands)]
+        [DBFieldName("OptionType", TargetedDatabaseFlag.TillBattleForAzeroth)]
         public GossipOptionType? OptionType;
 
-        [DBFieldName("OptionNpcFlag", TargetedDatabase.Zero, TargetedDatabase.Shadowlands)]
+        [DBFieldName("OptionNpcFlag", TargetedDatabaseFlag.TillBattleForAzeroth)]
         public NPCFlags? OptionNpcFlag;
 
-        [DBFieldName("Language", TargetedDatabase.Shadowlands)]
+        [DBFieldName("Language", TargetedDatabaseFlag.SinceShadowlands)]
         public Language? Language;
 
         [DBFieldName("ActionMenuID")]
@@ -54,16 +54,16 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("BoxBroadcastTextID")]
         public int? BoxBroadcastTextID;
 
-        //[DBFieldName("SpellID", TargetedDatabase.Shadowlands)]
+        [DBFieldName("SpellID", TargetedDatabaseFlag.SinceShadowlands, false, false, true)]
         public int? SpellID;
 
-        //[DBFieldName("Flags", TargetedDatabase.Dragonflight)]
+        [DBFieldName("Flags", TargetedDatabaseFlag.Dragonflight)]
         public int? Flags;
 
-        //[DBFieldName("OverrideIconID", TargetedDatabase.Dragonflight)]
+        [DBFieldName("OverrideIconID", TargetedDatabaseFlag.Dragonflight, false, false, true)]
         public int? OverrideIconID;
 
-        //[DBFieldName("GossipNpcOptionID", TargetedDatabase.Dragonflight)]
+        [DBFieldName("GossipNpcOptionID", TargetedDatabaseFlag.Dragonflight, false, false, true)]
         public int? GossipNpcOptionID;
 
         [DBFieldName("VerifiedBuild")]
