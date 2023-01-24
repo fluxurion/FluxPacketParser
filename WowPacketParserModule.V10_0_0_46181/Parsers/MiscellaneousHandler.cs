@@ -9,8 +9,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
     public static class MiscellaneousHandler
     {
-        [Parser(Opcode.SMSG_SET_CURRENCY)]
-        public static void HandleSetCurrency(Packet packet)
         public static void ReadGameRuleValuePair(Packet packet, params object[] indexes)
         {
             packet.ReadInt32("Rule", indexes);
@@ -188,27 +186,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var gameRuleValuesCount = 0u;
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181))
-        {
-            packet.ReadInt32("Type");
-            packet.ReadInt32("Quantity");
-            packet.ReadUInt32("Flags");
-            uint toastCount = packet.ReadUInt32("UiEventToastCount");
-            for (var i = 0; i < toastCount; i++)
-                ItemHandler.ReadUIEventToast(packet, "UiEventToast", i);
+            {
                 packet.ReadInt32("GameRuleUnknown1");
                 gameRuleValuesCount = packet.ReadUInt32("GameRuleValuesCount");
                 packet.ReadInt16("MaxPlayerNameQueriesPerPacket");
 
-            var hasWeeklyQuantity = packet.ReadBit("HasWeeklyQuantity");
-            var hasTrackedQuantity = packet.ReadBit("HasTrackedQuantity");
-            var hasMaxQuantity = packet.ReadBit("HasMaxQuantity");
-            var hasTotalEarned = packet.ReadBit("HasTotalEarned");
-            packet.ReadBit("SuppressChatLog");
-            var hasQuantityChange = packet.ReadBit("HasQuantityChange");
-            var hasQuantityLostSource = packet.ReadBit("HasQuantityLostSource");
-            var hasQuantityGainSource = packet.ReadBit("HasQuantityGainSource");
-            var hasFirstCraftOperationID = packet.ReadBit("HasFirstCraftOperationID");
-            var hasLastSpendTime = packet.ReadBit("HasLastSpendTime");
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181))
                     packet.ReadInt16("PlayerNameQueryTelemetryInterval");
             }
@@ -218,7 +200,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             for (var i = 0; i < gameRuleValuesCount; ++i)
                 ReadGameRuleValuePair(packet, "GameRuleValues");
-            
+
             packet.ReadUInt32("Unk1000");
         }
 
@@ -242,8 +224,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             }
         }
 
-            if (hasWeeklyQuantity)
-                packet.ReadInt32("WeeklyQuantity");
         [Parser(Opcode.SMSG_PLAY_OBJECT_SOUND)]
         public static void HandlePlayObjectSound(Packet packet)
         {
@@ -254,13 +234,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadVector3("Position");
             packet.ReadInt32("BroadcastTextID");
 
-            if (hasTrackedQuantity)
-                packet.ReadInt32("TrackedQuantity");
             Storage.Sounds.Add(sound, packet.TimeSpan);
         }
 
-            if (hasMaxQuantity)
-                packet.ReadInt32("MaxQuantity");
         [Parser(Opcode.SMSG_WORLD_SERVER_INFO)]
         public static void HandleWorldServerInfo(Packet packet)
         {
@@ -270,32 +246,22 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             else
                 packet.ReadByte("IsTournamentRealm");
 
-            if (hasTotalEarned)
-                packet.ReadInt32("TotalEarned");
             packet.ReadBit("XRealmPvpAlert");
             packet.ReadBit("BlockExitingLoadingScreen");
             var hasRestrictedAccountMaxLevel = packet.ReadBit("HasRestrictedAccountMaxLevel");
             var hasRestrictedAccountMaxMoney = packet.ReadBit("HasRestrictedAccountMaxMoney");
             var hasInstanceGroupSize = packet.ReadBit("HasInstanceGroupSize");
 
-            if (hasQuantityChange)
-                packet.ReadInt32("QuantityChange");
             if (hasRestrictedAccountMaxLevel)
                 packet.ReadUInt32("RestrictedAccountMaxLevel");
 
-            if (hasQuantityLostSource)
-                packet.ReadInt32("QuantityLostSource");
             if (hasRestrictedAccountMaxMoney)
                 packet.ReadUInt64("RestrictedAccountMaxMoney");
 
-            if (hasQuantityGainSource)
-                packet.ReadInt32("QuantityGainSource");
             if (hasInstanceGroupSize)
                 packet.ReadUInt32("InstanceGroupSize");
         }
 
-            if (hasFirstCraftOperationID)
-                packet.ReadUInt32("FirstCraftOperationID");
         [Parser(Opcode.SMSG_PLAY_SOUND)]
         public static void HandlePlaySound(Packet packet)
         {
@@ -304,9 +270,56 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packetPlaySound.Source = packet.ReadPackedGuid128("SourceObjectGUID").ToUniversalGuid();
             packetPlaySound.BroadcastTextId = (uint)packet.ReadInt32("BroadcastTextID");
 
+            Storage.Sounds.Add(sound, packet.TimeSpan);
+        }
+
+        [Parser(Opcode.SMSG_SET_CURRENCY)]
+        public static void HandleSetCurrency(Packet packet)
+        {
+            packet.ReadInt32("Type");
+            packet.ReadInt32("Quantity");
+            packet.ReadUInt32("Flags");
+            uint toastCount = packet.ReadUInt32("UiEventToastCount");
+            for (var i = 0; i < toastCount; i++)
+                ItemHandler.ReadUIEventToast(packet, "UiEventToast", i);
+
+            var hasWeeklyQuantity = packet.ReadBit("HasWeeklyQuantity");
+            var hasTrackedQuantity = packet.ReadBit("HasTrackedQuantity");
+            var hasMaxQuantity = packet.ReadBit("HasMaxQuantity");
+            var hasTotalEarned = packet.ReadBit("HasTotalEarned");
+            packet.ReadBit("SuppressChatLog");
+            var hasQuantityChange = packet.ReadBit("HasQuantityChange");
+            var hasQuantityLostSource = packet.ReadBit("HasQuantityLostSource");
+            var hasQuantityGainSource = packet.ReadBit("HasQuantityGainSource");
+            var hasFirstCraftOperationID = packet.ReadBit("HasFirstCraftOperationID");
+            var hasLastSpendTime = packet.ReadBit("HasLastSpendTime");
+
+            if (hasWeeklyQuantity)
+                packet.ReadInt32("WeeklyQuantity");
+
+            if (hasTrackedQuantity)
+                packet.ReadInt32("TrackedQuantity");
+
+            if (hasMaxQuantity)
+                packet.ReadInt32("MaxQuantity");
+
+            if (hasTotalEarned)
+                packet.ReadInt32("TotalEarned");
+
+            if (hasQuantityChange)
+                packet.ReadInt32("QuantityChange");
+
+            if (hasQuantityLostSource)
+                packet.ReadInt32("QuantityLostSource");
+
+            if (hasQuantityGainSource)
+                packet.ReadInt32("QuantityGainSource");
+
+            if (hasFirstCraftOperationID)
+                packet.ReadUInt32("FirstCraftOperationID");
+
             if (hasLastSpendTime)
                 packet.ReadTime64("LastSpendTime");
-            Storage.Sounds.Add(sound, packet.TimeSpan);
         }
     }
 }
