@@ -42,6 +42,9 @@ namespace WowPacketParser.SQL.Builders
                     if (!(npc.Map.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.MapFilters)))
                         continue;
 
+                if (!Filters.CheckFilter(npc.Guid))
+                    continue;
+
                 var auras = string.Empty;
                 var commentAuras = string.Empty;
                 if (npc.Auras != null && npc.Auras.Count != 0)
@@ -64,8 +67,11 @@ namespace WowPacketParser.SQL.Builders
                     Entry = unit.Key.GetEntry(),
                     PathID = 0,
                     MountID = (uint)npc.UnitData.MountDisplayID,
-                    Bytes1 = npc.Bytes1,
-                    Bytes2 = npc.Bytes2,
+                    StandState = npc.UnitData.StandState ?? 0,
+                    AnimTier = npc.UnitData.AnimTier ?? 0,
+                    VisFlags = npc.UnitData.VisFlags ?? 0,
+                    SheathState = npc.UnitData.SheatheState ?? 0,
+                    PvpFlags = npc.UnitData.PvpFlags ?? 0,
                     Emote = 0,
                     AIAnimKit = npc.AIAnimKit.GetValueOrDefault(0),
                     MovementAnimKit = npc.MovementAnimKit.GetValueOrDefault(0),
@@ -177,6 +183,9 @@ namespace WowPacketParser.SQL.Builders
                 if (Settings.MapFilters.Length > 0)
                     if (!(npc.Map.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.MapFilters)))
                         continue;
+
+                if (!Filters.CheckFilter(npc.Guid))
+                    continue;
 
                 // Ignore pets
                 if (npc.Guid.GetHighType() == HighGuidType.Pet)
@@ -324,6 +333,9 @@ namespace WowPacketParser.SQL.Builders
                 if (Settings.MapFilters.Length > 0)
                     if (!(npc.Value.Map.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.MapFilters)))
                         continue;
+
+                if (!Filters.CheckFilter(npc.Value.Guid))
+                    continue;
 
                 var equip = npc.Value.GetEquipment();
                 if (equip == null)
@@ -958,6 +970,9 @@ namespace WowPacketParser.SQL.Builders
                 if (Settings.MapFilters.Length > 0)
                     if (!npc.Map.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.MapFilters))
                         continue;
+
+                if (!Filters.CheckFilter(npc.Guid))
+                    continue;
 
                 var row = new Row<NpcSpellClick>();
                 row.Data.Entry = unit.Key.GetEntry();

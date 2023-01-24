@@ -70,7 +70,8 @@
 
         hotfix_data,
         hotfix_blob,
-        hotfix_optional_data
+        hotfix_optional_data,
+        hotfixes
         // ReSharper restore InconsistentNaming
     }
 }
