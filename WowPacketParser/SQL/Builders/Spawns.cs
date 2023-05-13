@@ -5,8 +5,10 @@ using System.Linq;
 using System.Text;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
+using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
+using WowPacketParser.Store.Objects.Comparer;
 using WowPacketParser.Store.Objects.UpdateFields.LegacyImplementation;
 
 namespace WowPacketParser.SQL.Builders
@@ -57,12 +59,14 @@ namespace WowPacketParser.SQL.Builders
             var rows = new RowList<Creature>();
             var addonRows = new RowList<CreatureAddon>();
 
-            foreach (var unit in units)
+            var unitList = Settings.SkipDuplicateSpawns
+                ? units.Values.GroupBy(u => u, new SpawnComparer()).Select(x => x.First())
+                : units.Values.ToList();
+
+            foreach (var creature in unitList)
             {
                 Row<Creature> row = new Row<Creature>();
                 bool badTransport = false;
-
-                Unit creature = unit.Value;
 
                 if (Settings.AreaFilters.Length > 0)
                     if (!(creature.Area.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.AreaFilters)))
@@ -73,6 +77,9 @@ namespace WowPacketParser.SQL.Builders
                         continue;
 
                 if (!Filters.CheckFilter(creature.Guid))
+                    continue;
+
+                if (Settings.GenerateCreateObject2SpawnsOnly && creature.CreateType != CreateObjectType.Spawn)
                     continue;
 
                 uint entry = (uint)creature.ObjectData.EntryID;
@@ -124,11 +131,15 @@ namespace WowPacketParser.SQL.Builders
 
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_3_4_15595) && creature.Phases != null)
                 {
-                    string data = string.Join(" - ", creature.Phases);
-                    if (string.IsNullOrEmpty(data) || Settings.ForcePhaseZero)
-                        data = "0";
-
-                    row.Data.PhaseID = data;
+                    if (creature.PhaseOverride == null)
+                    {
+                        string data = string.Join(" - ", creature.Phases);
+                        if (string.IsNullOrEmpty(data) || Settings.ForcePhaseZero)
+                            data = "0";
+                        row.Data.PhaseID = data;
+                    }
+                    else
+                        row.Data.PhaseID = creature.PhaseOverride.GetValueOrDefault(0).ToString();
                 }
 
                 if (SQLDatabase.CreatureEquipments.TryGetValue(entry, out var equipList))
@@ -173,9 +184,10 @@ namespace WowPacketParser.SQL.Builders
                 row.Data.UnitFlag = 0;
                 row.Data.DynamicFlag = 0;
 
-                row.Comment = StoreGetters.GetName(StoreNameType.Unit, (int)unit.Key.GetEntry(), false);
+                row.Comment = StoreGetters.GetName(StoreNameType.Unit, (int)entry, false);
                 row.Comment += " (Area: " + StoreGetters.GetName(StoreNameType.Area, creature.Area, false) + " - ";
                 row.Comment += "Difficulty: " + StoreGetters.GetName(StoreNameType.Difficulty, (int)creature.DifficultyID, false) + ")";
+                row.Comment += creature.CreateType == CreateObjectType.Spawn ? " CreateObject2" : " CreateObject1";
 
                 string auras = string.Empty;
                 string commentAuras = string.Empty;
@@ -220,7 +232,7 @@ namespace WowPacketParser.SQL.Builders
                     if (addonDefault == null || !SQLUtil.AreDBFieldsEqual(addonDefault, addonRow.Data, dbFields))
                     {
                         addonRow.Data.GUID = $"@CGUID+{count}";
-                        addonRow.Comment += StoreGetters.GetName(StoreNameType.Unit, (int)unit.Key.GetEntry(), false);
+                        addonRow.Comment += StoreGetters.GetName(StoreNameType.Unit, (int)entry, false);
                         if (!string.IsNullOrWhiteSpace(auras))
                             addonRow.Comment += $" - {commentAuras}";
                         addonRows.Add(addonRow);
@@ -251,6 +263,9 @@ namespace WowPacketParser.SQL.Builders
 
                 if (creature.Movement.HasWpsOrRandMov)
                     row.Comment += " (possible waypoints or random movement)";
+
+                if (creature.PhaseOverride != null)
+                    row.Comment += $" (overridden phaseid: {creature.PhaseOverride.GetValueOrDefault(0)}";
 
                 rows.Add(row);
             }
@@ -288,12 +303,14 @@ namespace WowPacketParser.SQL.Builders
             uint count = 0;
             var rows = new RowList<GameObjectModel>();
             var addonRows = new RowList<GameObjectAddon>();
-            foreach (var gameobject in gameObjects)
+
+            var gobList = Settings.SkipDuplicateSpawns
+                ? gameObjects.Values.GroupBy(g => g, new SpawnComparer()).Select(x => x.First())
+                : gameObjects.Values.ToList();
+
+            foreach (var go in gobList)
             {
                 Row<GameObjectModel> row = new Row<GameObjectModel>();
-
-                GameObject go = gameobject.Value;
-
                 if (Settings.AreaFilters.Length > 0)
                     if (!(go.Area.ToString(CultureInfo.InvariantCulture).MatchesFilters(Settings.AreaFilters)))
                         continue;
@@ -303,6 +320,9 @@ namespace WowPacketParser.SQL.Builders
                         continue;
 
                 if (!Filters.CheckFilter(go.Guid))
+                    continue;
+
+                if (Settings.GenerateCreateObject2SpawnsOnly && go.CreateType != CreateObjectType.Spawn)
                     continue;
 
                 uint entry = (uint)go.ObjectData.EntryID;
@@ -402,7 +422,7 @@ namespace WowPacketParser.SQL.Builders
                     if (go.WorldEffectID != null || go.AIAnimKitID != null)
                         add = true;
 
-                    addonRow.Comment += StoreGetters.GetName(StoreNameType.GameObject, (int)gameobject.Key.GetEntry(), false);
+                    addonRow.Comment += StoreGetters.GetName(StoreNameType.GameObject, (int)entry, false);
 
                     if (add)
                         addonRows.Add(addonRow);
@@ -415,9 +435,10 @@ namespace WowPacketParser.SQL.Builders
                 // set some defaults
                 row.Data.PhaseGroup = 0;
 
-                row.Comment = StoreGetters.GetName(StoreNameType.GameObject, (int)gameobject.Key.GetEntry(), false);
+                row.Comment = StoreGetters.GetName(StoreNameType.GameObject, (int)entry, false);
                 row.Comment += " (Area: " + StoreGetters.GetName(StoreNameType.Area, go.Area, false) + " - ";
                 row.Comment += "Difficulty: " + StoreGetters.GetName(StoreNameType.Difficulty, (int)go.DifficultyID, false) + ")";
+                row.Comment += go.CreateType == CreateObjectType.Spawn ? " CreateObject2" : " CreateObject1";
 
                 if (go.IsTemporarySpawn() && !Settings.SaveTempSpawns)
                 {

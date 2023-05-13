@@ -98,13 +98,13 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("entry", true)]
         public uint? Entry;
 
-        [DBFieldName("gossip_menu_id")]
+        [DBFieldName("gossip_menu_id", TargetedDatabaseFlag.TillShadowlands)]
         public uint? GossipMenuId;
 
-        [DBFieldName("minlevel")]
+        [DBFieldName("minlevel", TargetedDatabaseFlag.TillShadowlands)]
         public int? MinLevel;
 
-        [DBFieldName("maxlevel")]
+        [DBFieldName("maxlevel", TargetedDatabaseFlag.TillShadowlands)]
         public int? MaxLevel;
 
         [DBFieldName("faction")]
@@ -146,7 +146,7 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("VehicleId")]
         public uint? VehicleID;
 
-        [DBFieldName("HoverHeight")]
+        [DBFieldName("HoverHeight", TargetedDatabaseFlag.TillShadowlands)]
         public float? HoverHeight;
 
     }

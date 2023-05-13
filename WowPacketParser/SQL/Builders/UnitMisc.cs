@@ -205,8 +205,9 @@ namespace WowPacketParser.SQL.Builders
                     continue;
 
                 var scale = npc.ObjectData.Scale;
-                model.BoundingRadius = npc.UnitData.BoundingRadius / scale;
-                model.CombatReach = npc.UnitData.CombatReach / scale;
+                var displayScale = npc.UnitData.DisplayScale;
+                model.BoundingRadius = (npc.UnitData.BoundingRadius / scale) / displayScale;
+                model.CombatReach = (npc.UnitData.CombatReach / scale) / displayScale;
                 model.Gender = (Gender)npc.UnitData.Sex;
 
                 models.Add(model);
@@ -228,6 +229,20 @@ namespace WowPacketParser.SQL.Builders
             var templatesDb = SQLDatabase.Get(Storage.CreatureTemplateSpells);
 
             return SQLUtil.Compare(Storage.CreatureTemplateSpells, templatesDb, StoreNameType.Unit);
+        }
+
+        [BuilderMethod]
+        public static string CreatureTemplateGossip()
+        {
+            if (Storage.CreatureTemplateGossips.IsEmpty())
+                return string.Empty;
+
+            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.creature_template_gossip))
+                return string.Empty;
+
+            var templatesDb = SQLDatabase.Get(Storage.CreatureTemplateGossips);
+
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.CreatureTemplateGossips.OrderBy(x => x.Item1.CreatureID).ThenBy(y => y.Item1.MenuID) : Storage.CreatureTemplateGossips, templatesDb, StoreNameType.Unit);
         }
 
         [BuilderMethod]
@@ -656,10 +671,13 @@ namespace WowPacketParser.SQL.Builders
                 var npc = unit.Value;
                 var minMaxLevel = getLevel(unit.Key.GetEntry());
 
+                uint gossipMenuId = 0;
+                Storage.CreatureDefaultGossips.TryGetValue(unit.Key.GetEntry(), out gossipMenuId);
+
                 var template = new CreatureTemplateNonWDB
                 {
                     Entry = unit.Key.GetEntry(),
-                    GossipMenuId = Storage.CreatureDefaultGossips.GetValueOrDefault(unit.Key.GetEntry()),
+                    GossipMenuId = gossipMenuId,
                     MinLevel = minMaxLevel.MinLevel,
                     MaxLevel = minMaxLevel.MaxLevel,
                     Faction = (uint)npc.UnitData.FactionTemplate,

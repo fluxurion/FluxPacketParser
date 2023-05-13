@@ -32,6 +32,9 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             gossipPOI.ID = protoPoi.Id = packet.ReadInt32("ID");
 
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_7_48676))
+                gossipPOI.Flags = protoPoi.Flags = (uint)packet.ReadInt32("Flags");
+
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_1_0_39185))
             {
                 Vector3 pos = packet.ReadVector3("Coordinates");
@@ -57,7 +60,8 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 gossipPOI.WMOGroupID = packet.ReadInt32("WMOGroupID");
 
             packet.ResetBitReader();
-            gossipPOI.Flags = gossipPOI.Flags = packet.ReadBits("Flags", 14);
+            if (ClientVersion.RemovedInVersion(ClientVersionBuild.V10_0_7_48676))
+                gossipPOI.Flags = protoPoi.Flags = packet.ReadBits("Flags", 14);
             uint bit84 = packet.ReadBits(6);
             gossipPOI.Name = protoPoi.Name = packet.ReadWoWString("Name", bit84);
 
@@ -162,8 +166,13 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             if (guid.GetObjectType() == ObjectType.Unit)
             {
-                if (!Storage.CreatureDefaultGossips.ContainsKey(guid.GetEntry()))
-                    Storage.CreatureDefaultGossips.Add(guid.GetEntry(), (uint)menuId);
+                CreatureTemplateGossip creatureTemplateGossip = new()
+                {
+                    CreatureID = guid.GetEntry(),
+                    MenuID = (uint)menuId
+                };
+                Storage.CreatureTemplateGossips.Add(creatureTemplateGossip);
+                Storage.CreatureDefaultGossips.Add(guid.GetEntry(), (uint)menuId);
             }
 
             CoreParsers.NpcHandler.UpdateLastGossipOptionActionMessage(packet.TimeSpan, (uint)menuId);

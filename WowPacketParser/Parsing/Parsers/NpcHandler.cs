@@ -18,7 +18,6 @@ namespace WowPacketParser.Parsing.Parsers
         public uint? OptionIndex { get; set; }
         public uint? ActionMenuId { get; set; }
         public object ActionPoiId { get; set; }
-        public int? GossipNpcOptionId { get; set; }
         public TimeSpan TimeSpan { get; set; }
 
         public bool HasSelection { get { return MenuId.HasValue && OptionIndex.HasValue; } }
@@ -29,7 +28,6 @@ namespace WowPacketParser.Parsing.Parsers
             OptionIndex = optionId;
             ActionMenuId = null;
             ActionPoiId = null;
-            GossipNpcOptionId = null;
             TimeSpan = timespan;
         }
 
@@ -40,7 +38,6 @@ namespace WowPacketParser.Parsing.Parsers
             OptionIndex = null;
             ActionMenuId = null;
             ActionPoiId = null;
-            GossipNpcOptionId = null;
             TimeSpan = TimeSpan.Zero;
         }
     }
@@ -590,8 +587,13 @@ namespace WowPacketParser.Parsing.Parsers
 
             if (guid.GetObjectType() == ObjectType.Unit)
             {
-                if (!Storage.CreatureDefaultGossips.ContainsKey(guid.GetEntry()))
-                    Storage.CreatureDefaultGossips.Add(guid.GetEntry(), menuId);
+                CreatureTemplateGossip creatureTemplateGossip = new()
+                {
+                    CreatureID = guid.GetEntry(),
+                    MenuID = menuId
+                };
+                Storage.CreatureTemplateGossips.Add(creatureTemplateGossip);
+                Storage.CreatureDefaultGossips.Add(guid.GetEntry(), menuId);
             }
 
             Storage.Gossips.Add(gossip, packet.TimeSpan);
