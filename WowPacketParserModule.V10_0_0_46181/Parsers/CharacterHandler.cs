@@ -1,127 +1,11 @@
-﻿using System;
-using WowPacketParser.Enums;
+﻿using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
-using WowPacketParser.Store;
-using WowPacketParser.Store.Objects;
 
 namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
     public static class CharacterHandler
     {
-        public static void ReadChrCustomizationChoice(Packet packet, params object[] indexes)
-        {
-            packet.ReadUInt32("ChrCustomizationOptionID", indexes);
-            packet.ReadUInt32("ChrCustomizationChoiceID", indexes);
-        }
-
-        public static void ReadCharactersListEntry(Packet packet, params object[] idx)
-        {
-            var playerGuid = packet.ReadPackedGuid128("Guid", idx);
-
-            packet.ReadUInt64("GuildClubMemberID", idx);
-
-            packet.ReadByte("ListPosition", idx);
-            var race = packet.ReadByteE<Race>("RaceID", idx);
-            var @class = packet.ReadByteE<Class>("ClassID", idx);
-            packet.ReadByteE<Gender>("SexID", idx);
-            var customizationCount = packet.ReadUInt32();
-
-            var level = packet.ReadByte("ExperienceLevel", idx);
-            var zone = packet.ReadInt32<ZoneId>("ZoneID", idx);
-            var mapId = packet.ReadInt32<MapId>("MapID", idx);
-
-            var pos = packet.ReadVector3("PreloadPos", idx);
-
-            packet.ReadPackedGuid128("GuildGUID", idx);
-
-            packet.ReadUInt32("Flags", idx);
-            packet.ReadUInt32("Flags2", idx);
-            packet.ReadUInt32("Flags3", idx);
-            packet.ReadUInt32("PetCreatureDisplayID", idx);
-            packet.ReadUInt32("PetExperienceLevel", idx);
-            packet.ReadUInt32("PetCreatureFamilyID", idx);
-
-            for (uint j = 0; j < 2; ++j)
-                packet.ReadInt32("ProfessionIDs", idx, j);
-
-            for (uint j = 0; j < 35; ++j)
-            {
-                packet.ReadUInt32("DisplayID", idx, "VisualItems", j);
-                packet.ReadUInt32("DisplayEnchantID", idx, "VisualItems", j);
-                packet.ReadInt32("SecondaryItemModifiedAppearanceID", idx, "VisualItems", j);
-                packet.ReadByteE<InventoryType>("InvType", idx, "VisualItems", j);
-                packet.ReadByte("Subclass", idx, "VisualItems", j);
-            }
-
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_0_5_37503))
-                packet.ReadTime64("LastPlayedTime", idx);
-            else
-                packet.ReadTime("LastPlayedTime", idx);
-
-            packet.ReadInt16("SpecID", idx);
-            packet.ReadInt32("Unknown703", idx);
-            packet.ReadInt32("InterfaceVersion", idx);
-            packet.ReadUInt32("Flags4", idx);
-            var mailSenderLengths = new uint[packet.ReadUInt32()];
-            var mailSenderTypes = ClientVersion.AddedInVersion(ClientVersionBuild.V9_0_2_36639) ? new uint[packet.ReadUInt32()] : Array.Empty<uint>();
-            packet.ReadUInt32("OverrideSelectScreenFileDataID", idx);
-
-            for (var j = 0u; j < customizationCount; ++j)
-                ReadChrCustomizationChoice(packet, idx, "Customizations", j);
-
-            for (var j = 0; j < mailSenderTypes.Length; ++j)
-                packet.ReadUInt32("MailSenderType", idx, j);
-
-            packet.ResetBitReader();
-
-            var nameLength = packet.ReadBits("Character Name Length", 6, idx);
-            var firstLogin = packet.ReadBit("FirstLogin", idx);
-            packet.ReadBit("BoostInProgress", idx);
-            packet.ReadBits("UnkWod61x", 5, idx);
-
-            for (var j = 0; j < mailSenderLengths.Length; ++j)
-                mailSenderLengths[j] = packet.ReadBits(6);
-
-            for (var j = 0; j < mailSenderLengths.Length; ++j)
-                if (mailSenderLengths[j] > 1)
-                    packet.ReadDynamicString("MailSender", mailSenderLengths[j], idx);
-
-            var name = packet.ReadWoWString("Character Name", nameLength, idx);
-
-            if (firstLogin)
-            {
-                PlayerCreateInfo startPos = new PlayerCreateInfo { Race = race, Class = @class, Map = (uint)mapId, Zone = (uint)zone, Position = pos, Orientation = 0 };
-                Storage.StartPositions.Add(startPos, packet.TimeSpan);
-            }
-
-            var playerInfo = new Player { Race = race, Class = @class, Name = name, FirstLogin = firstLogin, Level = level, Type = ObjectType.Player };
-            if (Storage.Objects.ContainsKey(playerGuid))
-                Storage.Objects[playerGuid] = new Tuple<WoWObject, TimeSpan?>(playerInfo, packet.TimeSpan);
-            else
-                Storage.Objects.Add(playerGuid, playerInfo, packet.TimeSpan);
-        }
-
-        public static void ReadPlayerModelDisplayInfo(Packet packet, params object[] idx)
-        {
-            packet.ReadPackedGuid128("InspecteeGUID", idx);
-            packet.ReadInt32("SpecializationID", idx);
-            var itemCount = packet.ReadUInt32();
-            packet.ResetBitReader();
-            var nameLen = packet.ReadBits(6);
-            packet.ReadByteE<Gender>("GenderID", idx);
-            packet.ReadByteE<Race>("Race", idx);
-            packet.ReadByteE<Class>("ClassID", idx);
-            var customizationCount = packet.ReadUInt32();
-            packet.ReadWoWString("Name", nameLen, idx);
-
-            for (var j = 0u; j < customizationCount; ++j)
-                ReadChrCustomizationChoice(packet, idx, "Customizations", j);
-
-            for (int i = 0; i < itemCount; i++)
-                V8_0_1_27101.Parsers.CharacterHandler.ReadInspectItemData(packet, idx, i);
-        }
-
         public static void ReadPVPBracketData(Packet packet, params object[] idx)
         {
             packet.ReadByte("Bracket", idx);
@@ -135,11 +19,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadInt32("WeeklyBestRating", idx);
             packet.ReadInt32("SeasonBestRating", idx);
             packet.ReadInt32("PvpTierID", idx);
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_1_0_39185))
             packet.ReadInt32("WeeklyBestWinPvpTierID", idx);
-
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_1_5_40772))
-            {
             packet.ReadInt32("Unused1", idx);
             packet.ReadInt32("Unused2", idx);
             packet.ReadInt32("RoundsSeasonPlayed", idx);
@@ -174,7 +54,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             for (int i = 0; i < pvpTalentCount; i++)
                 packet.ReadUInt16("PvpTalents", i);
 
-            packet.ResetBitReader();
             var hasGuildData = packet.ReadBit("HasGuildData");
             var hasAzeriteLevel = packet.ReadBit("HasAzeriteLevel");
             packet.ResetBitReader();
@@ -190,37 +69,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             }
             if (hasAzeriteLevel)
                 packet.ReadInt32("AzeriteLevel");
-        }
-
-        [Parser(Opcode.CMSG_CREATE_CHARACTER)]
-        public static void HandleClientCharCreate(Packet packet)
-        {
-            var nameLen = packet.ReadBits(6);
-            var hasTemplateSet = packet.ReadBit("HasTemplateSet");
-            packet.ReadBit("IsTrialBoost");
-            packet.ReadBit("UseNPE");
-
-            packet.ReadByteE<Race>("RaceID");
-            packet.ReadByteE<Class>("ClassID");
-            packet.ReadByteE<Gender>("SexID");
-
-            var customizationCount = packet.ReadUInt32();
-
-            packet.ReadWoWString("Name", nameLen);
-
-            if (hasTemplateSet)
-                packet.ReadInt32("TemplateSetID");
-
-            for (var i = 0u; i < customizationCount; ++i)
-                ReadChrCustomizationChoice(packet, "Customizations", i);
-        }
-
-        [Parser(Opcode.SMSG_CHECK_CHARACTER_NAME_AVAILABILITY_RESULT)]
-        public static void HandleCheckCharacterNameAvailabilityResult(Packet packet)
-        {
-            packet.ReadUInt32("SequenceIndex");
-            packet.ReadUInt32("Result");
-        }
 
             packet.ReadInt32("Level", "TraitInspectData");
             packet.ReadInt32("ChrSpecializationID", "TraitInspectData");

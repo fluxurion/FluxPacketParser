@@ -1,14 +1,116 @@
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
-using WowPacketParser.Proto;
-using WowPacketParser.Store;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 
 namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
     public static class MiscellaneousHandler
     {
+        [Parser(Opcode.SMSG_SETUP_CURRENCY)]
+        public static void HandleSetupCurrency(Packet packet)
+        {
+            var count = packet.ReadUInt32("SetupCurrencyRecord");
+
+            for (var i = 0; i < count; ++i)
+            {
+                packet.ReadInt32("Type", i);
+                packet.ReadInt32("Quantity", i);
+
+                packet.ResetBitReader();
+
+                var hasWeeklyQuantity = packet.ReadBit();
+                var hasMaxWeeklyQuantity = packet.ReadBit();
+                var hasTrackedQuantity = packet.ReadBit();
+                var hasMaxQuantity = packet.ReadBit();
+                var hasTotalEarned = packet.ReadBit();
+                var hasHasNextRechargeTime = packet.ReadBit();
+                var hasRechargeCycleStartTime = false;
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
+                    hasRechargeCycleStartTime = packet.ReadBit();
+
+                packet.ReadBits("Flags", 5, i);
+
+                if (hasWeeklyQuantity)
+                    packet.ReadUInt32("WeeklyQuantity", i);
+
+                if (hasMaxWeeklyQuantity)
+                    packet.ReadUInt32("MaxWeeklyQuantity", i);
+
+                if (hasTrackedQuantity)
+                    packet.ReadUInt32("TrackedQuantity", i);
+
+                if (hasMaxQuantity)
+                    packet.ReadInt32("MaxQuantity", i);
+
+                if (hasTotalEarned)
+                    packet.ReadInt32("TotalEarned", i);
+
+                if (hasHasNextRechargeTime)
+                    packet.ReadTime64("NextRechargeTime", i);
+
+                if (hasRechargeCycleStartTime)
+                    packet.ReadTime64("RechargeCycleStartTime", i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_SET_CURRENCY)]
+        public static void HandleSetCurrency(Packet packet)
+        {
+            packet.ReadInt32("Type");
+            packet.ReadInt32("Quantity");
+            packet.ReadUInt32("Flags");
+            uint toastCount = packet.ReadUInt32("UiEventToastCount");
+            for (var i = 0; i < toastCount; i++)
+                ItemHandler.ReadUIEventToast(packet, "UiEventToast", i);
+
+            var hasWeeklyQuantity = packet.ReadBit("HasWeeklyQuantity");
+            var hasTrackedQuantity = packet.ReadBit("HasTrackedQuantity");
+            var hasMaxQuantity = packet.ReadBit("HasMaxQuantity");
+            var hasTotalEarned = packet.ReadBit("HasTotalEarned");
+            packet.ReadBit("SuppressChatLog");
+            var hasQuantityChange = packet.ReadBit("HasQuantityChange");
+            var hasQuantityLostSource = packet.ReadBit("HasQuantityLostSource");
+            var hasQuantityGainSource = packet.ReadBit("HasQuantityGainSource");
+            var hasFirstCraftOperationID = packet.ReadBit("HasFirstCraftOperationID");
+            var hasHasNextRechargeTime = packet.ReadBit("HasNextRechargeTime");
+            var hasRechargeCycleStartTime = false;
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
+                hasRechargeCycleStartTime = packet.ReadBit("HasRechargeCycleStartTime");
+
+            if (hasWeeklyQuantity)
+                packet.ReadInt32("WeeklyQuantity");
+
+            if (hasTrackedQuantity)
+                packet.ReadInt32("TrackedQuantity");
+
+            if (hasMaxQuantity)
+                packet.ReadInt32("MaxQuantity");
+
+            if (hasTotalEarned)
+                packet.ReadInt32("TotalEarned");
+
+            if (hasQuantityChange)
+                packet.ReadInt32("QuantityChange");
+
+            if (hasQuantityLostSource)
+                packet.ReadInt32("QuantityLostSource");
+
+            if (hasQuantityGainSource)
+                packet.ReadInt32("QuantityGainSource");
+
+            if (hasFirstCraftOperationID)
+                packet.ReadUInt32("FirstCraftOperationID");
+
+            if (hasHasNextRechargeTime)
+                packet.ReadTime64("NextRechargeTime");
+
+            if (hasRechargeCycleStartTime)
+                packet.ReadTime64("RechargeCycleStartTime");
+        }
+
+
+        // Fluxurion >
         public static void ReadGameRuleValuePair(Packet packet, params object[] indexes)
         {
             packet.ReadInt32("Rule", indexes);
@@ -203,146 +305,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             packet.ReadUInt32("Unk1000");
         }
-
-        [Parser(Opcode.SMSG_SET_ALL_TASK_PROGRESS)]
-        [Parser(Opcode.SMSG_UPDATE_TASK_PROGRESS)]
-        public static void HandleSetAllTaskProgress(Packet packet)
-        {
-            var int4 = packet.ReadUInt32("TaskProgressCount");
-            for (int i = 0; i < int4; i++)
-            {
-                packet.ReadUInt32("TaskID", i);
-
-                // these fields might have been shuffled
-                packet.ReadUInt32("FailureTime", i);
-                packet.ReadUInt32("Flags", i);
-                packet.ReadUInt32("Unk", i);
-
-                var int3 = packet.ReadUInt32("ProgressCounts", i);
-                for (int j = 0; j < int3; j++)
-                    packet.ReadUInt16("Counts", i, j);
-            }
-        }
-
-        [Parser(Opcode.SMSG_PLAY_OBJECT_SOUND)]
-        public static void HandlePlayObjectSound(Packet packet)
-        {
-            PacketPlayObjectSound packetSound = packet.Holder.PlayObjectSound = new PacketPlayObjectSound();
-            uint sound = packetSound.Sound = packet.ReadUInt32<SoundId>("SoundId");
-            packetSound.Source = packet.ReadPackedGuid128("SourceObjectGUID");
-            packetSound.Target = packet.ReadPackedGuid128("TargetObjectGUID");
-            packet.ReadVector3("Position");
-            packet.ReadInt32("BroadcastTextID");
-                var hasWeeklyQuantity = packet.ReadBit();
-                var hasMaxWeeklyQuantity = packet.ReadBit();
-                var hasTrackedQuantity = packet.ReadBit();
-                var hasMaxQuantity = packet.ReadBit();
-                var hasTotalEarned = packet.ReadBit();
-                var hasHasNextRechargeTime = packet.ReadBit();
-                var hasRechargeCycleStartTime = false;
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
-                    hasRechargeCycleStartTime = packet.ReadBit();
-
-                packet.ReadBits("Flags", 5, i);
-
-            Storage.Sounds.Add(sound, packet.TimeSpan);
-        }
-
-        [Parser(Opcode.SMSG_WORLD_SERVER_INFO)]
-        public static void HandleWorldServerInfo(Packet packet)
-        {
-            CoreParsers.MovementHandler.CurrentDifficultyID = packet.ReadUInt32<DifficultyId>("DifficultyID");
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_2_7_45114))
-                packet.ReadBit("IsTournamentRealm");
-            else
-                packet.ReadByte("IsTournamentRealm");
-
-            packet.ReadBit("XRealmPvpAlert");
-            packet.ReadBit("BlockExitingLoadingScreen");
-            var hasRestrictedAccountMaxLevel = packet.ReadBit("HasRestrictedAccountMaxLevel");
-            var hasRestrictedAccountMaxMoney = packet.ReadBit("HasRestrictedAccountMaxMoney");
-            var hasInstanceGroupSize = packet.ReadBit("HasInstanceGroupSize");
-
-            if (hasRestrictedAccountMaxLevel)
-                packet.ReadUInt32("RestrictedAccountMaxLevel");
-
-            if (hasRestrictedAccountMaxMoney)
-                packet.ReadUInt64("RestrictedAccountMaxMoney");
-
-            if (hasInstanceGroupSize)
-                packet.ReadUInt32("InstanceGroupSize");
-        }
-
-        [Parser(Opcode.SMSG_PLAY_SOUND)]
-        public static void HandlePlaySound(Packet packet)
-        {
-            PacketPlaySound packetPlaySound = packet.Holder.PlaySound = new PacketPlaySound();
-            var sound = packetPlaySound.Sound = (uint)packet.ReadInt32<SoundId>("SoundKitID");
-            packetPlaySound.Source = packet.ReadPackedGuid128("SourceObjectGUID").ToUniversalGuid();
-            packetPlaySound.BroadcastTextId = (uint)packet.ReadInt32("BroadcastTextID");
-
-            Storage.Sounds.Add(sound, packet.TimeSpan);
-                if (hasHasNextRechargeTime)
-                    packet.ReadTime64("NextRechargeTime", i);
-
-                if (hasRechargeCycleStartTime)
-                    packet.ReadTime64("RechargeCycleStartTime", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_SET_CURRENCY)]
-        public static void HandleSetCurrency(Packet packet)
-        {
-            packet.ReadInt32("Type");
-            packet.ReadInt32("Quantity");
-            packet.ReadUInt32("Flags");
-            uint toastCount = packet.ReadUInt32("UiEventToastCount");
-            for (var i = 0; i < toastCount; i++)
-                ItemHandler.ReadUIEventToast(packet, "UiEventToast", i);
-
-            var hasWeeklyQuantity = packet.ReadBit("HasWeeklyQuantity");
-            var hasTrackedQuantity = packet.ReadBit("HasTrackedQuantity");
-            var hasMaxQuantity = packet.ReadBit("HasMaxQuantity");
-            var hasTotalEarned = packet.ReadBit("HasTotalEarned");
-            packet.ReadBit("SuppressChatLog");
-            var hasQuantityChange = packet.ReadBit("HasQuantityChange");
-            var hasQuantityLostSource = packet.ReadBit("HasQuantityLostSource");
-            var hasQuantityGainSource = packet.ReadBit("HasQuantityGainSource");
-            var hasFirstCraftOperationID = packet.ReadBit("HasFirstCraftOperationID");
-            var hasHasNextRechargeTime = packet.ReadBit("HasNextRechargeTime");
-            var hasRechargeCycleStartTime = false;
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
-                hasRechargeCycleStartTime = packet.ReadBit("HasRechargeCycleStartTime");
-
-            if (hasWeeklyQuantity)
-                packet.ReadInt32("WeeklyQuantity");
-
-            if (hasTrackedQuantity)
-                packet.ReadInt32("TrackedQuantity");
-
-            if (hasMaxQuantity)
-                packet.ReadInt32("MaxQuantity");
-
-            if (hasTotalEarned)
-                packet.ReadInt32("TotalEarned");
-
-            if (hasQuantityChange)
-                packet.ReadInt32("QuantityChange");
-
-            if (hasQuantityLostSource)
-                packet.ReadInt32("QuantityLostSource");
-
-            if (hasQuantityGainSource)
-                packet.ReadInt32("QuantityGainSource");
-
-            if (hasFirstCraftOperationID)
-                packet.ReadUInt32("FirstCraftOperationID");
-
-            if (hasHasNextRechargeTime)
-                packet.ReadTime64("NextRechargeTime");
-
-            if (hasRechargeCycleStartTime)
-                packet.ReadTime64("RechargeCycleStartTime");
-        }
+        // < Fluxurion
     }
 }
