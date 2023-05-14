@@ -17,7 +17,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
         }
 
-        private static void ReadBattlepayDisplayInfo(Packet packet, int counter, params object[] idx)
+        private static void ReadBattlepayDisplayInfo(Packet packet, uint counter, params object[] idx)
         {
             packet.ResetBitReader();
             var bit4 = packet.ReadBit("HasCreatureDisplayInfoID", idx);
@@ -78,7 +78,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             // BATTLEPAY DISPLAYINFO
             BattlePayDisplayInfo DisplayInfo = new BattlePayDisplayInfo
             {
-                Entry = ((uint)counter)+1,
+                Entry = ((uint)counter) + 1,
                 CreatureDisplayID = ((uint)creaturedisplayinfoid),
                 VisualID = ((uint)filedataid),
                 Name1 = name1,
@@ -96,7 +96,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 				UnkInt2 = ((uint)bit21496),
 				UnkInt3 = ((uint)bit21500),
             };
-            if (counter < 1000)
+            //if (counter < 1000)
                 Storage.BattlePayDisplayInfos.Add(DisplayInfo, packet.TimeSpan);
 
             // BATTLEPAY VISUALS
@@ -171,7 +171,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 uint displayentry = 0;
                 if (HasBattlepayDisplayInfo)
                 {
-                    ReadBattlepayDisplayInfo(packet, ((int)index), index);
+                    ReadBattlepayDisplayInfo(packet, index, index);
                     displayentry = index+1;
                 }
 
@@ -262,7 +262,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var name = packet.ReadWoWString("Name", UnkString, j);
 
                 if (HasDisplayInfo)
-                    ReadBattlepayDisplayInfo(packet, 2000, j);
+                    ReadBattlepayDisplayInfo(packet, productid+1, j);
 
                 BattlePayProduct Product = new BattlePayProduct
                 {
@@ -295,6 +295,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var displaytype = packet.ReadByte("DisplayType", i);
                 var ordering = packet.ReadInt32("Ordering", i);
                 var unkt = packet.ReadInt32("unkt", i);
+                var maingroupid = packet.ReadInt32("MainGroupID", i);
 
                 packet.ResetBitReader();
 
@@ -312,6 +313,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     DisplayType = ((uint)displaytype),
                     Ordering = ((uint)ordering),
                     Unk = ((uint)unkt),
+                    MainGroupID = ((uint)maingroupid),
                     Name = name,
                     Description = description,
                 };
@@ -332,7 +334,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
                 var bit5172 = packet.ReadBit("HasBattlepayDisplayInfo", i);
                 if (bit5172)
-                    ReadBattlepayDisplayInfo(packet, ((int)i), i);
+                    ReadBattlepayDisplayInfo(packet, i, i);
 
                 BattlePayShop Shop = new BattlePayShop
                 {
