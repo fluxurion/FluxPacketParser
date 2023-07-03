@@ -6,7 +6,7 @@ using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using System.Collections.Generic;
 
-namespace WowPacketParserModule.V9_0_1_36216.Parsers
+namespace WowPacketParserModule.V8_0_1_27101.Parsers
 {
 
     public static class BattlePayHandler
@@ -17,7 +17,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         {
         }
 
-        private static void ReadBattlepayDisplayInfo(Packet packet, int counter, params object[] idx)
+        private static void ReadBattlepayDisplayInfo(Packet packet, uint counter, params object[] idx)
         {
             packet.ResetBitReader();
             var bit4 = packet.ReadBit("HasCreatureDisplayInfoID", idx);
@@ -30,65 +30,65 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             var bits5139 = packet.ReadBits(13);
             var bits9236 = packet.ReadBits(13);
 
-            var bit9240 = packet.ReadBit("flags", idx);
-            var bit9248 = packet.ReadBit("unkt2", idx);
-            var bit9264 = packet.ReadBit("unkt3", idx);
-            var bit9256 = packet.ReadBit("unkt4", idx);
+            var bit9240 = packet.ReadBit("IconBorder", idx);
+            var bit9248 = packet.ReadBit("Unk1", idx);
+            var bit9264 = packet.ReadBit("Unk2", idx);
+            var bit9256 = packet.ReadBit("UiTextureAtlasMemberID", idx);
 
             var bits13396 = packet.ReadBits(13);
-            var bits17493 = packet.ReadBits(13);
+            //var bits17493 = packet.ReadBits(13);
+
+            packet.ResetBitReader();
 
             var bit9272 = packet.ReadInt32("VisualsSize", idx);
 
             var bit13392 = packet.ReadInt32("unktint1", idx);
-            var bit21496 = packet.ReadInt32("unktint2", idx);
-            var bit21500 = packet.ReadInt32("unktint3", idx);
+            //var bit21496 = packet.ReadInt32("unktint2", idx);
+            //var bit21500 = packet.ReadInt32("unktint3", idx);
 
             var creaturedisplayinfoid = 0;
             var filedataid = 0;
 
             if (bit4)
-                creaturedisplayinfoid = packet.ReadInt32("CreatureDisplayInfoID", idx);
+                creaturedisplayinfoid = packet.ReadInt32("IconFileDataID", idx);
             if (bit12)
-                filedataid = packet.ReadInt32("FileDataID", idx);
+                filedataid = packet.ReadInt32("UIModelSceneID", idx);
 
-            var name1 = packet.ReadWoWString("Name1", bits16, idx);
-            var name2 = packet.ReadWoWString("Name2", bits529, idx);
-            var name3 = packet.ReadWoWString("Name3", bits1042, idx);
-            var name4 = packet.ReadWoWString("Name4", bits5139, idx);
-            var name5 = packet.ReadWoWString("Name5", bits9236, idx);
+            var name1 = packet.ReadWoWString("Title", bits16, idx);
+            var name2 = packet.ReadWoWString("Title2", bits529, idx);
+            var name3 = packet.ReadWoWString("Description", bits1042, idx);
+            var name4 = packet.ReadWoWString("Description2", bits5139, idx);
+            var name5 = packet.ReadWoWString("Description3", bits9236, idx);
 
-            var flags = 0;
-            var Unkt2Id = 0;
-            var Unkt4Id = 0;
-            var Unkt3Id = 0;
+            var IconBorder = 0;
+            var Unk1 = 0;
+            var Unk2 = 0;
+            var UiTextureAtlasMemberID = 0;
 
             if (bit9240)
-                flags = packet.ReadInt32("flags", idx);
+                IconBorder = packet.ReadInt32("IconBorder", idx);
             if (bit9248)
-                Unkt2Id = packet.ReadInt32("Unkt2Id", idx);
+                Unk1 = packet.ReadInt32("Unkt2Id", idx);
             if (bit9256)
-                Unkt4Id = packet.ReadInt32("Unkt4Id", idx);
+                Unk2 = packet.ReadInt32("Unkt4Id", idx);
             if (bit9264)
-                Unkt3Id = packet.ReadInt32("Unkt3Id", idx);
+                UiTextureAtlasMemberID = packet.ReadInt32("Unkt3Id", idx);
 
-            var name6 = packet.ReadWoWString("Name6", bits13396, idx);
-            var name7 = packet.ReadWoWString("Name7", bits17493, idx);
-
-            // BATTLEPAY DISPLAYINFO
+            var Description4 = packet.ReadWoWString("Description4", bits13396, idx);
+            //var name7 = packet.ReadWoWString("Name7", bits17493, idx);
 
             // BATTLEPAY VISUALS
             for (int j = 0; j < bit9272; j++)
             {
                 packet.ResetBitReader();
                 var ProductName = packet.ReadBits(10);
-                var visual1 = packet.ReadInt32("Visual", idx, j);
-                var visual2 = packet.ReadInt32("Visual", idx, j);
-				var visual3 = packet.ReadInt32("unktvisual", idx, j);
-                var productname = packet.ReadWoWString("ProductName", ProductName, idx, j);
+                var visual1 = packet.ReadInt32("CreatureDisplayID", idx, j);
+                var visual2 = packet.ReadInt32("PreviewUIModelSceneID", idx, j);
+				var visual3 = packet.ReadInt32("TransmogSetID", idx, j);
+                var productname = packet.ReadWoWString("Title", ProductName, idx, j);
             }
         }
-
+        
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE)]
         public static void HandletBattlePayGetProductListResponse(Packet packet)
         {
@@ -139,10 +139,9 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 uint displayentry = 0;
                 if (HasBattlepayDisplayInfo)
                 {
-                    ReadBattlepayDisplayInfo(packet, ((int)index), index);
+                    ReadBattlepayDisplayInfo(packet, index, index);
                     displayentry = index+1;
                 }
-
             }
 
             // BATTLEPAY PRODUCT
@@ -151,7 +150,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var productid = packet.ReadUInt32("ProductId", j);
                 var type = packet.ReadByte("Type", j);
                 var flags = packet.ReadUInt32("Flags", j);
-                var UnkInt1 = packet.ReadUInt32("UnkInt1", j);
+                var UnkInt1 = packet.ReadUInt32("Unk1", j);
                 var displayid = packet.ReadUInt32("DisplayId", j);
                 var ItemId = packet.ReadUInt32("ItemId", j);
                 var UnkInt4 = packet.ReadUInt32("UnkInt4", j);
@@ -165,11 +164,11 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 packet.ResetBitReader();
 
                 var UnkString = packet.ReadBits("UnkString", 8, j);
-                var UnkBit = packet.ReadBit("UnkBit", j);
                 var UnkBits = packet.ReadBit("UnkBits", j);
+                var UnkBit = packet.ReadBit("UnkBit", j);
                 var ItemsSize = packet.ReadBits("ItemsSize", 7, j);
                 var HasDisplayInfo = packet.ReadBit("HasDisplayInfo", j);//OkHere
-
+                packet.ReadBit("bfabit maybe", j);
                 uint PetResultVariable = 0;
                 if (UnkBits)
                     PetResultVariable = packet.ReadBits("PetResultVariable", 4, j);
@@ -201,7 +200,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var name = packet.ReadWoWString("Name", UnkString, j);
 
                 if (HasDisplayInfo)
-                    ReadBattlepayDisplayInfo(packet, 2000, j);
+                    ReadBattlepayDisplayInfo(packet, productid+1, j);
             }
 
 
@@ -213,6 +212,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var displaytype = packet.ReadByte("DisplayType", i);
                 var ordering = packet.ReadInt32("Ordering", i);
                 var unkt = packet.ReadInt32("unkt", i);
+                //var maingroupid = packet.ReadInt32("MainGroupID", i);
 
                 packet.ResetBitReader();
 
@@ -230,6 +230,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     DisplayType = ((uint)displaytype),
                     Ordering = ((uint)ordering),
                     Unk = ((uint)unkt),
+                    //MainGroupID = ((uint)maingroupid),
                     Name = name,
                     Description = description,
                 };
@@ -246,11 +247,11 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 var vasservicetype = packet.ReadInt32("VasServiceType", i);
                 var storedeliverytype = packet.ReadByte("StoreDeliveryType", i);
 
-                packet.ResetBitReader();
+                //packet.ResetBitReader();
 
                 var bit5172 = packet.ReadBit("HasBattlepayDisplayInfo", i);
                 if (bit5172)
-                    ReadBattlepayDisplayInfo(packet, ((int)i), i);
+                    ReadBattlepayDisplayInfo(packet, i, i);
 
             }
 
@@ -264,23 +265,20 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadInt32("ProductID", index);
 
             packet.ReadPackedGuid128("TargetPlayer", index);
-            packet.ReadPackedGuid128("UnkGuid", index);
             packet.ReadInt32("TargetVirtualRealm", index);
             packet.ReadInt32("TargetNativeRealm", index);
 
             packet.ReadInt64("PurchaseID", index);
 
-            packet.ReadInt32("Unk55AC", index);
-
             packet.ResetBitReader();
 
-            // 2 bits good
             var bit5248 = packet.ReadBit("HasBattlePayProduct", index);
+
             packet.ReadBit("Revoked", index);
 
             if (bit5248)
             {
-                var productid = packet.ReadUInt32("ProductId", index);
+                packet.ReadUInt32("ProductId", index);
                 packet.ReadByte("Type", index);
                 packet.ReadUInt32("Flags", index);
                 packet.ReadUInt32("UnkInt1", index);
@@ -296,7 +294,6 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
                 packet.ResetBitReader();
 
-                // unsure about 8 bit read here
                 var UnkString = packet.ReadBits("UnkString", 8, index);
                 var UnkBit = packet.ReadBit("UnkBit", index);
                 var UnkBits = packet.ReadBit("UnkBits", index);
@@ -325,12 +322,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                         packet.ReadBits("PetResultVariable", 4, g);
 
                     if (DisplayInfo)
-                        ReadBattlepayDisplayInfo(packet, 3000, g);
+                        ReadBattlepayDisplayInfo(packet, g);
 
                 }
                 packet.ReadWoWString("Name", UnkString, index);
                 if (HasDisplayInfo)
-                    ReadBattlepayDisplayInfo(packet, 4000, index);
+                    ReadBattlepayDisplayInfo(packet, 0, index);
             }
         }
 

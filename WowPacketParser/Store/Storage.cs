@@ -571,13 +571,8 @@ namespace WowPacketParser.Store
         public static readonly DataBag<WmoAreaTableLocaleHotfix1000> WmoAreaTableHotfixesLocale1000 = new DataBag<WmoAreaTableLocaleHotfix1000>(new List<SQLOutput> { SQLOutput.hotfixes });
 
         //Battle Pay
-        public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_displayinfo });
-        public static readonly DataBag<BattlePayVisual> BattlePayVisuals = new DataBag<BattlePayVisual>(new List<SQLOutput> { SQLOutput.battlepay_visual });
-        public static readonly DataBag<BattlePayProductInfo> BattlePayProductInfos = new DataBag<BattlePayProductInfo>(new List<SQLOutput> { SQLOutput.battlepay_productinfo });
-        public static readonly DataBag<BattlePayProduct> BattlePayProducts = new DataBag<BattlePayProduct>(new List<SQLOutput> { SQLOutput.battlepay_product });
-        public static readonly DataBag<BattlePayItem> BattlePayItems = new DataBag<BattlePayItem>(new List<SQLOutput> { SQLOutput.battlepay_item });
+        public static readonly DataBag<BattlePayProductTemplate> BattlePayProductTemplates = new DataBag<BattlePayProductTemplate>(new List<SQLOutput> { SQLOutput.battlepay_product_template });
         public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_group });
-        public static readonly DataBag<BattlePayShop> BattlePayShops = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop });
         
         public static void ClearContainers()
         {
@@ -1109,7 +1104,8 @@ namespace WowPacketParser.Store
             UnitPowerBarHotfixesLocale1000.Clear();
             WmoAreaTableHotfixesLocale1000.Clear();
 
-            BattlePayDisplayInfos.Clear();
+            BattlePayGroups.Clear();
+            BattlePayProductTemplates.Clear();
         }
     }
 }

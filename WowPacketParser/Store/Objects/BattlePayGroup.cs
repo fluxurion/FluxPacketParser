@@ -22,7 +22,7 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Unk")]
         public uint Unk;
 
-        [DBFieldName("MainGroupID")]
+        //[DBFieldName("MainGroupID")]
         public uint MainGroupID;
 
         [DBFieldName("Name")]
