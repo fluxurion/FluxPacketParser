@@ -26,7 +26,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var hasTotalEarned = packet.ReadBit();
                 var hasHasNextRechargeTime = packet.ReadBit();
                 var hasRechargeCycleStartTime = false;
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49407))
                     hasRechargeCycleStartTime = packet.ReadBit();
 
                 packet.ReadBits("Flags", 5, i);
@@ -75,7 +75,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var hasFirstCraftOperationID = packet.ReadBit("HasFirstCraftOperationID");
             var hasHasNextRechargeTime = packet.ReadBit("HasNextRechargeTime");
             var hasRechargeCycleStartTime = false;
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49407))
                 hasRechargeCycleStartTime = packet.ReadBit("HasRechargeCycleStartTime");
 
             if (hasWeeklyQuantity)
@@ -107,6 +107,33 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             if (hasRechargeCycleStartTime)
                 packet.ReadTime64("RechargeCycleStartTime");
+        }
+
+        [Parser(Opcode.SMSG_DISPLAY_TOAST)]
+        public static void HandleDisplayToast(Packet packet)
+        {
+            packet.ReadUInt64("Quantity");
+
+            packet.ReadByte("DisplayToastMethod");
+            packet.ReadUInt32("QuestID");
+
+            packet.ResetBitReader();
+
+            packet.ReadBit("Mailed");
+            var type = packet.ReadBits("Type", 2);
+            packet.ReadBit("IsSecondaryResult");
+
+            if (type == 0)
+            {
+                packet.ReadBit("BonusRoll");
+                Substructures.ItemHandler.ReadItemInstance(packet);
+                packet.ReadInt32("LootSpec");
+                packet.ReadSByte("Gender");
+                packet.ReadInt32("ItemQuantity?");
+            }
+
+            if (type == 1)
+                packet.ReadUInt32("CurrencyID");
         }
 
 
@@ -306,5 +333,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("Unk1000");
         }
         // < Fluxurion
+
     }
 }
