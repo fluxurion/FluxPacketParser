@@ -10,7 +10,7 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Entry", true)]
         public uint Entry;
         
-        //[DBFieldName("ProductInfoID", true)]
+        [DBFieldName("ProductInfoID", true)]
         public int ProductInfoID;
 
         [DBFieldName("IconFileDataID", true)]
@@ -43,7 +43,7 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Description4")]
         public string Description4;
 
-        //[DBFieldName("Description5")]
+        [DBFieldName("Description5")]
         public string Description5;
 
         [DBFieldName("IconBorder", true)]
@@ -85,7 +85,7 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("CurrentPrice", true)]
         public long CurrentPrice;
 
-        //[DBFieldName("BundleProductIDs", true)]
+        [DBFieldName("BundleProductIDs", true)]
         public string BundleProductIDs;
 
         [DBFieldName("Flags", true)]
