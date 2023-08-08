@@ -46,7 +46,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             var VisualsSize = packet.ReadInt32("VisualsSize", index);
 
-            var Unk3 = packet.ReadInt32("Unk3", index);
+            var CardType = packet.ReadInt32("CardType", index);
             var Unk4 = packet.ReadInt32("Unk4", index);
             var Unk5 = packet.ReadInt32("Unk5", index);
 
@@ -93,6 +93,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     productTemplate.Item1.Description = Description;
                     productTemplate.Item1.Description2 = Description2;
                     productTemplate.Item1.Description3 = Description3;
+                    productTemplate.Item1.CardType = CardType;
                     productTemplate.Item1.IconBorder = IconBorder;
                     productTemplate.Item1.UiTextureAtlasMemberID = UiTextureAtlasMemberID;
                     productTemplate.Item1.Description4 = Description4;
