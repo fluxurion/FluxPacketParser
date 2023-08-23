@@ -3366,6 +3366,7 @@ namespace WowPacketParser.Enums
         UMSG_UPDATE_GROUP_INFO,
         UMSG_UPDATE_GROUP_MEMBERS,
         UMSG_UPDATE_GUILD,
+        FASZTUDJA,
 
         // Tests
         TEST_430_SYNC_PLAYER_MOVE,

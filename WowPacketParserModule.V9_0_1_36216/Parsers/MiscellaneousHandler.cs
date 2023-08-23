@@ -335,5 +335,37 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         {
             packet.ReadPackedGuid128("ConversationGUID");
         }
+
+
+        [Parser(Opcode.SMSG_SET_CHR_UPGRADE_TIER)]
+        public static void HandleSetCharUpgradeTier(Packet packet)
+        {
+            packet.ReadInt32("asd");
+        }
+
+        [Parser(Opcode.CMSG_CONSUMABLE_TOKEN_CAN_VETERAN_BUY)]
+        public static void HandleConsumableTokenCMSG(Packet packet)
+        {
+            packet.ReadInt32("asd");
+        }
+
+        [Parser(Opcode.SMSG_CONSUMABLE_TOKEN_CAN_VETERAN_BUY_RESPONSE)]
+        public static void HandleConsumableTokenSMSG(Packet packet)
+        {
+            packet.ReadPackedGuid128("guid");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+        }
+
+        [Parser(Opcode.FASZTUDJA)]
+        public static void HandleFasztudja(Packet packet)
+        {
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+        }
+
     }
 }

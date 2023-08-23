@@ -19,6 +19,7 @@ namespace WowPacketParser.Enums.Version.V9_2_5_43903
 
         private static readonly BiDictionary<Opcode, int> ClientOpcodes = new BiDictionary<Opcode, int>
         {
+            {Opcode.FASZTUDJA, 0x36C1},
             {Opcode.CMSG_ABANDON_NPE_RESPONSE, 0x33E1},
             {Opcode.CMSG_ACCEPT_GUILD_INVITE, 0x35FC},
             {Opcode.CMSG_ACCEPT_SOCIAL_CONTRACT, 0x373B},

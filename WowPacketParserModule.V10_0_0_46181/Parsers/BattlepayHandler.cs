@@ -353,7 +353,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             packet.ResetBitReader();
 
-            // 2 bits good
             var bit5248 = packet.ReadBit("HasBattlePayProduct", index);
             packet.ReadBit("Revoked", index);
 
@@ -361,23 +360,22 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             {
                 var productid = packet.ReadUInt32("ProductId", index);
                 packet.ReadByte("Type", index);
-                packet.ReadUInt32("Flags", index);
-                packet.ReadUInt32("UnkInt1", index);
-                packet.ReadUInt32("DisplayId", index);
-                packet.ReadUInt32("ItemId", index);
-                packet.ReadUInt32("UnkInt4", index);
-                packet.ReadUInt32("UnkInt5", index);
-
-                packet.ReadUInt32("UnkInt6", index);
-                packet.ReadUInt32("UnkInt7", index);
-                packet.ReadUInt32("UnkInt8", index);
-                packet.ReadUInt32("UnkInt9", index);
+                packet.ReadUInt32("ItemID", index);
+                packet.ReadUInt32("ItemCount", index);
+                packet.ReadUInt32("MountSpellID", index);
+                packet.ReadUInt32("BattlePetSpeciesCreatureID", index);
+                packet.ReadUInt32("Unk1", index);
+                packet.ReadUInt32("Unk2", index);
+                packet.ReadUInt32("Unk3", index);
+                packet.ReadUInt32("TransmogSetID", index);
+                packet.ReadUInt32("Unk8", index);
+                packet.ReadUInt32("Unk9", index);
 
                 packet.ResetBitReader();
 
                 // unsure about 8 bit read here
-                var UnkString = packet.ReadBits("UnkString", 8, index);
-                var UnkBit = packet.ReadBit("UnkBit", index);
+                var UnkString = packet.ReadBits("NameSize", 8, index);
+                var UnkBit = packet.ReadBit("AlreadyOwned", index);
                 var UnkBits = packet.ReadBit("UnkBits", index);
                 var ItemsSize = packet.ReadBits("ItemsSize", 7, index);
                 var HasDisplayInfo = packet.ReadBit("HasDisplayInfo", index);//OkHere

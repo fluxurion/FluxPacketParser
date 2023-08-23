@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
@@ -138,6 +140,25 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
 
         // Fluxurion >
+        [Parser(Opcode.CMSG_RPE_RESET_CHARACTER)]
+        public static void HandleRPEResetChar(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharGuid");
+            packet.ReadByte("Spec");
+            packet.ReadByte("byte");
+            packet.ReadByte("byte");
+            packet.ReadByte("byte");
+            packet.ReadBit("ResetQuests");
+        }
+
+        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_COMPLETE)]
+        public static void HandleCharUpgradeComplete(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharGuid");
+            var loadoutItemCount = packet.ReadInt32("LoadoutItemCount");
+            for (var i = 0; i < loadoutItemCount; i++)
+                packet.ReadInt32("ItemID");
+        }
         public static void ReadGameRuleValuePair(Packet packet, params object[] indexes)
         {
             packet.ReadInt32("Rule", indexes);
