@@ -10,6 +10,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void HandlePerksProgramActivityUpdate(Packet packet)
         {
             var activityCount = packet.ReadUInt32("ActivityCount");
+            packet.ReadTime64("StartTime");
             for (var i = 0; i < activityCount; i++)
                 packet.ReadInt32("ActivityID", i);
         }
