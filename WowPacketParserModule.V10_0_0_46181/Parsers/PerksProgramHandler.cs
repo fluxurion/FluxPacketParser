@@ -10,7 +10,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void HandlePerksProgramActivityUpdate(Packet packet)
         {
             var activityCount = packet.ReadUInt32("ActivityCount");
-            packet.ReadTime64("StartTime");
+            packet.ReadTime64("EndTime");
             for (var i = 0; i < activityCount; i++)
                 packet.ReadInt32("ActivityID", i);
         }
@@ -20,5 +20,137 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             packet.ReadInt32("ActivityID");
         }
+
+        // Fluxurion >
+        [Parser(Opcode.SMSG_PERKS_PROGRAM_RESULT)]
+        public static void HandlePerksProgramResult(Packet packet)
+        {
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("PerksVendorItemID");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("TransmogSetID");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("PerksVendorItemCost");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+        }
+        // < Fluxurion
     }
 }
