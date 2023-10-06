@@ -101,6 +101,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 }
             }
 
+            List<string> previewTitles = new List<string>();
+            List<string> previewCreatureDisplayIDs = new List<string>();
+            List<string> previewUIModelSceneIDs = new List<string>();
+            List<string> previewTransmogSets = new List<string>();
+
             for (int j = 0; j < VisualsSize; j++)
             {
                 packet.ResetBitReader();
@@ -110,15 +115,26 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 				var TransmogSetID = packet.ReadInt32("TransmogSetID", j, j);
                 var Title_Visual = packet.ReadWoWString("Title_Visual", TitleSize_Visual, j, j);
 
+                previewTitles.Add("'" + Title_Visual + "'");
+                previewCreatureDisplayIDs.Add(CreatureDisplayID.ToString());
+                previewUIModelSceneIDs.Add(PreviewUIModelSceneID.ToString());
+                previewTransmogSets.Add(TransmogSetID.ToString());
+            }
 
-                // BATTLEPAY VISUALS
-                foreach (var productTemplate in Storage.BattlePayProductTemplates)
+            string previewTitles_String = string.Join(",", previewTitles);
+            string previewCreatureDisplayIDs_String = string.Join(",", previewCreatureDisplayIDs);
+            string previewUIModelSceneIDs_String = string.Join(",", previewUIModelSceneIDs);
+            string previewTransmogSets_String = string.Join(",", previewTransmogSets);
+
+            // BATTLEPAY VISUALS
+            foreach (var productTemplate in Storage.BattlePayProductTemplates)
+            {
+                if (productTemplate.Item1.Entry == templateEntry)
                 {
-                    if (productTemplate.Item1.Entry == templateEntry)
-                    {
-                        productTemplate.Item1.CreatureDisplayID = CreatureDisplayID;
-                        productTemplate.Item1.PreviewUIModelSceneID = PreviewUIModelSceneID;
-                    }
+                    productTemplate.Item1.PreviewTitles = previewTitles_String;
+                    productTemplate.Item1.PreviewCreatureDisplayIDs = previewCreatureDisplayIDs_String;
+                    productTemplate.Item1.PreviewUIModelSceneIDs = previewUIModelSceneIDs_String;
+                    productTemplate.Item1.PreviewTransmogSets = previewTransmogSets_String;
                 }
             }
         }

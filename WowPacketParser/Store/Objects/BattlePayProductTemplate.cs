@@ -19,11 +19,17 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("UIModelSceneID", true)]
         public int UIModelSceneID;
 
-        [DBFieldName("CreatureDisplayID", true)]
-        public int CreatureDisplayID;
+        [DBFieldName("PreviewTitles", true)]
+        public string PreviewTitles;
 
-        [DBFieldName("PreviewUIModelSceneID", true)]
-        public int PreviewUIModelSceneID;
+        [DBFieldName("PreviewCreatureDisplayIDs", true)]
+        public string PreviewCreatureDisplayIDs;
+
+        [DBFieldName("PreviewUIModelSceneIDs", true)]
+        public string PreviewUIModelSceneIDs;
+
+        [DBFieldName("PreviewTransmogSets", true)]
+        public string PreviewTransmogSets;
 
         [DBFieldName("Title")]
         public string Title;
