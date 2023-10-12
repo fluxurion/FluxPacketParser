@@ -205,7 +205,10 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     if (_productTemplate.Item1.Entry == productTemplate.Entry)
                         alreadyThere = true;
 
-                if (!alreadyThere)
+                // If the product is already there cuz it can be there more times! we add it with entry 5000+
+                if (alreadyThere)
+                    productTemplate.Entry += 5000 + index; 
+
                     Storage.BattlePayProductTemplates.Add(productTemplate);
 
                 if (HasBattlepayDisplayInfo)
