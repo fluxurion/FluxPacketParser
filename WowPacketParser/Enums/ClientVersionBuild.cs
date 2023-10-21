@@ -486,6 +486,7 @@ namespace WowPacketParser.Enums
         V10_1_7_51421 = 51421,
         V10_1_7_51485 = 51485,
         V10_1_7_51536 = 51536,
+        V10_1_7_51754 = 51754,
 
         // Classic
         V1_13_2_31446 = 31446,
@@ -642,6 +643,7 @@ namespace WowPacketParser.Enums
         V2_5_4_44400 = 44400, // both live and ptr
         V2_5_4_44833 = 44833, // both live and ptr
 
+        V3_4_0_44832 = 44832, // ptr / beta
         V3_4_0_45166 = 45166, // ptr / beta
         V3_4_0_45189 = 45189, // ptr / beta
         V3_4_0_45264 = 45264, // ptr / beta
@@ -661,6 +663,31 @@ namespace WowPacketParser.Enums
         V3_4_0_46779 = 46779, // live
         V3_4_0_46902 = 46902, // live
         V3_4_0_47168 = 47168, // live
+
+        V3_4_1_47014 = 47014, // live
+        V3_4_1_47612 = 47612, // live
+        V3_4_1_47720 = 47720, // live
+        V3_4_1_47800 = 47800, // live
+        V3_4_1_47966 = 47966, // live
+        V3_4_1_48019 = 48019, // live
+        V3_4_1_48120 = 48120, // live
+        V3_4_1_48340 = 48340, // live
+        V3_4_1_48503 = 48503, // live
+        V3_4_1_48632 = 48632, // live
+        V3_4_1_49345 = 49345, // live
+        V3_4_1_49822 = 49822, // live
+        V3_4_1_49936 = 49936, // live
+
+        V3_4_2_50129 = 50129, // live and ptr
+        V3_4_2_50172 = 50172, // live
+        V3_4_2_50250 = 50250, // live and ptr
+        V3_4_2_50375 = 50375, // live and ptr
+        V3_4_2_50664 = 50664, // live
+
+        V3_4_3_51505 = 51505, // ptr
+        V3_4_3_51572 = 51572, // ptr
+        V3_4_3_51666 = 51666, // both live and ptr
+        V3_4_3_51739 = 51739, // both live and ptr
 
         // Battle.net - should probably not mix this but oh well
         BattleNetV37165 = 37165,
