@@ -314,16 +314,32 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadBit("Unk14");
             packet.ReadBit("WillKickFromWorld");
             packet.ReadBit("IsExpansionPreorderInStore");
+
             packet.ReadBit("KioskModeEnabled");
             packet.ReadBit("IsCompetitiveModeEnabled");
+            packet.ReadBit("Unk1002");
             packet.ReadBit("TrialBoostEnabled");
             packet.ReadBit("TokenBalanceEnabled");
             packet.ReadBit("LiveRegionCharacterListEnabled");
             packet.ReadBit("LiveRegionCharacterCopyEnabled");
             packet.ReadBit("LiveRegionAccountCopyEnabled");
+
             packet.ReadBit("LiveRegionKeyBindingsCopyEnabled");
             packet.ReadBit("Unknown901CheckoutRelated");
-            var europaTicket = packet.ReadBit("IsEuropaTicketSystemStatusEnabled");
+            packet.ReadBit("Unk1002"); 
+            var europaTicket = packet.ReadBit("EuropaTicketSystemStatusHasValue");
+            packet.ReadBit("Unk1002");
+            var launchETA = packet.ReadBit("LaunchETAHasValue");
+            packet.ReadBit("AddonsDisabled");
+            packet.ReadBit("Unused1000");
+
+            packet.ReadBit("AccountSaveDataExportEnabled");
+            packet.ReadBit("AccountLockedByExport");
+            var realmHiddenAlert = packet.ReadBit("RealmHiddenAlertHasValue");
+
+            //if (realmHiddenAlert)
+                //read realmhiddenalert
+
             packet.ResetBitReader();
 
             if (europaTicket)
@@ -339,26 +355,28 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadInt32("ActiveClassTrialBoostType");
             packet.ReadInt32("MinimumExpansionLevel");
             packet.ReadInt32("MaximumExpansionLevel");
+            packet.ReadInt32("ActiveSeason");
+            var gameRuleValuesCount = packet.ReadUInt32("GameRuleValuesSize");
+            packet.ReadInt16("MaxPlayerNameQueriesPerPacket");
+            var playerNameQueryTelemetryInterval = packet.ReadInt16("PlayerNameQueryTelemetryInterval");
+            if (playerNameQueryTelemetryInterval > 0)
+                packet.ReadInt16("PlayerNameQueryInterval");
 
-            var gameRuleValuesCount = 0u;
+            var debugTimeEventInfoCount = packet.ReadUInt32("DebugTimeEventsSize");
+            packet.ReadInt32("Unused1007");
 
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181))
-            {
-                packet.ReadInt32("GameRuleUnknown1");
-                gameRuleValuesCount = packet.ReadUInt32("GameRuleValuesCount");
-                packet.ReadInt16("MaxPlayerNameQueriesPerPacket");
+            // read launcheta int32
 
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181))
-                    packet.ReadInt16("PlayerNameQueryTelemetryInterval");
-            }
+            // read realmhiddenalert string
 
             for (int i = 0; i < liveRegionCharacterCopySourceRegionsCount; i++)
                 packet.ReadUInt32("LiveRegionCharacterCopySourceRegion", i);
 
             for (var i = 0; i < gameRuleValuesCount; ++i)
                 ReadGameRuleValuePair(packet, "GameRuleValues");
-
-            packet.ReadUInt32("Unk1000");
+            
+            for (var i = 0; i < debugTimeEventInfoCount; ++i)
+                ReadGameRuleValuePair(packet, "debugTimeEventInfo");
         }
         // < Fluxurion
 
