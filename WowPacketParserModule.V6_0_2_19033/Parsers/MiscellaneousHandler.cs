@@ -89,9 +89,9 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
 
         public static void ReadCliSavedThrottleObjectState(Packet packet, params object[] idx)
         {
-            packet.ReadUInt32("MaxTries", idx);
+            packet.ReadByte("MaxTries", idx);
             packet.ReadUInt32("PerMilliseconds", idx);
-            packet.ReadUInt32("TryCount", idx);
+            packet.ReadByte("TryCount", idx);
             packet.ReadUInt32("LastResetTimeBeforeNow", idx);
         }
 
