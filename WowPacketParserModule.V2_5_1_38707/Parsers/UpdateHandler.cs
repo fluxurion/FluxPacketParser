@@ -335,7 +335,7 @@ namespace WowPacketParserModule.V2_5_1_38707.Parsers
                 }
 
                 var hasStandingOnGameObjectGUID = false;
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_4_3_51505))
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_4_2_50063))
                     hasStandingOnGameObjectGUID = packet.ReadBit("HasStandingOnGameObjectGUID", index);
 
                 var hasTransport = packet.ReadBit("Has Transport Data", index);
@@ -387,8 +387,8 @@ namespace WowPacketParserModule.V2_5_1_38707.Parsers
                     }
                 }
 
-                moveInfo.WalkSpeed = packet.ReadSingle("WalkSpeed", index);
-                moveInfo.RunSpeed = packet.ReadSingle("RunSpeed", index);
+                moveInfo.WalkSpeed = packet.ReadSingle("WalkSpeed", index) / 2.5f;
+                moveInfo.RunSpeed = packet.ReadSingle("RunSpeed", index) / 7.0f;
                 packet.ReadSingle("RunBackSpeed", index);
                 packet.ReadSingle("SwimSpeed", index);
                 packet.ReadSingle("SwimBackSpeed", index);
@@ -650,6 +650,7 @@ namespace WowPacketParserModule.V2_5_1_38707.Parsers
                 bool hasMorphCurveID = packet.ReadBit("HasMorphCurveID", index);
                 bool hasFacingCurveID = packet.ReadBit("HasFacingCurveID", index);
                 bool hasMoveCurveID = packet.ReadBit("HasMoveCurveID", index);
+                bool hasAnimProgress = false;
 
                 if (packet.ReadBit("HasAnimID", index))
                     areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasAnimId;
@@ -660,7 +661,7 @@ namespace WowPacketParserModule.V2_5_1_38707.Parsers
                 if (packet.ReadBit("unkbit50", index))
                     areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.Unk3;
 
-                bool hasAnimProgress = packet.ReadBit("HasAnimProgress", index);
+                hasAnimProgress = packet.ReadBit("HasAnimProgress", index);
 
                 if (packet.ReadBit("HasAreaTriggerSphere", index))
                     areaTriggerTemplate.Type = (byte)AreaTriggerType.Sphere;
@@ -870,7 +871,7 @@ namespace WowPacketParserModule.V2_5_1_38707.Parsers
 
                 if (hasActionButtons)
                 {
-                    var actionButtonCount = (ClientVersion.AddedInVersion(ClientVersionBuild.V3_4_3_51505) ? 180 : 132);
+                    var actionButtonCount = (ClientVersion.AddedInVersion(ClientVersionBuild.V3_4_2_50063) ? 180 : 132);
                     for (int i = 0; i < actionButtonCount; i++)
                         packet.ReadInt32("Action", index, i);
                 }

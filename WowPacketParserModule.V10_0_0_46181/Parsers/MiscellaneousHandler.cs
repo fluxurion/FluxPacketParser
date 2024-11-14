@@ -123,7 +123,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             packet.ReadUInt64("Quantity");
 
-            packet.ReadByte("DisplayToastMethod");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadUInt32("DisplayToastMethod");
+            else
+                packet.ReadByte("DisplayToastMethod");
+
             packet.ReadUInt32("QuestID");
 
             packet.ResetBitReader();
@@ -143,6 +147,23 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             if (type == 1)
                 packet.ReadUInt32("CurrencyID");
+        }
+
+        [Parser(Opcode.SMSG_START_TIMER)]
+        public static void HandleStartTimer(Packet packet)
+        {
+            packet.ReadInt64("TotalTime");
+            if (ClientVersion.RemovedInVersion(ClientVersionBuild.V10_2_7_54577))
+                packet.ReadInt64("TimeLeft");
+            packet.ReadUInt32E<TimerType>("Type");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_7_54577))
+            {
+                packet.ReadInt64("TimeLeft");
+                var hasPlayerGUID = packet.ReadBit("HasPlayerGUID");
+                if (hasPlayerGUID)
+                    packet.ReadPackedGuid128("PlayerGUID");
+            }
         }
 
 

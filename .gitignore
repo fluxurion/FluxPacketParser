@@ -23,4 +23,7 @@ packages/*
 
 wpp.tgz
 cov-int
+
+# Rider
+.idea
 /.vscode

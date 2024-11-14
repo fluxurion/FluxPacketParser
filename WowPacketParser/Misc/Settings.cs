@@ -17,6 +17,7 @@ namespace WowPacketParser.Misc
         public static readonly ClientVersionBuild ClientBuild = Conf.GetEnum("ClientBuild", ClientVersionBuild.Zero);
         public static readonly LocaleConstant ClientLocale = Conf.GetEnum("ClientLocale", LocaleConstant.enUS);
         public static readonly TargetedDatabase TargetedDatabase = Conf.GetEnum("TargetedDatabase", TargetedDatabase.WrathOfTheLichKing);
+        public static readonly TargetedProject TargetedProject = Conf.GetEnum("TargetedProject", TargetedProject.TrinityCore);
         public static readonly DumpFormatType DumpFormat = Conf.GetEnum("DumpFormat", DumpFormatType.Text);
         public static readonly ulong SQLOutputFlag = GetSQLOutputFlag();
         public static readonly bool SQLOrderByKey = Conf.GetBoolean("SqlOrderByKey", false);
@@ -26,6 +27,7 @@ namespace WowPacketParser.Misc
         public static readonly bool SkipRowsWithFallbackValues = Conf.GetBoolean("SkipRowsWithFallbackValues", true);
         public static readonly bool IgnoreZeroValues = Conf.GetBoolean("IgnoreZeroValues", false);
         public static readonly bool ForceInsertQueries = Conf.GetBoolean("ForceInsertQueries", false);
+        public static readonly int MaximumConditionsPerStatement = Conf.GetInt("MaximumConditionsPerStatement", 5000);
         public static readonly bool RecalcDiscount = Conf.GetBoolean("RecalcDiscount", false);
         public static readonly bool ForcePhaseZero = Conf.GetBoolean("ForcePhaseZero", false);
         public static readonly bool GenerateCreateObject2SpawnsOnly = Conf.GetBoolean("GenerateCreateObject2SpawnsOnly", false);

@@ -79,8 +79,7 @@ namespace WowPacketParser.SQL.Builders
                         && p.Data.Map == creature.Map
                         && FloatComparison((float)p.Data.PosX, creature.Movement.Position.X, precision)
                         && FloatComparison((float)p.Data.PosY, creature.Movement.Position.Y, precision)
-                        && FloatComparison((float)p.Data.PosZ, creature.Movement.Position.Z, precision)
-                        && FloatComparison((float)p.Data.Orientation, creature.Movement.Orientation, precision)).FirstOrDefault();
+                        && FloatComparison((float)p.Data.PosZ, creature.Movement.Position.Z, precision)).FirstOrDefault();
 
                     if (existingCreature != null)
                         creature.ExistingDatabaseSpawn = true;
@@ -203,12 +202,16 @@ namespace WowPacketParser.SQL.Builders
                 row.Data.ModelID = 0;
                 row.Data.CurrentWaypoint = 0;
                 row.Data.CurHealth = (uint)creature.UnitData.MaxHealth;
+                row.Data.CurHealthPct = 100;
                 row.Data.CurMana = (uint)creature.UnitData.MaxPower[0];
                 row.Data.NpcFlag = null;
                 row.Data.UnitFlags = null;
                 row.Data.UnitFlags2 = null;
                 row.Data.UnitFlags3 = null;
                 row.Data.DynamicFlag = 0;
+
+                if (creature.UnitData.Health > 1 && (creature.UnitData.Flags & (uint)UnitFlags.IsInCombat) == 0)
+                    row.Data.CurHealthPct = (uint)(creature.UnitData.Health / creature.UnitData.MaxHealth * 100);
 
                 row.Comment = StoreGetters.GetName(StoreNameType.Unit, (int)entry, false);
                 row.Comment += " (Area: " + StoreGetters.GetName(StoreNameType.Area, creature.Area, false) + " - ";
@@ -331,6 +334,14 @@ namespace WowPacketParser.SQL.Builders
             return result.ToString();
         }
 
+        private static float NormalizeOrientation(float originalOri)
+        {
+            if (originalOri > Math.PI) // later expansions used 0-2PI interval, whereas earlier used -PI-PI interval
+                return (float)(originalOri - 2 * Math.PI);
+
+            return originalOri;
+        }
+
         [BuilderMethod(Gameobjects = true)]
         public static string GameObject(Dictionary<WowGuid, GameObject> gameObjects)
         {
@@ -361,7 +372,7 @@ namespace WowPacketParser.SQL.Builders
                         && FloatComparison((float)p.Data.PosX, go.Movement.Position.X, precision)
                         && FloatComparison((float)p.Data.PosY, go.Movement.Position.Y, precision)
                         && FloatComparison((float)p.Data.PosZ, go.Movement.Position.Z, precision)
-                        && FloatComparison((float)p.Data.Orientation, go.Movement.Orientation, precision)
+                        && FloatComparison(NormalizeOrientation((float)p.Data.Orientation), NormalizeOrientation(go.Movement.Orientation), precision)
                         && FloatComparison((float)p.Data.Rot0, staticRot.X, precision)
                         && FloatComparison((float)p.Data.Rot1, staticRot.Y, precision)
                         && (FloatComparison((float)p.Data.Rot2, staticRot.Z, precision) || FloatComparison((float)p.Data.Rot2, -staticRot.Z, precision))

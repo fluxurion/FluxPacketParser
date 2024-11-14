@@ -657,6 +657,9 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181) && ClientVersion.RemovedInVersion(ClientVersionBuild.V10_1_0_49407))
                     packet.ReadBit("Unk1000", index);
 
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_5_52902))
+                    packet.ReadBit("Unk1025", index);
+
                 if (packet.ReadBit("HasTargetRollPitchYaw", index))
                     createProperties.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasTargetRollPitchYaw;
 
@@ -664,6 +667,10 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
                 bool hasMorphCurveID = packet.ReadBit("HasMorphCurveID", index);
                 bool hasFacingCurveID = packet.ReadBit("HasFacingCurveID", index);
                 bool hasMoveCurveID = packet.ReadBit("HasMoveCurveID", index);
+                bool hasPositionalSoundKitID = false;
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_6_53840))
+                    hasPositionalSoundKitID = packet.ReadBit("HasPositionalSoundKitID", index);
+
                 bool hasAnimProgress = false;
 
                 if (ClientVersion.RemovedInVersion(ClientVersionBuild.V9_1_5_40772))
@@ -733,6 +740,9 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
 
                 if (hasMoveCurveID)
                     createProperties.MoveCurveId = (int)packet.ReadUInt32("MoveCurveID", index);
+
+                if (hasPositionalSoundKitID)
+                    packet.ReadUInt32("PositionalSoundKitID", index);
 
                 if ((createProperties.Flags & (int)AreaTriggerCreatePropertiesFlags.HasAnimId) != 0)
                     createProperties.AnimId = packet.ReadInt32("AnimId", index);
