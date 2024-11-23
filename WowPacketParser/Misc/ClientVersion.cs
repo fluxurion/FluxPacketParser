@@ -580,6 +580,9 @@ namespace WowPacketParser.Misc
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57212, new DateTime(2024, 10, 23)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57292, new DateTime(2024, 10, 30)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57388, new DateTime(2024, 11, 01)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57534, new DateTime(2024, 11, 14)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57637, new DateTime(2024, 11, 19)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V11_0_5_57689, new DateTime(2024, 11, 20)),
 
             // no classic info, pkt contain build in header
         };
@@ -1152,6 +1155,9 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V11_0_5_57212:
                 case ClientVersionBuild.V11_0_5_57292:
                 case ClientVersionBuild.V11_0_5_57388:
+                case ClientVersionBuild.V11_0_5_57534:
+                case ClientVersionBuild.V11_0_5_57637:
+                case ClientVersionBuild.V11_0_5_57689:
                     return ClientVersionBuild.V11_0_0_55666;
                 //Classic
                 case ClientVersionBuild.V1_13_2_31446:
@@ -1394,6 +1400,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V1_15_4_57134:
                 case ClientVersionBuild.V4_4_1_57294:
                 case ClientVersionBuild.V4_4_1_57359:
+                case ClientVersionBuild.V4_4_1_57564:
                     return ClientVersionBuild.V4_4_0_54481;
                 case ClientVersionBuild.BattleNetV37165:
                     return ClientVersionBuild.BattleNetV37165;
@@ -1939,6 +1946,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V4_4_0_57244:
                 case ClientVersionBuild.V4_4_1_57294:
                 case ClientVersionBuild.V4_4_1_57359:
+                case ClientVersionBuild.V4_4_1_57564:
                     return true;
                 default:
                     return false;

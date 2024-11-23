@@ -572,6 +572,9 @@ namespace WowPacketParser.Enums
         V11_0_5_57212 = 57212,
         V11_0_5_57292 = 57292,
         V11_0_5_57388 = 57388,
+        V11_0_5_57534 = 57534,
+        V11_0_5_57637 = 57637,
+        V11_0_5_57689 = 57689,
 
         // Classic
         V1_13_2_31446 = 31446,
@@ -839,6 +842,7 @@ namespace WowPacketParser.Enums
 
         V4_4_1_57294 = 57294, // live
         V4_4_1_57359 = 57359, // live
+        V4_4_1_57564 = 57564, // live
 
         // Battle.net - should probably not mix this but oh well
         BattleNetV37165 = 37165,
