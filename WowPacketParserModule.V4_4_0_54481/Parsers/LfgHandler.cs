@@ -425,5 +425,201 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
         public static void HandleLfgZero(Packet packet)
         {
         }
+
+        // FLUXURION >
+        [Parser(Opcode.CMSG_LFG_LIST_SEARCH)]
+        public static void HandleLfgListSearch(Packet packet)
+        {
+            uint searchFilter = 0;
+            packet.ResetBitReader();
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_2_5_24330))
+                searchFilter = packet.ReadBits("SearchFilterNum", 5);
+            else
+                searchFilter = packet.ReadBits("SearchFilterNum", 6);
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_2_5_24330))
+            {
+                uint[] length = new uint[4];
+                for (int i = 0; i < searchFilter; i++)
+                {
+                    packet.ResetBitReader();
+                    for (int z = 0; z < 3; z++)
+                        length[z] = packet.ReadBits("SearchFilterLength", 5, i, z);
+                    for (int z = 0; z < 3; z++)
+                        packet.ReadWoWString("SearchFilter", length[z], i, z);
+                }
+            }
+            packet.ReadInt32("GroupFinderCategoryId");
+            packet.ReadInt32("SubActivityGroupID");
+            packet.ReadInt32E<LfgListFilter>("LFGListFilter");
+            packet.ReadUInt32E<LocaleConstantFlags>("LanguageFilter"); // 0x6b3 is default in enUS client (= enUS, koKR, ptBR, none, zhCN, zhTW, esMX)
+
+            var entryCount = packet.ReadInt32();
+            var guidCount = packet.ReadInt32();
+
+            if (ClientVersion.RemovedInVersion(ClientVersionBuild.V7_2_5_24330))
+                packet.ReadWoWString("SearchFilter", searchFilter);
+
+            for (int i = 0; i < entryCount; i++)
+            {
+                if (ClientVersion.RemovedInVersion(ClientVersionBuild.V7_2_5_24330))
+                {
+                    packet.ReadInt32("GroupFinderActivityId");
+                    packet.ReadInt32E<LfgLockStatus>("LockStatus");
+                }
+                else
+                {
+                    packet.ReadInt32("Unk");
+                }
+            }
+
+            for (int i = 0; i < guidCount; i++)
+                packet.ReadPackedGuid128("UnkGUID", i); // PartyMember?
+
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadInt32("asd");
+            packet.ReadByte("asd");
+        }
+
+        public static void ReadLfgListSearchResultMemberInfo(Packet packet, params object[] idx)
+        {
+            packet.ReadByteE<Class>("Class", idx);
+            packet.ReadByteE<LfgRole>("Role", idx);
+
+        }
+
+        public static void ReadLfgListSearchResult(Packet packet, params object[] idx)
+        {
+            V6_0_2_19033.Parsers.LfgHandler.ReadCliRideTicket(packet, idx, "LFGListRideTicket");
+
+            packet.ReadUInt32("SequenceNum", idx);
+
+            packet.ReadPackedGuid128("Leader", idx);
+            packet.ReadPackedGuid128("LastTouchedAny", idx);
+            packet.ReadPackedGuid128("LastTouchedName", idx);
+            packet.ReadPackedGuid128("LastTouchedComment", idx);
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_0_24920))
+                packet.ReadPackedGuid128("LastTouchedVoiceChat", idx);
+
+            packet.ReadUInt32("NativeRealmAddress", idx);
+            packet.ReadUInt32("VirtualRealmAddress", idx);
+
+            packet.ReadByte("asd", idx);
+            packet.ReadByte("asd", idx);
+            packet.ReadByte("asd", idx);
+            packet.ReadByte("asd", idx);
+            packet.ReadByte("asd", idx);
+
+            packet.ReadUInt32("UnkInt32", idx);
+
+            var bnetFriendCount = packet.ReadUInt32("bnetFriendCount", idx);
+            var characterFriendCount = packet.ReadUInt32("characterFriendCount", idx);
+            var guildMateCount = packet.ReadUInt32("guildMateCount", idx);
+            var memberCount = packet.ReadUInt32("memberCount", idx);
+
+            packet.ReadUInt32("CompletedEncountersMask", idx);
+            packet.ReadTime("CreationTime", idx);
+            packet.ReadByte("Unk3", idx);
+            packet.ReadInt32("Unk4", idx);
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_5_25848))
+                packet.ReadPackedGuid128("PartyGUID", idx);
+
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadByte("Unk4", idx);
+
+            for (int i = 0; i < bnetFriendCount; i++)
+                packet.ReadPackedGuid128("BNetFriends", idx, i);
+            for (int i = 0; i < characterFriendCount; i++)
+                packet.ReadPackedGuid128("CharacterFriends", idx, i);
+            for (int i = 0; i < guildMateCount; i++)
+                packet.ReadPackedGuid128("GuildMates", idx, i);
+
+
+
+            packet.ReadInt32("Unk4", idx);
+
+            ReadLfgListJoinRequest(packet, idx, "LFGListJoinRequest");
+
+
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            for (int i = 0; i < memberCount; i++)
+                ReadLfgListSearchResultMemberInfo(packet, "Members", idx, i);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadInt32("Unk4", idx);
+            packet.ReadByte("Unk4", idx);
+        }
+
+        public static void ReadLfgListJoinRequest(Packet packet, params object[] idx)
+        {
+            packet.ReadInt32("GroupFinderActivityId", idx);
+            packet.ReadSingle("RequiredItemLevel", idx);
+            packet.ReadUInt32("RequiredHonorLevel", idx);
+
+            packet.ResetBitReader();
+            var lenTitle = packet.ReadBits(10);
+            var lenDetails = packet.ReadBits(11);
+            var lenVoiceChat = packet.ReadBits(8);
+
+            var hasQuest = false;
+            packet.ReadBit("AutoAccept", idx);
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_1_5_23360))
+            {
+                packet.ReadBit("IsPrivate", idx);
+                hasQuest = packet.ReadBit("HasQuest", idx);
+            }
+
+            var maybesometingwithrolecheck = packet.ReadByte("UnkByte", idx);
+
+            packet.ReadWoWString("Title", lenTitle, idx);
+            packet.ReadWoWString("Details", lenDetails, idx);
+            packet.ReadWoWString("VoiceChat", lenVoiceChat, idx);
+
+            if (maybesometingwithrolecheck != 0)
+                packet.ReadByteE<LfgRoleFlag>("RoleMask", idx);
+        }
+
+        [Parser(Opcode.SMSG_LFG_LIST_SEARCH_RESULTS)] // wrong
+        public static void HandleLfgListSearchResults(Packet packet)
+        {
+            packet.ReadUInt16("TotalResults");
+            var resultCount = packet.ReadUInt32();
+
+            for (int j = 0; j < resultCount; j++)
+                ReadLfgListSearchResult(packet, "Entry", j);
+        }
+
+        [Parser(Opcode.SMSG_LFG_LIST_UPDATE_STATUS)]
+        public static void HandleLfgListUpdateStatus(Packet packet)
+        {
+            V6_0_2_19033.Parsers.LfgHandler.ReadCliRideTicket(packet, "RideTicket");
+            packet.ReadTime("RemainingTime");
+            packet.ReadByte("ResultId");
+
+            ReadLfgListJoinRequest(packet, "LFGListJoinRequest");
+            packet.ResetBitReader();
+            packet.ReadBit("Listed");
+        }
     }
 }
