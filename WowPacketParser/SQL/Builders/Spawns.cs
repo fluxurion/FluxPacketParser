@@ -193,7 +193,7 @@ namespace WowPacketParser.SQL.Builders
                         (ClientVersion.Expansion >= ClientType.Cataclysm && creature.Movement.Flags.HasAnyFlag(Enums.v4.MovementFlag.Hover)))
                         row.Data.PositionZ -= creature.UnitData.HoverHeight;
 
-                row.Data.SpawnTimeSecs = creature.GetDefaultSpawnTime(creature.DifficultyID);
+                row.Data.SpawnTimeSecs = creature.GetDefaultSpawnTime(creature.DifficultyID ?? 0);
                 row.Data.WanderDistance = wanderDistance;
                 row.Data.MovementType = movementType;
 
@@ -215,7 +215,7 @@ namespace WowPacketParser.SQL.Builders
 
                 row.Comment = StoreGetters.GetName(StoreNameType.Unit, (int)entry, false);
                 row.Comment += " (Area: " + StoreGetters.GetName(StoreNameType.Area, creature.Area, false) + " - ";
-                row.Comment += "Difficulty: " + StoreGetters.GetName(StoreNameType.Difficulty, (int)creature.DifficultyID, false) + ")";
+                row.Comment += "Difficulty: " + StoreGetters.GetName(StoreNameType.Difficulty, ((int?)creature.DifficultyID) ?? 0, false) + ")";
                 row.Comment += creature.CreateType == CreateObjectType.Spawn ? " CreateObject2" : " CreateObject1";
 
                 string auras = string.Empty;
@@ -503,7 +503,7 @@ namespace WowPacketParser.SQL.Builders
                         addonRows.Add(addonRow);
                 }
 
-                row.Data.SpawnTimeSecs = go.GetDefaultSpawnTime(go.DifficultyID);
+                row.Data.SpawnTimeSecs = go.GetDefaultSpawnTime(go.DifficultyID ?? 0);
                 row.Data.AnimProgress = go.GameObjectData.PercentHealth;
                 row.Data.State = (uint)go.GameObjectData.State;
 

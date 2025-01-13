@@ -922,6 +922,14 @@ namespace WowPacketParser.Enums.Version
                 {
                     return "V11_0_5_57171";
                 }
+                case ClientVersionBuild.V11_0_7_58123:
+                case ClientVersionBuild.V11_0_7_58162:
+                case ClientVersionBuild.V11_0_7_58187:
+                case ClientVersionBuild.V11_0_7_58238:
+                case ClientVersionBuild.V11_0_7_58533:
+                {
+                    return "V11_0_7_58123";
+                }
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
                 case ClientVersionBuild.V1_13_2_31687:
@@ -1069,6 +1077,16 @@ namespace WowPacketParser.Enums.Version
                 {
                     return "V1_15_4_56738";
                 }
+                case ClientVersionBuild.V1_15_5_57638:
+                case ClientVersionBuild.V1_15_5_57716:
+                case ClientVersionBuild.V1_15_5_57807:
+                case ClientVersionBuild.V1_15_5_57917:
+                case ClientVersionBuild.V1_15_5_57979:
+                case ClientVersionBuild.V1_15_5_58534:
+                case ClientVersionBuild.V1_15_5_58555:
+                {
+                    return "V1_15_5_57638";
+                }
                 case ClientVersionBuild.V2_5_1_38598:
                 case ClientVersionBuild.V2_5_1_38644:
                 case ClientVersionBuild.V2_5_1_38707:
@@ -1136,6 +1154,7 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V3_4_0_45572:
                 case ClientVersionBuild.V3_4_0_45613:
                 case ClientVersionBuild.V3_4_0_45704:
+                case ClientVersionBuild.V3_4_0_45770:
                 case ClientVersionBuild.V3_4_0_45772:
                 case ClientVersionBuild.V3_4_0_45854:
                 case ClientVersionBuild.V3_4_0_45942:
@@ -1217,6 +1236,8 @@ namespace WowPacketParser.Enums.Version
                 }
                 case ClientVersionBuild.V4_4_1_57359: // Blizzard changed ActivePlayer in second 4.4.1 build
                 case ClientVersionBuild.V4_4_1_57564:
+                case ClientVersionBuild.V4_4_1_57916:
+                case ClientVersionBuild.V4_4_1_58158:
                 {
                     return "V4_4_1_57359";
                 }
