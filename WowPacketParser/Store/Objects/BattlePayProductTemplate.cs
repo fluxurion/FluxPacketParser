@@ -58,6 +58,9 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("UiTextureAtlasMemberID", true)]
         public int UiTextureAtlasMemberID;
 
+        [DBFieldName("DisplayInfoFlag", true)]
+        public uint DisplayInfoFlag;
+
         [DBFieldName("CardType", true)]
         public int CardType;
 
