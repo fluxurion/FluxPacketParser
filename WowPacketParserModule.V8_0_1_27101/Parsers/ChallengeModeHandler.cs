@@ -15,7 +15,7 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
             packet.ReadTime("UnkTime4", indexes);
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V8_1_0_28724))
                 packet.ReadTime("UnkTime5", indexes);
-            packet.ResetBitReader()
+            packet.ResetBitReader();
             packet.ReadBit("UnkBit", indexes);
         }
 
