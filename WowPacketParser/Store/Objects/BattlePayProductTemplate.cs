@@ -9,26 +9,29 @@ namespace WowPacketParser.Store.Objects
     {
         [DBFieldName("Entry", true)]
         public uint Entry;
-        
-        [DBFieldName("ProductInfoID", true)]
-        public int ProductInfoID;
 
-        [DBFieldName("IconFileDataID", true)]
+        [DBFieldName("ProductID")]
+        public uint ProductID;
+
+        [DBFieldName("ProductInfoID")]
+        public uint ProductInfoID;
+
+        [DBFieldName("IconFileDataID")]
         public int IconFileDataID;
 
-        [DBFieldName("UIModelSceneID", true)]
+        [DBFieldName("UIModelSceneID")]
         public int UIModelSceneID;
 
-        [DBFieldName("PreviewTitles", true)]
+        [DBFieldName("PreviewTitles")]
         public string PreviewTitles;
 
-        [DBFieldName("PreviewCreatureDisplayIDs", true)]
+        [DBFieldName("PreviewCreatureDisplayIDs")]
         public string PreviewCreatureDisplayIDs;
 
-        [DBFieldName("PreviewUIModelSceneIDs", true)]
+        [DBFieldName("PreviewUIModelSceneIDs")]
         public string PreviewUIModelSceneIDs;
 
-        [DBFieldName("PreviewTransmogSets", true)]
+        [DBFieldName("PreviewTransmogSets")]
         public string PreviewTransmogSets;
 
         [DBFieldName("Title")]
@@ -52,67 +55,67 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Description5")]
         public string Description5;
 
-        [DBFieldName("IconBorder", true)]
+        [DBFieldName("IconBorder")]
         public int IconBorder;
 
-        [DBFieldName("UiTextureAtlasMemberID", true)]
+        [DBFieldName("UiTextureAtlasMemberID")]
         public int UiTextureAtlasMemberID;
 
-        [DBFieldName("DisplayInfoFlag", true)]
+        [DBFieldName("DisplayInfoFlag")]
         public uint DisplayInfoFlag;
 
-        [DBFieldName("CardType", true)]
+        [DBFieldName("CardType")]
         public int CardType;
 
-        [DBFieldName("ProductMultiplier", true)]
+        [DBFieldName("ProductMultiplier")]
         public int ProductMultiplier;
 
-        [DBFieldName("Type", true)]
+        [DBFieldName("Type")]
         public int Type;
 
-        [DBFieldName("ItemID", true)]
+        [DBFieldName("ItemID")]
         public uint ItemID;
 
-        [DBFieldName("ItemCount", true)]
+        [DBFieldName("ItemCount")]
         public uint ItemCount;
 
-        [DBFieldName("MountSpellID", true)]
+        [DBFieldName("MountSpellID")]
         public uint MountSpellID;
 
-        [DBFieldName("BattlePetSpeciesCreatureID", true)]
+        [DBFieldName("BattlePetSpeciesCreatureID")]
         public uint BattlePetSpeciesCreatureID;
 
-        [DBFieldName("TransmogSetID", true)]
+        [DBFieldName("TransmogSetID")]
         public uint TransmogSetID;
 
-        [DBFieldName("AlreadyOwned", true)]
+        [DBFieldName("AlreadyOwned")]
         public int AlreadyOwned;
 
-        [DBFieldName("NormalPrice", true)]
+        [DBFieldName("NormalPrice")]
         public long NormalPrice;
 
-        [DBFieldName("CurrentPrice", true)]
+        [DBFieldName("CurrentPrice")]
         public long CurrentPrice;
 
-        [DBFieldName("BundleProductIDs", true)]
+        [DBFieldName("BundleProductIDs")]
         public string BundleProductIDs;
 
-        [DBFieldName("Flags", true)]
+        [DBFieldName("Flags")]
         public int Flags;
 
-        [DBFieldName("ChoiceType", true)]
+        [DBFieldName("ChoiceType")]
         public uint ChoiceType;
 
-        [DBFieldName("GroupID", true)]
+        [DBFieldName("GroupID")]
         public uint GroupID;
 
-        [DBFieldName("Ordering", true)]
+        [DBFieldName("Ordering")]
         public int Ordering;
 
-        [DBFieldName("VasServiceType", true)]
+        [DBFieldName("VasServiceType")]
         public int VasServiceType;
 
-        [DBFieldName("StoreDeliveryType", true)]
+        [DBFieldName("StoreDeliveryType")]
         public int StoreDeliveryType;
     }
 }
