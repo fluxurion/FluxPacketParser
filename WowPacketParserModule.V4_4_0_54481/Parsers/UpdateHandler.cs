@@ -56,25 +56,15 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
         }
 
         [HasSniffData] // in ReadCreateObjectBlock
-        [Parser(Opcode.SMSG_UPDATE_OBJECT)]
+        [Parser(Opcode.SMSG_UPDATE_OBJECT, ClientBranch.Cata)]
         public static void HandleUpdateObject(Packet packet)
         {
             var updateObject = packet.Holder.UpdateObject = new();
             uint count;
             uint map;
-            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_5_57638))
-            {
-                map = updateObject.MapId = packet.ReadUInt16<MapId>("MapID");
-                count = packet.ReadUInt32("NumObjUpdates");
-            }
-            else
-            {
-                count = packet.ReadUInt32("NumObjUpdates");
-                map = updateObject.MapId = packet.ReadUInt16<MapId>("MapID");
-            }
+            count = packet.ReadUInt32("NumObjUpdates");
+            map = updateObject.MapId = packet.ReadUInt16<MapId>("MapID");
             packet.ResetBitReader();
-            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_5_57638))
-                packet.ReadBit("Unknown_11_0_5");
             var hasRemovedObjects = packet.ReadBit("HasRemovedObjects");
             if (hasRemovedObjects)
             {
@@ -118,10 +108,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                             WoWObject obj;
                             Storage.Objects.TryGetValue(guid, out obj);
 
-                            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_5_57638))
-                                ReadUpdateObjectBlockFragmented(fieldsData, updateValues, handler, obj, i);
-                            else
-                                ReadUpdateObjectBlock(fieldsData, updateValues, handler, obj, i);
+                            ReadUpdateObjectBlock(fieldsData, updateValues, handler, obj, i);
                         }
                         updateObject.Updated.Add(new UpdateObject{Guid = guid, Values = updateValues, TextStartOffset = partWriter.StartOffset, TextLength = partWriter.Length, Text = partWriter.Text});
                         break;
@@ -131,10 +118,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                     {
                         var createType = type.ToCreateObjectType();
                         var createObject = new CreateObject() { Guid = guid, Values = new(){}, CreateType = createType };
-                        if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_5_57638))
-                            ReadCreateObjectBlockFragmented(packet, createObject, guid, map, createType, i);
-                        else
-                            ReadCreateObjectBlock(packet, createObject, guid, map, createType, i);
+                        ReadCreateObjectBlock(packet, createObject, guid, map, createType, i);
                         createObject.Text = partWriter.Text;
                         createObject.TextStartOffset = partWriter.StartOffset;
                         createObject.TextLength = partWriter.Length;
@@ -561,8 +545,6 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
 
             packet.ResetBitReader();
 
-            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_5_57638))
-                packet.ReadBit("HasPositionFragment", index);
             packet.ReadBit("NoBirthAnim", index);
             packet.ReadBit("EnablePortals", index);
             packet.ReadBit("PlayHoverAnim", index);

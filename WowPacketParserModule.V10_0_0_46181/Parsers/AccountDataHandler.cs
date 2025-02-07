@@ -35,13 +35,18 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
         [Parser(Opcode.SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT)]
         public static void HandleGetAccountCharacterListResult(Packet packet)
+        [Parser(Opcode.SMSG_ACCOUNT_DATA_TIMES)]
+        public static void HandleAccountDataTimes(Packet packet)
         {
             packet.ReadUInt32("Token");
             uint count = packet.ReadUInt32("CharacterCount");
 
             packet.ResetBitReader();
+            packet.ReadPackedGuid128("Guid");
+            packet.ReadTime64("ServerTime");
 
             packet.ReadBit("UnkBit");
+            var count = ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_6_53840) ? 16 : 15;
 
             for (var i = 0; i < count; ++i)
             {
@@ -62,6 +67,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
                 packet.WriteLine($"[{ i.ToString() }] VariableName: \"{ packet.ReadWoWString((int)variableNameLen) }\" Value: \"{ packet.ReadWoWString((int)valueLen) }\"");
             }
+                packet.ReadTime64($"[{(AccountDataType)i}] Time", i);
         }
     }
 }

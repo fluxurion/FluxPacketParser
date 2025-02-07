@@ -11,7 +11,7 @@ namespace WowPacketParserModule.V4_4_0_54481.UpdateFields.V1_15_5_57638
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
     public class BitVectors : IBitVectors
     {
-        public DynamicUpdateField<System.Nullable<ulong>>[] Values { get; } = new DynamicUpdateField<System.Nullable<ulong>>[11] { new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>(), new DynamicUpdateField<System.Nullable<ulong>>() };
+        public IBitVector[] Values { get; } = new IBitVector[13];
     }
 }
 
