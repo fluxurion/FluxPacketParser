@@ -197,7 +197,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         Unk7 = packet.ReadInt16("Unk7", index, "ProductInfo");
 
-                        if (DisplayFlag != 42 && DisplayFlag != 95 && DisplayFlag != 165)
+                        if (DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
                             parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
 
                         Unk8 = packet.ReadByte("Unk8", index, "ProductInfo");
