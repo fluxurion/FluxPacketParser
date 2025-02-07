@@ -2035,8 +2035,11 @@ namespace WowPacketParser.Store
         public static readonly DataBag<WmoAreaTableLocaleHotfix440> WmoAreaTableHotfixesLocale440 = new DataBag<WmoAreaTableLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
 
         //Battle Pay
-        public static readonly DataBag<BattlePayProductTemplate> BattlePayProductTemplates = new DataBag<BattlePayProductTemplate>(new List<SQLOutput> { SQLOutput.battlepay_product_template });
-        public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_group });
+        public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_display_infos });
+        public static readonly DataBag<BattlePayProductInfo> BattlePayProductInfos = new DataBag<BattlePayProductInfo>(new List<SQLOutput> { SQLOutput.battlepay_product_infos });
+        public static readonly DataBag<BattlePayProduct> BattlePayProductDatas = new DataBag<BattlePayProduct>(new List<SQLOutput> { SQLOutput.battlepay_product_datas });
+        public static readonly DataBag<BattlePayShop> BattlePayShopDatas = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop_datas });
+        public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_groups });
         
         public static void ClearContainers()
         {
@@ -4026,7 +4029,10 @@ namespace WowPacketParser.Store
             VignetteHotfixesLocale440.Clear();
             WmoAreaTableHotfixesLocale440.Clear();
             BattlePayGroups.Clear();
-            BattlePayProductTemplates.Clear();
+            BattlePayDisplayInfos.Clear();
+            BattlePayProductInfos.Clear();
+            BattlePayProductDatas.Clear();
+            BattlePayShopDatas.Clear();
         }
     }
 }
