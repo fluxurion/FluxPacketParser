@@ -197,7 +197,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         Unk7 = packet.ReadInt16("Unk7", index, "ProductInfo");
 
-                        if (DisplayFlag != 42 && DisplayFlag != 95 && DisplayFlag != 165)
+                        if (DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
                             parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
 
                         Unk8 = packet.ReadByte("Unk8", index, "ProductInfo");
@@ -240,7 +240,10 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var Unk13 = packet.ReadUInt32("Unk13", j, "Product Data");
                 var TransmogSetID = packet.ReadUInt32("TransmogSetID", j, "Product Data");
                 var Unk14 = packet.ReadUInt32("Unk14", j, "Product Data");
-                var Unk15 = packet.ReadUInt32("Unk15", j, "Product Data");
+                var Unk15 = packet.ReadUInt16("Unk15", j, "Product Data");
+                packet.ReadUInt16("asd", j, "Product Data");
+
+                packet.ResetBitReader();
 
                 var TitleSize = packet.ReadBits("TitleSize", 8, j, "Product Data");
                 packet.ReadBit("AlreadyOwned", j, "Product Data");
@@ -251,8 +254,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 uint PetResultVariable = 0;
                 if (HasPetResultVariable)
                     PetResultVariable = packet.ReadBits("PetResultVariable", 4, j, "Product Data");
-
-                packet.ResetBitReader();
 
                 // BATTLEPAY ITEM (i don't care about that yet)
                 for (uint g = 0; g < ItemsSize; g++)
@@ -284,7 +285,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var Unk19 = 0;
                 if (HasDisplayInfo)
                 {
-                    DisplayFlag = packet.ReadBits("DisplayFlag", 7, j, "Product Data");
+                    DisplayFlag = packet.ReadByte("DisplayFlag", j, "Product Data");
                     ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, true, DisplayFlag, j);
                 }
 
