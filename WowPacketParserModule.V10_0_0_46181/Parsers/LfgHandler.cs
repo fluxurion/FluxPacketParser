@@ -51,10 +51,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadByteE<LfgRoleFlag>("RoleMask");
             packet.ReadBit("Accepted");
         }
-    }
 
-    // NOT TC:
-    public static void ReadLfgListJoinRequest(Packet packet, params object[] idx)
+        // NOT TC:
+        public static void ReadLfgListJoinRequest(Packet packet, params object[] idx)
         {
             packet.ReadInt32("GroupFinderActivityId", idx);
             packet.ReadSingle("RequiredItemLevel", idx);
