@@ -4,7 +4,6 @@ using WowPacketParser.Misc;
 using WowPacketParser.PacketStructures;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
-using WowPacketParser.SQL.Builders;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using SpellCastFailureReason = WowPacketParser.Enums.Version.V6_1_0_19678.SpellCastFailureReason;
@@ -651,7 +650,11 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         public static void HandleAuraPointsDepleted(Packet packet)
         {
             packet.ReadPackedGuid128("Unit");
-            packet.ReadByte("Slot");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_0_59347))
+                packet.ReadUInt16("Slot");
+            else
+                packet.ReadByte("Slot");
+
             packet.ReadByte("EffectIndex");
         }
 
@@ -814,13 +817,23 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
             packet.ReadBit("IsPet");
         }
 
-        [Parser(Opcode.SMSG_CLEAR_COOLDOWNS)]
+        [Parser(Opcode.SMSG_CLEAR_COOLDOWNS, ClientVersionBuild.V6_0_2_19033, ClientVersionBuild.V6_1_0_19678)]
         public static void HandleClearCooldowns(Packet packet)
         {
             packet.ReadPackedGuid128("CasterGUID");
             var count = packet.ReadInt32("SpellCount");
             for (int i = 0; i < count; i++)
                 packet.ReadUInt32<SpellId>("SpellID");
+        }
+
+        [Parser(Opcode.SMSG_CLEAR_COOLDOWNS, ClientVersionBuild.V6_1_0_19678)]
+        public static void HandleClearCooldowns612(Packet packet)
+        {
+            var count = packet.ReadInt32("SpellCount");
+            for (int i = 0; i < count; i++)
+                packet.ReadUInt32<SpellId>("SpellID");
+
+            packet.ReadBit("IsPet");
         }
 
         [Parser(Opcode.SMSG_BREAK_TARGET)]

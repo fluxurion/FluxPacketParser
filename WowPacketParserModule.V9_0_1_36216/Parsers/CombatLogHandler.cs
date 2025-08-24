@@ -17,6 +17,13 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 packet.ReadUInt32("ScalingHealthItemLevelCurveID", idx);
             else
                 packet.ReadUInt16("ScalingHealthItemLevelCurveID", idx);
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_7_61491))
+            {
+                packet.ReadUInt32("Unused1117", idx);
+                packet.ReadUInt32("ScalingHealthPrimaryStatCurveID", idx);
+            }
+
             packet.ReadByte("TargetLevel", idx);
             packet.ReadByte("Expansion", idx);
 
@@ -38,7 +45,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             }
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_2_7_45114))
-                packet.ReadInt32("Unused927", idx);
+                packet.ReadInt32("TargetHealingContentTuningID", idx);
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_7_61491))
+                packet.ReadSingle("PlayerPrimaryStatToExpectedRatio", idx);
 
             packet.ReadBits("Type", 4, idx);
 
@@ -160,7 +170,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             if (hitInfo.HasAnyFlag(SpellHitInfo.HITINFO_BLOCK | SpellHitInfo.HITINFO_UNK12))
                 packet.ReadSingle("Unk Float", indexes);
 
-            ReadCombatLogContentTuning(packet, indexes, "ContentTuning");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_7_54577))
+                ReadContentTuningParams(packet, indexes, "ContentTuning");
+            else
+                ReadCombatLogContentTuning(packet, indexes, "ContentTuning");
         }
 
         [Parser(Opcode.SMSG_SPELL_NON_MELEE_DAMAGE_LOG)]
@@ -262,6 +275,16 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             if (hasLogData)
                 V8_0_1_27101.Parsers.SpellHandler.ReadSpellCastLogData(packet);
+
+            packet.ReadInt32("Size");
+
+            ReadAttackRoundInfo(packet, "AttackRoundInfo");
+        }
+
+        [Parser(Opcode.SMSG_ATTACK_SWING_LANDED_LOG)]
+        public static void HandleAttackswingLandedLog(Packet packet)
+        {
+            V8_0_1_27101.Parsers.SpellHandler.ReadSpellCastLogData(packet);
 
             packet.ReadInt32("Size");
 
