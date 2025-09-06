@@ -10,9 +10,9 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
         [Parser(Opcode.CMSG_SETUP_WARBAND_GROUPS)]
         public static void HandleSetupWarbandGroups(Packet packet)
         {
-            var accountGroupUnlockFlag = packet.ReadByte("AccountGroupUnlockFlag");
+            var groupCountFlag = packet.ReadByte("GroupCountFlag");
 
-            for (var i = 0; i < accountGroupUnlockFlag / 8; ++i)
+            for (var i = 0; i < groupCountFlag / 8; ++i)
             {
                 packet.ResetBitReader();
 
@@ -20,7 +20,6 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                 packet.ReadByte("OrderIndex");
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_0_59347))
                     packet.ReadUInt32("WarbandSceneID");
-
                 packet.ReadInt32("Flags");
                 var memberCount = packet.ReadUInt32();
                 for (var j = 0u; j < memberCount; ++j)
