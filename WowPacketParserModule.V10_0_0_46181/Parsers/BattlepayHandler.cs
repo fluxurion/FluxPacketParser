@@ -197,7 +197,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         Unk7 = packet.ReadInt16("Unk7", index, "ProductInfo");
 
-                        if (DisplayFlag != 12 && DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
+                        if (DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
                             parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
 
                         Unk8 = packet.ReadByte("Unk8", index, "ProductInfo");
@@ -242,7 +242,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var Unk14 = packet.ReadUInt32("Unk14", j, "Product Data");
                 var Unk15 = packet.ReadUInt32("Unk15", j, "Product Data");
 
-                packet.ReadUInt32("asd", j, "Product Data");
+                packet.ResetBitReader();
 
                 var TitleSize = packet.ReadBits("TitleSize", 8, j, "Product Data");
                 packet.ReadBit("AlreadyOwned", j, "Product Data");
@@ -254,7 +254,29 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 if (HasPetResultVariable)
                     PetResultVariable = packet.ReadBits("PetResultVariable", 4, j, "Product Data");
 
-                packet.ResetBitReader();
+                // BATTLEPAY ITEM (i don't care about that yet)
+                for (uint g = 0; g < ItemsSize; g++)
+                {
+                    var id = packet.ReadUInt32("Id", g, "Item Data");
+                    packet.ReadByte("Unk16", g, "Item Data");
+                    var itemid = packet.ReadUInt32("ItemID", g, "Item Data");
+                    var quantity = packet.ReadUInt32("Quantity", g, "Item Data");
+                    packet.ReadUInt32("Unk17", g, "Item Data");
+                    packet.ReadUInt32("Unk18", g, "Item Data");
+
+                    packet.ResetBitReader();
+
+                    var HasPet = packet.ReadBit("HasPet", g, "Item Data");
+                    var PetResult = packet.ReadBit("PetResult", g, "Item Data");
+                    var DisplayInfo = packet.ReadBit("DisplayInfos", g, "Item Data");
+
+                    uint PetResultVariable_ = 0;
+                    if (PetResult)
+                        PetResultVariable_ = packet.ReadBits("PetResultVariable", 4, g, "Item Data");
+
+                    if (DisplayInfo)
+                        ReadBattlepayDisplayInfo(packet, 1000 + g, 0, 0, 0, true, 0, 0, g);
+                }
 
                 var name = packet.ReadWoWString("Name", TitleSize, j, "Product Data");
 
@@ -262,7 +284,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 uint DisplayFlag = 0;
                 if (HasDisplayInfo)
                 {
-                    DisplayFlag = packet.ReadByte("DisplayFlag", j, "Product Data");
+                    DisplayFlag = packet.ReadBits("DisplayFlag", 8, j, "Product Data");
                     ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, HasDisplayInfo, DisplayFlag, j);
                 }
 
