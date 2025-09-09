@@ -124,7 +124,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_BUY_BACK_ITEM, 0x36002F },
             { Opcode.CMSG_BUY_BANK_SLOT, 0x36003F },
             { Opcode.CMSG_BUY_ITEM, 0x36002E },
-            { Opcode.CMSG_BUY_STABLE_SLOT, 0x350013 },
+            { Opcode.CMSG_BUY_STABLE_SLOT, 0x350013 }, // NYI
             { Opcode.CMSG_CAGE_BATTLE_PET, 0x35009F },
             { Opcode.CMSG_CALENDAR_ADD_EVENT, 0x3A00A9 },
             { Opcode.CMSG_CALENDAR_COMMUNITY_INVITE, 0x3A009D },
@@ -153,7 +153,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_CANCEL_TEMP_ENCHANTMENT, 0x360086 },
             { Opcode.CMSG_CANCEL_TRADE, 0x350007 },
             { Opcode.CMSG_CAST_SPELL, 0x35015A },
-            { Opcode.CMSG_CHALLENGE_MODE_REQUEST_LEADERS, 0x320001 },
+            { Opcode.CMSG_CHALLENGE_MODE_REQUEST_LEADERS, 0x320001 }, // NYI
             { Opcode.CMSG_CHANGE_REALM_TICKET, 0x3A012F },
             { Opcode.CMSG_CHANGE_SUB_GROUP, 0x3A0078 },
             { Opcode.CMSG_CHAR_CREATE_FINALIZE_REINCARNATION, 0x3A0194 },
@@ -173,7 +173,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_CHAT_CHANNEL_INVITE, 0x31001B },
             { Opcode.CMSG_CHAT_CHANNEL_KICK, 0x31001C },
             { Opcode.CMSG_CHAT_CHANNEL_LIST, 0x310011 },
-            { Opcode.CMSG_CHAT_CHANNEL_MODERATE, 0x310016 },
+            { Opcode.CMSG_CHAT_CHANNEL_MODERATE, 0x310016 }, // NYI
             { Opcode.CMSG_CHAT_CHANNEL_MODERATOR, 0x310017 },
             { Opcode.CMSG_CHAT_CHANNEL_OWNER, 0x310015 },
             { Opcode.CMSG_CHAT_CHANNEL_PASSWORD, 0x310013 },
@@ -182,7 +182,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_CHAT_CHANNEL_UNBAN, 0x31001E },
             { Opcode.CMSG_CHAT_CHANNEL_UNMODERATOR, 0x310018 },
             { Opcode.CMSG_CHAT_CHANNEL_UNSILENCE_ALL, 0x310021 },
-            { Opcode.CMSG_CHAT_DROP_CAUTIONARY_CHAT_MESSAGE, 0x31000A },
+            { Opcode.CMSG_CHAT_DROP_CAUTIONARY_CHAT_MESSAGE, 0x31000A }, // NYI
             { Opcode.CMSG_CHAT_JOIN_CHANNEL, 0x310000 },
             { Opcode.CMSG_CHAT_LEAVE_CHANNEL, 0x310001 },
             { Opcode.CMSG_CHAT_MESSAGE_AFK, 0x31000F },
@@ -199,14 +199,14 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_CHAT_MESSAGE_WHISPER, 0x310008 },
             { Opcode.CMSG_CHAT_MESSAGE_YELL, 0x310025 },
             { Opcode.CMSG_CHAT_REGISTER_ADDON_PREFIXES, 0x310005 },
-            { Opcode.CMSG_CHAT_REPORT_FILTERED, 0x310004 },
+            { Opcode.CMSG_CHAT_REPORT_FILTERED, 0x310004 }, // NYI
             { Opcode.CMSG_CHAT_REPORT_IGNORED, 0x310003 },
-            { Opcode.CMSG_CHAT_SEND_CAUTIONARY_CHANNEL_MESSAGE, 0x31000B },
-            { Opcode.CMSG_CHAT_SEND_CAUTIONARY_CHAT_MESSAGE, 0x310009 },
+            { Opcode.CMSG_CHAT_SEND_CAUTIONARY_CHANNEL_MESSAGE, 0x31000B }, // NYI
+            { Opcode.CMSG_CHAT_SEND_CAUTIONARY_CHAT_MESSAGE, 0x310009 }, // NYI
             { Opcode.CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES, 0x310006 },
             { Opcode.CMSG_CHECK_IS_ADVENTURE_MAP_POI_VALID, 0x350101 },
             { Opcode.CMSG_CHOICE_RESPONSE, 0x350160 },
-            { Opcode.CMSG_CLEAR_NEW_APPEARANCE, 0x2F0005 },
+            { Opcode.CMSG_CLEAR_NEW_APPEARANCE, 0x2F0005 }, // NYI
             { Opcode.CMSG_CLEAR_RAID_MARKER, 0x350052 },
             { Opcode.CMSG_CLEAR_TRADE_ITEM, 0x350009 },
             { Opcode.CMSG_CLIENT_PORT_GRAVEYARD, 0x3600BE },
@@ -298,7 +298,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_GM_TICKET_GET_CASE_STATUS, 0x3A00BA },
             { Opcode.CMSG_GM_TICKET_GET_SYSTEM_STATUS, 0x3A00B9 },
             { Opcode.CMSG_GOSSIP_SELECT_OPTION, 0x36001F },
-            { Opcode.CMSG_GUILD_ADD_BATTLENET_FRIEND, 0x330020 },
+            { Opcode.CMSG_GUILD_ADD_BATTLENET_FRIEND, 0x330020 }, // NYI
             { Opcode.CMSG_GUILD_ADD_RANK, 0x330005 },
             { Opcode.CMSG_GUILD_ASSIGN_MEMBER_RANK, 0x330002 },
             { Opcode.CMSG_GUILD_BANK_ACTIVATE, 0x360040 },
@@ -331,9 +331,9 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_GUILD_QUERY_NEWS, 0x33000D },
             { Opcode.CMSG_GUILD_QUERY_RECIPES, 0x33000B },
             { Opcode.CMSG_GUILD_REPLACE_GUILD_MASTER, 0x33001F },
-            { Opcode.CMSG_GUILD_REQUEST_RENAME, 0x330023 },
-            { Opcode.CMSG_GUILD_REQUEST_RENAME_NAME_CHECK, 0x330022 },
-            { Opcode.CMSG_GUILD_REQUEST_RENAME_REFUND, 0x330024 },
+            { Opcode.CMSG_GUILD_REQUEST_RENAME, 0x330023 }, // NYI
+            { Opcode.CMSG_GUILD_REQUEST_RENAME_NAME_CHECK, 0x330022 }, // NYI
+            { Opcode.CMSG_GUILD_REQUEST_RENAME_REFUND, 0x330024 }, // NYI
             { Opcode.CMSG_GUILD_REQUEST_RENAME_STATUS, 0x330021 },
             { Opcode.CMSG_GUILD_SET_ACHIEVEMENT_TRACKING, 0x330010 },
             { Opcode.CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT, 0x330011 },
@@ -408,7 +408,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.CMSG_MERGE_ITEM_WITH_GUILD_BANK_ITEM, 0x360046 },
             { Opcode.CMSG_MINIMAP_PING, 0x3A0077 },
             { Opcode.CMSG_MISSILE_TRAJECTORY_COLLISION, 0x350038 },
-            { Opcode.CMSG_MOUNT_CLEAR_FANFARE, 0x2F0003 },
+            { Opcode.CMSG_MOUNT_CLEAR_FANFARE, 0x2F0003 }, // NYI
             { Opcode.CMSG_MOUNT_SET_FAVORITE, 0x3A005C },
             { Opcode.CMSG_MOUNT_SPECIAL_ANIM, 0x35013C },
             { Opcode.CMSG_MOVE_ADD_IMPULSE_ACK, 0x38006D },
@@ -1005,7 +1005,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_CHAT_REGIONAL_SERVICE_STATUS, 0x41001D }, // NYI
             { Opcode.SMSG_CHAT_RESTRICTED, 0x410007 },
             { Opcode.SMSG_CHAT_SERVER_MESSAGE, 0x41001C },
-            { Opcode.SMSG_CHEAT_IGNORE_DIMISHING_RETURNS, 0x520002 },
+            { Opcode.SMSG_CHEAT_IGNORE_DIMISHING_RETURNS, 0x520002 }, // NYI
             { Opcode.SMSG_CHECK_ABANDON_NPE, 0x4F0023 }, // NYI
             { Opcode.SMSG_CHECK_CHARACTER_NAME_AVAILABILITY_RESULT, 0x3C001B },
             { Opcode.SMSG_CHECK_WARGAME_ENTRY, 0x3C0028 }, // NYI
@@ -1071,7 +1071,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_CURRENCY_TRANSFER_RESULT, 0x3C033C }, // NYI
             { Opcode.SMSG_CUSTOM_LOAD_SCREEN, 0x3C0065 },
             { Opcode.SMSG_DAILY_QUESTS_RESET, 0x500000 },
-            { Opcode.SMSG_DAMAGE_CALC_LOG, 0x520051 },
+            { Opcode.SMSG_DAMAGE_CALC_LOG, 0x520051 }, // NYI
             { Opcode.SMSG_DB_REPLY, 0x400000 },
             { Opcode.SMSG_DEATH_RELEASE_LOC, 0x3C0172 },
             { Opcode.SMSG_DEBUG_MENU_MANAGER_FULL_UPDATE, 0x3C00F3 }, // NYI
@@ -1126,7 +1126,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_FISH_ESCAPED, 0x3C016F },
             { Opcode.SMSG_FISH_NOT_HOOKED, 0x3C016E },
             { Opcode.SMSG_FLIGHT_SPLINE_SYNC, 0x4D005B },
-            { Opcode.SMSG_FLUSH_COMBAT_LOG_FILE, 0x520010 },
+            { Opcode.SMSG_FLUSH_COMBAT_LOG_FILE, 0x520010 }, // NYI
             { Opcode.SMSG_FORCE_ANIM, 0x3C01F0 }, // NYI
             { Opcode.SMSG_FORCE_ANIMATIONS, 0x3C01F1 }, // NYI
             { Opcode.SMSG_FORCE_OBJECT_RELINK, 0x3C00E7 },
@@ -1142,7 +1142,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_GAME_OBJECT_DESPAWN, 0x3C005F },
             { Opcode.SMSG_GAME_OBJECT_INTERACTION, 0x3C0311 },
             { Opcode.SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 0x52003A },
-            { Opcode.SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL_KIT, 0x520039 },
+            { Opcode.SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL_KIT, 0x520039 }, // NYI
             { Opcode.SMSG_GAME_OBJECT_RESET_STATE, 0x3C01BD },
             { Opcode.SMSG_GAME_OBJECT_SET_STATE_LOCAL, 0x3C02A3 },
             { Opcode.SMSG_GAME_OBJECT_UI_LINK, 0x3C01BA }, // NYI
@@ -1257,9 +1257,9 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_GUILD_BANK_QUERY_RESULTS, 0x480026 },
             { Opcode.SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 0x480028 },
             { Opcode.SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 0x48002B },
-            { Opcode.SMSG_GUILD_CHALLENGE_COMPLETED, 0x48001B },
+            { Opcode.SMSG_GUILD_CHALLENGE_COMPLETED, 0x48001B }, // NYI
             { Opcode.SMSG_GUILD_CHALLENGE_UPDATE, 0x48001A },
-            { Opcode.SMSG_GUILD_CHANGE_NAME_RESULT, 0x480025 },
+            { Opcode.SMSG_GUILD_CHANGE_NAME_RESULT, 0x480025 }, // NYI
             { Opcode.SMSG_GUILD_COMMAND_RESULT, 0x480002 },
             { Opcode.SMSG_GUILD_CRITERIA_DELETED, 0x48000E },
             { Opcode.SMSG_GUILD_CRITERIA_UPDATE, 0x48000B },
@@ -1276,34 +1276,34 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_GUILD_EVENT_RANKS_UPDATED, 0x480039 },
             { Opcode.SMSG_GUILD_EVENT_STATUS_CHANGE, 0x480038 },
             { Opcode.SMSG_GUILD_EVENT_TAB_ADDED, 0x48003B },
-            { Opcode.SMSG_GUILD_EVENT_TAB_DELETED, 0x48003C },
+            { Opcode.SMSG_GUILD_EVENT_TAB_DELETED, 0x48003C }, // NYI
             { Opcode.SMSG_GUILD_EVENT_TAB_MODIFIED, 0x48003D },
             { Opcode.SMSG_GUILD_EVENT_TAB_TEXT_CHANGED, 0x48003E },
             { Opcode.SMSG_GUILD_FLAGGED_FOR_RENAME, 0x480024 },
-            { Opcode.SMSG_GUILD_HARDCORE_MEMBER_DEATH, 0x480004 },
+            { Opcode.SMSG_GUILD_HARDCORE_MEMBER_DEATH, 0x480004 }, // NYI
             { Opcode.SMSG_GUILD_INVITE, 0x480012 },
-            { Opcode.SMSG_GUILD_INVITE_DECLINED, 0x480030 },
-            { Opcode.SMSG_GUILD_INVITE_EXPIRED, 0x480031 },
-            { Opcode.SMSG_GUILD_ITEM_LOOTED_NOTIFY, 0x48001C },
-            { Opcode.SMSG_GUILD_KNOWN_RECIPES, 0x480006 },
+            { Opcode.SMSG_GUILD_INVITE_DECLINED, 0x480030 }, // NYI
+            { Opcode.SMSG_GUILD_INVITE_EXPIRED, 0x480031 }, // NYI
+            { Opcode.SMSG_GUILD_ITEM_LOOTED_NOTIFY, 0x48001C }, // NYI
+            { Opcode.SMSG_GUILD_KNOWN_RECIPES, 0x480006 }, // NYI
             { Opcode.SMSG_GUILD_MEMBER_DAILY_RESET, 0x48002C },
-            { Opcode.SMSG_GUILD_MEMBER_RECIPES, 0x480005 },
+            { Opcode.SMSG_GUILD_MEMBER_RECIPES, 0x480005 }, // NYI
             { Opcode.SMSG_GUILD_MEMBER_UPDATE_NOTE, 0x480011 },
-            { Opcode.SMSG_GUILD_MEMBERS_WITH_RECIPE, 0x480007 },
-            { Opcode.SMSG_GUILD_MOVE_STARTING, 0x480021 },
-            { Opcode.SMSG_GUILD_MOVED, 0x480022 },
+            { Opcode.SMSG_GUILD_MEMBERS_WITH_RECIPE, 0x480007 }, // NYI
+            { Opcode.SMSG_GUILD_MOVE_STARTING, 0x480021 }, // NYI
+            { Opcode.SMSG_GUILD_MOVED, 0x480022 }, // NYI
             { Opcode.SMSG_GUILD_NAME_CHANGED, 0x480023 },
             { Opcode.SMSG_GUILD_NEWS, 0x480009 },
-            { Opcode.SMSG_GUILD_NEWS_DELETED, 0x48000A },
+            { Opcode.SMSG_GUILD_NEWS_DELETED, 0x48000A }, // NYI
             { Opcode.SMSG_GUILD_PARTY_STATE, 0x480013 },
             { Opcode.SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 0x480029 },
             { Opcode.SMSG_GUILD_RANKS, 0x480010 },
-            { Opcode.SMSG_GUILD_RENAME_NAME_CHECK, 0x480044 },
-            { Opcode.SMSG_GUILD_RENAME_REFUND_RESULT, 0x480046 },
-            { Opcode.SMSG_GUILD_RENAME_REQUESTED_RESULT, 0x480045 },
-            { Opcode.SMSG_GUILD_RENAME_STATUS_UPDATE, 0x480043 },
-            { Opcode.SMSG_GUILD_REPUTATION_REACTION_CHANGED, 0x480014 },
-            { Opcode.SMSG_GUILD_RESET, 0x480020 },
+            { Opcode.SMSG_GUILD_RENAME_NAME_CHECK, 0x480044 }, // NYI
+            { Opcode.SMSG_GUILD_RENAME_REFUND_RESULT, 0x480046 }, // NYI
+            { Opcode.SMSG_GUILD_RENAME_REQUESTED_RESULT, 0x480045 }, // NYI
+            { Opcode.SMSG_GUILD_RENAME_STATUS_UPDATE, 0x480043 }, // NYI
+            { Opcode.SMSG_GUILD_REPUTATION_REACTION_CHANGED, 0x480014 }, // NYI
+            { Opcode.SMSG_GUILD_RESET, 0x480020 }, // NYI
             { Opcode.SMSG_GUILD_REWARD_LIST, 0x480008 },
             { Opcode.SMSG_GUILD_ROSTER, 0x480003 },
             { Opcode.SMSG_GUILD_SEND_RANK_CHANGE, 0x480001 },
@@ -1341,7 +1341,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_INVALID_PROMOTION_CODE, 0x3C01F2 },
             { Opcode.SMSG_INVALIDATE_PAGE_TEXT, 0x40000A }, // NYI
             { Opcode.SMSG_INVALIDATE_PLAYER, 0x4F0007 },
-            { Opcode.SMSG_INVENTORY_CHANGE_FAILURE, 0x530005 },
+            { Opcode.SMSG_INVENTORY_CHANGE_FAILURE, 0x530005 }, // NYI
             { Opcode.SMSG_INVENTORY_FIXUP_COMPLETE, 0x3C02B2 }, // NYI
             { Opcode.SMSG_INVENTORY_FULL_OVERFLOW, 0x3C02C3 },
             { Opcode.SMSG_IS_QUEST_COMPLETE_RESPONSE, 0x500004 }, // NYI
@@ -1435,18 +1435,18 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_MODIFY_COOLDOWN, 0x3C0207 },
             { Opcode.SMSG_MOTD, 0x410003 },
             { Opcode.SMSG_MOUNT_RESULT, 0x3C000F },
-            { Opcode.SMSG_MOVE_ADD_IMPULSE, 0x4D0062 },
+            { Opcode.SMSG_MOVE_ADD_IMPULSE, 0x4D0062 }, // NYI
             { Opcode.SMSG_MOVE_APPLY_INERTIA, 0x4D005E },
             { Opcode.SMSG_MOVE_APPLY_MOVEMENT_FORCE, 0x4D0045 },
             { Opcode.SMSG_MOVE_DISABLE_COLLISION, 0x4D0041 },
             { Opcode.SMSG_MOVE_DISABLE_DOUBLE_JUMP, 0x4D002B },
-            { Opcode.SMSG_MOVE_DISABLE_FULL_SPEED_TURNING, 0x4D0075 },
+            { Opcode.SMSG_MOVE_DISABLE_FULL_SPEED_TURNING, 0x4D0075 }, // NYI
             { Opcode.SMSG_MOVE_DISABLE_GRAVITY, 0x4D003D },
             { Opcode.SMSG_MOVE_DISABLE_INERTIA, 0x4D003F },
             { Opcode.SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY, 0x4D003C },
             { Opcode.SMSG_MOVE_ENABLE_COLLISION, 0x4D0042 },
             { Opcode.SMSG_MOVE_ENABLE_DOUBLE_JUMP, 0x4D002A },
-            { Opcode.SMSG_MOVE_ENABLE_FULL_SPEED_TURNING, 0x4D0074 },
+            { Opcode.SMSG_MOVE_ENABLE_FULL_SPEED_TURNING, 0x4D0074 }, // NYI
             { Opcode.SMSG_MOVE_ENABLE_GRAVITY, 0x4D003E },
             { Opcode.SMSG_MOVE_ENABLE_INERTIA, 0x4D0040 },
             { Opcode.SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY, 0x4D003B },
@@ -1472,7 +1472,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_MOVE_SET_CAN_DRIVE, 0x4D0076 },
             { Opcode.SMSG_MOVE_SET_CAN_FLY, 0x4D0033 },
             { Opcode.SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 0x4D0037 },
-            { Opcode.SMSG_MOVE_SET_CANT_SWIM, 0x4D0035 },
+            { Opcode.SMSG_MOVE_SET_CANT_SWIM, 0x4D0035 }, // NYI
             { Opcode.SMSG_MOVE_SET_COLLISION_HEIGHT, 0x4D0043 },
             { Opcode.SMSG_MOVE_SET_COMPOUND_STATE, 0x4D0047 },
             { Opcode.SMSG_MOVE_SET_FEATHER_FALL, 0x4D002D },
@@ -1526,11 +1526,11 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_MOVE_UNSET_CAN_DRIVE, 0x4D0077 },
             { Opcode.SMSG_MOVE_UNSET_CAN_FLY, 0x4D0034 },
             { Opcode.SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 0x4D0038 },
-            { Opcode.SMSG_MOVE_UNSET_CANT_SWIM, 0x4D0036 },
+            { Opcode.SMSG_MOVE_UNSET_CANT_SWIM, 0x4D0036 }, // NYI
             { Opcode.SMSG_MOVE_UNSET_HOVERING, 0x4D0030 },
             { Opcode.SMSG_MOVE_UNSET_IGNORE_MOVEMENT_FORCES, 0x4D003A },
             { Opcode.SMSG_MOVE_UPDATE, 0x4D000E },
-            { Opcode.SMSG_MOVE_UPDATE_ADD_IMPULSE, 0x4D0063 },
+            { Opcode.SMSG_MOVE_UPDATE_ADD_IMPULSE, 0x4D0063 }, // NYI
             { Opcode.SMSG_MOVE_UPDATE_APPLY_INERTIA, 0x4D0060 },
             { Opcode.SMSG_MOVE_UPDATE_APPLY_MOVEMENT_FORCE, 0x4D0012 },
             { Opcode.SMSG_MOVE_UPDATE_COLLISION_HEIGHT, 0x4D000D },
@@ -1664,7 +1664,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_PROC_RESIST, 0x3C01FA },
             { Opcode.SMSG_PROFESSION_GOSSIP, 0x3C029E }, // NYI
             { Opcode.SMSG_PROPOSE_LEVEL_GRANT, 0x3C017C },
-            { Opcode.SMSG_PUSH_SPELL_TO_ACTION_BAR, 0x520040 },
+            { Opcode.SMSG_PUSH_SPELL_TO_ACTION_BAR, 0x520040 }, // NYI
             { Opcode.SMSG_PVP_CREDIT, 0x420028 },
             { Opcode.SMSG_PVP_LOG_DATA, 0x420012 },
             { Opcode.SMSG_PVP_MATCH_COMPLETE, 0x420033 }, // NYI
@@ -1679,7 +1679,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_QUERY_CREATURE_RESPONSE, 0x400006 },
             { Opcode.SMSG_QUERY_GAME_OBJECT_RESPONSE, 0x400007 },
             { Opcode.SMSG_QUERY_GARRISON_PET_NAME_RESPONSE, 0x460041 },
-            { Opcode.SMSG_QUERY_GUILD_FOLLOW_INFO_RESPONSE, 0x48002F },
+            { Opcode.SMSG_QUERY_GUILD_FOLLOW_INFO_RESPONSE, 0x48002F }, // NYI
             { Opcode.SMSG_QUERY_GUILD_INFO_RESPONSE, 0x48002D },
             { Opcode.SMSG_QUERY_ITEM_TEXT_RESPONSE, 0x400010 },
             { Opcode.SMSG_QUERY_NPC_TEXT_RESPONSE, 0x400008 },
@@ -1689,7 +1689,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_QUERY_PLAYER_NAME_BY_COMMUNITY_ID_RESPONSE, 0x4F000A },
             { Opcode.SMSG_QUERY_PLAYER_NAMES_RESPONSE, 0x4F0026 },
             { Opcode.SMSG_QUERY_QUEST_INFO_RESPONSE, 0x500016 },
-            { Opcode.SMSG_QUERY_REALM_GUILD_MASTER_INFO_RESPONSE, 0x48002E },
+            { Opcode.SMSG_QUERY_REALM_GUILD_MASTER_INFO_RESPONSE, 0x48002E }, // NYI
             { Opcode.SMSG_QUERY_TIME_RESPONSE, 0x3C0183 },
             { Opcode.SMSG_QUEST_COMPLETION_NPC_RESPONSE, 0x500001 },
             { Opcode.SMSG_QUEST_CONFIRM_ACCEPT, 0x50000F },
@@ -1746,7 +1746,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_REGIONWIDE_CHARACTER_MAIL_DATA, 0x3C001A }, // NYI
             { Opcode.SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA, 0x3C0019 }, // NYI
             { Opcode.SMSG_REMOVE_ITEM_PASSIVE, 0x3C0044 },
-            { Opcode.SMSG_REMOVE_SPELL_FROM_ACTION_BAR, 0x520041 },
+            { Opcode.SMSG_REMOVE_SPELL_FROM_ACTION_BAR, 0x520041 }, // NYI
             { Opcode.SMSG_REPLACE_TROPHY_RESPONSE, 0x3C0264 },
             { Opcode.SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 0x4F0009 },
             { Opcode.SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 0x3C0026 },
@@ -1760,7 +1760,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_RESET_WEEKLY_CURRENCY, 0x3C0009 },
             { Opcode.SMSG_RESPEC_WIPE_CONFIRM, 0x3C00AE },
             { Opcode.SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 0x3C0006 },
-            { Opcode.SMSG_RESTART_GLOBAL_COOLDOWN, 0x520050 },
+            { Opcode.SMSG_RESTART_GLOBAL_COOLDOWN, 0x520050 }, // NYI
             { Opcode.SMSG_RESTRICTED_ACCOUNT_WARNING, 0x3C0053 }, // NYI
             { Opcode.SMSG_RESUME_CAST, 0x52002A },
             { Opcode.SMSG_RESUME_CAST_BAR, 0x52002D },
@@ -1790,7 +1790,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_SCENE_OBJECT_PET_BATTLE_REPLACEMENTS_MADE, 0x3C0080 },
             { Opcode.SMSG_SCENE_OBJECT_PET_BATTLE_ROUND_RESULT, 0x3C007F },
             { Opcode.SMSG_SCHEDULED_AREA_POI_UPDATE_RESPONSE, 0x4F0019 }, // NYI
-            { Opcode.SMSG_SCRIPT_CAST, 0x520045 },
+            { Opcode.SMSG_SCRIPT_CAST, 0x520045 }, // NYI
             { Opcode.SMSG_SEASON_INFO, 0x3C005B },
             { Opcode.SMSG_SELL_RESPONSE, 0x3C0164 },
             { Opcode.SMSG_SEND_ITEM_PASSIVES, 0x3C0045 },
@@ -1830,7 +1830,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_SET_SPELL_CHARGES, 0x520018 },
             { Opcode.SMSG_SET_TIME_ZONE_INFORMATION, 0x3C0116 },
             { Opcode.SMSG_SET_VEHICLE_REC_ID, 0x3C0196 },
-            { Opcode.SMSG_SETUP_COMBAT_LOG_FILE_FLUSH, 0x52000F },
+            { Opcode.SMSG_SETUP_COMBAT_LOG_FILE_FLUSH, 0x52000F }, // NYI
             { Opcode.SMSG_SETUP_CURRENCY, 0x3C0007 },
             { Opcode.SMSG_SHIPMENT_FACTION_UPDATE_RESULT, 0x46003B },
             { Opcode.SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI, 0x3C0075 },
@@ -1846,7 +1846,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_SPECTATE_END, 0x3C032F }, // NYI
             { Opcode.SMSG_SPECTATE_PLAYER, 0x3C032E }, // NYI
             { Opcode.SMSG_SPELL_ABSORB_LOG, 0x52000C },
-            { Opcode.SMSG_SPELL_CATEGORY_COOLDOWN, 0x520006 },
+            { Opcode.SMSG_SPELL_CATEGORY_COOLDOWN, 0x520006 }, // NYI
             { Opcode.SMSG_SPELL_CHANNEL_START, 0x520023 },
             { Opcode.SMSG_SPELL_CHANNEL_UPDATE, 0x520024 },
             { Opcode.SMSG_SPELL_COOLDOWN, 0x520005 },
@@ -1857,7 +1857,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_SPELL_EXECUTE_LOG, 0x52002F },
             { Opcode.SMSG_SPELL_FAILED_OTHER, 0x520044 },
             { Opcode.SMSG_SPELL_FAILURE, 0x520042 },
-            { Opcode.SMSG_SPELL_FAILURE_MESSAGE, 0x520049 },
+            { Opcode.SMSG_SPELL_FAILURE_MESSAGE, 0x520049 }, // NYI
             { Opcode.SMSG_SPELL_GO, 0x520028 },
             { Opcode.SMSG_SPELL_HEAL_ABSORB_LOG, 0x52000B },
             { Opcode.SMSG_SPELL_HEAL_LOG, 0x52000A },
@@ -1899,7 +1899,7 @@ namespace WowPacketParser.Enums.Version.V5_5_0_61735
             { Opcode.SMSG_THREAT_CLEAR, 0x3C017B },
             { Opcode.SMSG_THREAT_REMOVE, 0x3C017A },
             { Opcode.SMSG_THREAT_UPDATE, 0x3C0179 },
-            { Opcode.SMSG_TIME_ADJUSTMENT, 0x4D0001 },
+            { Opcode.SMSG_TIME_ADJUSTMENT, 0x4D0001 }, // NYI
             { Opcode.SMSG_TIME_SYNC_REQUEST, 0x4D0000 },
             { Opcode.SMSG_TITLE_EARNED, 0x3C0176 },
             { Opcode.SMSG_TITLE_LOST, 0x3C0177 },
