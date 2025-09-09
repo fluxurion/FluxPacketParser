@@ -94,8 +94,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             for (int j = 0; j < VisualsSize; j++)
             {
-                packet.ResetBitReader();
                 var TitleSize_Visual = packet.ReadBits(10);
+                packet.ResetBitReader();
                 var CreatureDisplayID = packet.ReadInt32("CreatureDisplayID", index, "Visual", j);
                 var PreviewUIModelSceneID = packet.ReadInt32("PreviewUIModelSceneID", index, "Visual", j);
 				var TransmogSetID = packet.ReadInt32("TransmogSetID", index, "Visual", j);
@@ -197,7 +197,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         Unk7 = packet.ReadInt16("Unk7", index, "ProductInfo");
 
-                        if (DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
+                        if (DisplayFlag != 42 && DisplayFlag != 95 && DisplayFlag != 165)
                             parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
 
                         Unk8 = packet.ReadByte("Unk8", index, "ProductInfo");
@@ -242,8 +242,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var Unk14 = packet.ReadUInt32("Unk14", j, "Product Data");
                 var Unk15 = packet.ReadUInt32("Unk15", j, "Product Data");
 
-                packet.ResetBitReader();
-
                 var TitleSize = packet.ReadBits("TitleSize", 8, j, "Product Data");
                 packet.ReadBit("AlreadyOwned", j, "Product Data");
                 var HasPetResultVariable = packet.ReadBit("HasPetResultVariable", j, "Product Data");
@@ -253,6 +251,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 uint PetResultVariable = 0;
                 if (HasPetResultVariable)
                     PetResultVariable = packet.ReadBits("PetResultVariable", 4, j, "Product Data");
+
+                packet.ResetBitReader();
 
                 // BATTLEPAY ITEM (i don't care about that yet)
                 for (uint g = 0; g < ItemsSize; g++)
@@ -264,8 +264,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadUInt32("Unk17", g, "Item Data");
                     packet.ReadUInt32("Unk18", g, "Item Data");
 
-                    packet.ResetBitReader();
-
                     var HasPet = packet.ReadBit("HasPet", g, "Item Data");
                     var PetResult = packet.ReadBit("PetResult", g, "Item Data");
                     var DisplayInfo = packet.ReadBit("DisplayInfos", g, "Item Data");
@@ -274,18 +272,20 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     if (PetResult)
                         PetResultVariable_ = packet.ReadBits("PetResultVariable", 4, g, "Item Data");
 
+                    packet.ResetBitReader();
+
                     if (DisplayInfo)
                         ReadBattlepayDisplayInfo(packet, 1000 + g, 0, 0, 0, true, 0, 0, g);
                 }
 
                 var name = packet.ReadWoWString("Name", TitleSize, j, "Product Data");
 
-                var Unk19 = 0;
                 uint DisplayFlag = 0;
+                var Unk19 = 0;
                 if (HasDisplayInfo)
                 {
-                    DisplayFlag = packet.ReadBits("DisplayFlag", 8, j, "Product Data");
-                    ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, HasDisplayInfo, DisplayFlag, j);
+                    DisplayFlag = packet.ReadBits("DisplayFlag", 7, j, "Product Data");
+                    ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, true, DisplayFlag, j);
                 }
 
                 BattlePayProduct productData = new BattlePayProduct();
@@ -354,8 +354,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 var Ordering = packet.ReadInt32("Ordering", i, "Shop Data");
                 var VasServiceType = packet.ReadInt32("VasServiceType", i, "Shop Data");
                 var StoreDeliveryType = packet.ReadByte("StoreDeliveryType", i, "Shop Data");
-
-                packet.ResetBitReader();
                 
                 var HasBattlePayDisplayInfo = packet.ReadBit("HasBattlePayDisplayInfo", i, "Shop Data");
                 var Unk21 = packet.ReadBit("Unk21", i, "Shop Data");
@@ -368,6 +366,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
                     ReadBattlepayDisplayInfo(packet, 3000 + i, ProductInfoID, 0, entryid, true, DisplayFlag, i);
                 }
+
+                packet.ResetBitReader();
 
                 BattlePayShop shopData = new BattlePayShop();
                 shopData.Entry = i;
