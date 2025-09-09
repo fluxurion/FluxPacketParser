@@ -178,7 +178,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
                 packet.ResetBitReader();
 
-                var DisplayFlag = packet.ReadByte("DisplayFlag", index, "ProductInfo");
+                var DisplayFlag = packet.ReadBits("DisplayFlag", 8, index, "ProductInfo");
                 var parentProductID = 0;
                 var HasUnk1InDisplayInfo = 0;
                 var HasBattlePayDisplayInfo = 0;
