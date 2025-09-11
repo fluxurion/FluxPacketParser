@@ -222,19 +222,6 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
                 var description = "";
                 if (bits7 > 1)
                     description = packet.ReadWoWString("Description", bits7, i);
-
-                BattlePayGroup Group = new BattlePayGroup
-                {
-                    GroupID = ((uint)groupid),
-                    IconFileDataID = ((uint)iconfiledataid),
-                    DisplayType = ((uint)displaytype),
-                    Ordering = ((uint)ordering),
-                    Unk = ((uint)unkt),
-                    //MainGroupID = ((uint)maingroupid),
-                    Name = name,
-                    Description = description,
-                };
-                Storage.BattlePayGroups.Add(Group, packet.TimeSpan);
             }
 
             // BATTLEPAY SHOP
