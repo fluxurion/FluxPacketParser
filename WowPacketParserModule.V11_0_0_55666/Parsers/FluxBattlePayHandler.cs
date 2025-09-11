@@ -76,21 +76,43 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
         private static void ReadProductInfo(Packet packet, params object[] index)
         {
-            packet.ReadUInt32("ProductID", index);
-            packet.ReadUInt64("NormalPrice", index);
-            packet.ReadUInt64("CurrentPrice", index);
+            var productid = packet.ReadUInt32("ProductID", index);
+            var normalprice = packet.ReadUInt64("NormalPrice", index);
+            var currentprice = packet.ReadUInt64("CurrentPrice", index);
             var deliverableCount = packet.ReadUInt32("DeliverableProductIDCount", index);
-            packet.ReadUInt32("ProductInfoFlags", index);
-            packet.ReadUInt32("Unknown2", index);
-            packet.ReadUInt32("Unknown3", index);
-            packet.ReadUInt32("Unknown4", index);
-            packet.ReadUInt32("Unknown5", index);
+            var productinfoflags = packet.ReadUInt32("ProductInfoFlags", index);
+            var unknown2 = packet.ReadUInt32("Unknown2", index);
+            var unknown3 = packet.ReadUInt32("Unknown3", index);
+            var unknown4 = packet.ReadUInt32("Unknown4", index);
+            var unknown5 = packet.ReadUInt32("Unknown5", index);
 
+            var deliverableProducts = new List<uint>();
             for (uint i = 0; i < deliverableCount; i++)
-                packet.ReadUInt32("DeliverableProductID", index, i);
+                deliverableProducts.Add(packet.ReadUInt32("DeliverableProductID", index, i));
+            var deliverableproductids = string.Join(",", deliverableProducts);
 
             packet.ResetBitReader();
             var choiceType = packet.ReadBits("ChoiceType", 7, index);
+            var hasbattlepaydisplayinfo = (choiceType != 0 && choiceType != 32 && choiceType != 103) ? 1 : 0;
+
+            BattlePayProductInfo productInfo = new BattlePayProductInfo
+            {
+                Entry = (uint)index[0],
+                ProductInfoID = productid,
+                NormalPrice = (long)normalprice,
+                CurrentPrice = (long)currentprice,
+                ProductInfoFlags = (int)productinfoflags,
+                Unknown2 = (int)unknown2,
+                Unknown3 = (int)unknown3,
+                Unknown4 = (int)unknown4,
+                Unknown5 = (int)unknown5,
+                DeliverableProductIDs = deliverableproductids,
+                ChoiceType = (int)choiceType,
+                DisplayFlag = 0,
+                HasUnknown1InDisplayInfo = 0,
+                HasBattlePayDisplayInfo = hasbattlepaydisplayinfo
+            };
+            Storage.BattlePayProductInfos.Add(productInfo, packet.TimeSpan);
 
             if (choiceType != 0 && choiceType != 32 && choiceType != 103)
                 ReadDisplayInfo(packet, index);
@@ -132,71 +154,125 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
         private static void ReadProduct(Packet packet, params object[] index)
         {
-            packet.ReadUInt32("ProductID", index);
-            packet.ReadUInt32("Type", index);
-            packet.ReadUInt32("ItemID", index);
-            packet.ReadUInt32("ItemCount", index);
-            packet.ReadUInt32("MountSpellID", index);
-            packet.ReadUInt32("BattlePetSpeciesCreatureID", index);
-            packet.ReadUInt32("Unknown1", index);
-            packet.ReadUInt32("Unknown2", index);
-            packet.ReadUInt32("Unknown3", index);
-            packet.ReadUInt32("TransmogSetID", index);
-            packet.ReadUInt32("Unknown8", index);
-            packet.ReadUInt32("Unknown9", index);
-            packet.ReadUInt16("Unknown10", index);
-            packet.ReadUInt16("Unknown11", index);
+            var productid = packet.ReadUInt32("ProductID", index);
+            var type = packet.ReadUInt32("Type", index);
+            var itemid = packet.ReadUInt32("ItemID", index);
+            var itemcount = packet.ReadUInt32("ItemCount", index);
+            var mountspellid = packet.ReadUInt32("MountSpellID", index);
+            var battlepetspeciescreatureid = packet.ReadUInt32("BattlePetSpeciesCreatureID", index);
+            var unknown1 = packet.ReadUInt32("Unknown1", index);
+            var unknown2 = packet.ReadUInt32("Unknown2", index);
+            var unknown3 = packet.ReadUInt32("Unknown3", index);
+            var transmogsetid = packet.ReadUInt32("TransmogSetID", index);
+            var unknown8 = packet.ReadUInt32("Unknown8", index);
+            var unknown9 = packet.ReadUInt32("Unknown9", index);
+            var unknown10 = packet.ReadUInt16("Unknown10", index);
+            var unknown11 = packet.ReadUInt16("Unknown11", index);
 
             packet.ResetBitReader();
             var nameLen = packet.ReadBits("NameLength", 8, index);
-            packet.ReadBit("AlreadyOwned", index);
+            var alreadyowned = packet.ReadBit("AlreadyOwned", index) ? 1 : 0;
             var hasUnknownBits = packet.ReadBit("HasUnknownBits", index);
             var itemCount = packet.ReadBits("ItemCount", 7, index);
-            var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
+            var hasdisplayinfo = packet.ReadBit("HasDisplayInfo", index) ? 1 : 0;
 
+            uint petresultvariable = 0;
             if (hasUnknownBits)
-                packet.ReadBits("UnknownBits", 4, index);
+                petresultvariable = packet.ReadBits("UnknownBits", 4, index);
 
             for (uint i = 0; i < itemCount; i++)
                 ReadProductItem(packet, index, i);
 
-            packet.ReadWoWString("Name", nameLen, index);
+            var name = packet.ReadWoWString("Name", nameLen, index);
 
-            if (hasDisplay)
+            BattlePayProduct product = new BattlePayProduct
+            {
+                Entry = (uint)index[0],
+                ProductID = productid,
+                Type = (int)type,
+                ItemID = itemid,
+                ItemCount = itemcount,
+                MountSpellID = mountspellid,
+                BattlePetSpeciesCreatureID = battlepetspeciescreatureid,
+                Unknown1 = unknown1,
+                Unknown2 = unknown2,
+                Unknown3 = unknown3,
+                TransmogSetID = transmogsetid,
+                Unknown8 = unknown8,
+                Unknown9 = unknown9,
+                Unknown10 = unknown10,
+                Unknown11 = unknown11,
+                Name = name,
+                AlreadyOwned = alreadyowned,
+                HasDisplayInfo = hasdisplayinfo,
+                PetResultVariable = petresultvariable,
+                DisplayFlag = 0
+            };
+            Storage.BattlePayProductDatas.Add(product, packet.TimeSpan);
+
+            if (hasdisplayinfo == 1)
                 ReadDisplayInfo(packet, index);
         }
 
         private static void ReadGroup(Packet packet, params object[] index)
         {
-            packet.ReadUInt32("GroupID", index);
-            packet.ReadUInt32("IconFileDataID", index);
-            packet.ReadByte("DisplayType", index);
-            packet.ReadUInt32("Ordering", index);
-            packet.ReadUInt32("Unknown", index);
-            packet.ReadUInt32("MainGroupID", index);
+            var groupid = packet.ReadUInt32("GroupID", index);
+            var iconfiledataid = packet.ReadUInt32("IconFileDataID", index);
+            var displaytype = packet.ReadByte("DisplayType", index);
+            var ordering = packet.ReadUInt32("Ordering", index);
+            var unknown = packet.ReadUInt32("Unknown", index);
+            var maingroupid = packet.ReadUInt32("MainGroupID", index);
 
             packet.ResetBitReader();
             var nameLen = packet.ReadBits("NameLength", 8, index);
             var descLen = packet.ReadBits("DescriptionLength", 24, index);
 
-            packet.ReadWoWString("Name", nameLen, index);
-            if (descLen > 1)
-                packet.ReadWoWString("Description", descLen, index);
+            var name = packet.ReadWoWString("Name", nameLen, index);
+            var description = descLen > 1 ? packet.ReadWoWString("Description", descLen, index) : "";
+
+            BattlePayGroup group = new BattlePayGroup
+            {
+                Entry = (uint)index[0],
+                GroupID = groupid,
+                IconFileDataID = iconfiledataid,
+                DisplayType = displaytype,
+                Ordering = ordering,
+                Unknown = unknown,
+                MainGroupID = maingroupid,
+                Name = name,
+                Description = description
+            };
+            Storage.BattlePayGroups.Add(group, packet.TimeSpan);
         }
 
         private static void ReadShop(Packet packet, params object[] index)
         {
-            packet.ReadUInt32("EntryID", index);
-            packet.ReadUInt32("GroupID", index);
-            packet.ReadUInt32("ProductID", index);
-            packet.ReadUInt32("Ordering", index);
-            packet.ReadUInt32("VasServiceType", index);
-            packet.ReadByte("StoreDeliveryType", index);
+            var entryid = packet.ReadUInt32("EntryID", index);
+            var groupid = packet.ReadUInt32("GroupID", index);
+            var productid = packet.ReadUInt32("ProductID", index);
+            var ordering = packet.ReadUInt32("Ordering", index);
+            var vasservicetype = packet.ReadUInt32("VasServiceType", index);
+            var storedeliverytype = packet.ReadByte("StoreDeliveryType", index);
 
             packet.ResetBitReader();
-            var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
+            var hasbattlepaydisplayinfo = packet.ReadBit("HasDisplayInfo", index) ? 1 : 0;
 
-            if (hasDisplay)
+            BattlePayShop shop = new BattlePayShop
+            {
+                Entry = (uint)index[0],
+                EntryID = entryid,
+                GroupID = groupid,
+                ProductID = productid,
+                Ordering = ordering,
+                VasServiceType = vasservicetype,
+                StoreDeliveryType = storedeliverytype,
+                HasBattlePayDisplayInfo = hasbattlepaydisplayinfo,
+                Unknown = 0,
+                DisplayFlag = 0
+            };
+            Storage.BattlePayShopDatas.Add(shop, packet.TimeSpan);
+
+            if (hasbattlepaydisplayinfo == 1)
                 ReadDisplayInfo(packet, index);
         }
 
