@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Xml.Linq;
 using WowPacketParser.Enums;
 using WowPacketParser.Enums.Version;
 using WowPacketParser.Misc;
@@ -145,6 +147,14 @@ namespace WowPacketParser.Parsing.Parsers
             obj.EntityFragments = newObj.EntityFragments;
             if (guid.GetHighType() == HighGuidType.Creature) // skip if not an unit
             {
+                // sometimes CreateObject2 is sent after CreateObject1 for the same guid
+                // in those cases orientation of CreateObject1 is 0, so we force the 2nd orientation
+                if (newObj.CreateType == CreateObjectType.Spawn && obj.Movement.Position.Equals(newObj.Movement.Position))
+                {
+                    obj.CreateType = CreateObjectType.Spawn;
+                    obj.Movement.Orientation = newObj.Movement.Orientation;
+                }
+
                 if (!obj.Movement.HasWpsOrRandMov)
                     if (obj.Movement.Position != newObj.Movement.Position)
                         if (((obj as Unit).UnitData.Flags & (uint) UnitFlags.IsInCombat) == 0) // movement could be because of aggro so ignore that
@@ -341,12 +351,14 @@ namespace WowPacketParser.Parsing.Parsers
                 int start = i;
                 int size = 1;
                 UpdateFieldType updateFieldType = UpdateFieldType.Default;
+                System.Type enumType = null;
                 if (fieldInfo != null)
                 {
                     key = fieldInfo.Name;
                     size = fieldInfo.Size;
                     start = fieldInfo.Value;
                     updateFieldType = fieldInfo.Format;
+                    enumType = fieldInfo.EnumType;
                 }
 
                 List<UpdateField> fieldData = new List<UpdateField>();
@@ -519,6 +531,13 @@ namespace WowPacketParser.Parsing.Parsers
                             packet.AddValue(key, value + $" ({ StoreGetters.GetName(StoreNameType.Faction, fieldData[0].Int32Value, false) })", index);
                             updateValues.Ints[key] = fieldData[0].Int32Value;
                         }
+                        break;
+                    }
+                    case UpdateFieldType.Enum:
+                    {
+                        IConvertible enumValue = (IConvertible)System.Enum.ToObject(enumType, fieldData[0].Int32Value);
+                        packet.AddValue(key, Convert.ToInt64(enumValue) + " (" + enumValue.ToString(CultureInfo.InvariantCulture) + ")", index);
+                        updateValues.Ints[key] = fieldData[0].Int32Value;
                         break;
                     }
                     default:
@@ -2947,7 +2966,7 @@ namespace WowPacketParser.Parsing.Parsers
                     if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_2_0_14333))
                     {
                         var splineFlags422 = packet.ReadInt32E<SplineFlag422>("Spline Flags", index);
-                        if (splineFlags422.HasAnyFlag(SplineFlag422.FinalOrientation))
+                        if (splineFlags422.HasAnyFlag(SplineFlag422.FinalAngle))
                         {
                             packet.ReadSingle("Final Spline Orientation", index);
                         }
@@ -2964,7 +2983,7 @@ namespace WowPacketParser.Parsing.Parsers
                         var splineFlags = packet.ReadInt32E<SplineFlag>("Spline Flags", index);
                         if (splineFlags.HasAnyFlag(SplineFlag.FinalTarget))
                             packet.ReadGuid("Final Spline Target GUID", index);
-                        else if (splineFlags.HasAnyFlag(SplineFlag.FinalOrientation))
+                        else if (splineFlags.HasAnyFlag(SplineFlag.FinalAngle))
                             packet.ReadSingle("Final Spline Orientation", index);
                         else if (splineFlags.HasAnyFlag(SplineFlag.FinalPoint))
                             packet.ReadVector3("Final Spline Coords", index);

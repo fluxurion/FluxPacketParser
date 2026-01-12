@@ -286,18 +286,19 @@ namespace WowPacketParser.Parsing.Parsers
             var flags = packet.ReadInt32E<SplineFlag>("Flags");
             monsterMove.Flags = flags.ToUniversal();
 
-            if (flags.HasAnyFlag(SplineFlag.AnimationTier))
+            if (flags.HasAnyFlag(SplineFlag.Animation))
             {
-                packet.ReadByteE<MovementAnimationState>("AnimTier");
+                monsterMove.AnimTier = (uint)packet.ReadByteE<MovementAnimationState>("AnimTier");
                 packet.ReadInt32("TierTransStartTime");
             }
 
             monsterMove.MoveTime = (uint)packet.ReadInt32("MoveTime");
 
-            if (flags.HasAnyFlag(SplineFlag.Trajectory))
+            if (flags.HasAnyFlag(SplineFlag.Parabolic))
             {
-                packet.ReadSingle("JumpGravity");
-                packet.ReadInt32("SpecialTime");
+                monsterMove.Jump = new();
+                monsterMove.Jump.Gravity = packet.ReadSingle("JumpGravity");
+                monsterMove.Jump.StartTime = packet.ReadUInt32("SpecialTime");
             }
 
             double distance = 0;
@@ -324,8 +325,7 @@ namespace WowPacketParser.Parsing.Parsers
 
                 for (var i = 1; i < waypoints; i++)
                 {
-                    var vec = packet.ReadPackedVector3();
-                    vec = mid - vec;
+                    var vec = mid - packet.ReadPackedVector3();
                     distance += Vector3.GetDistance(start, vec);
                     monsterMove.PackedPoints.Add(vec);
                     start = vec;
@@ -335,8 +335,48 @@ namespace WowPacketParser.Parsing.Parsers
                 distance += Vector3.GetDistance(start, endpos);
             }
 
-            packet.WriteLine("Computed Distance: " + distance);
-            packet.WriteLine("Computed Speed: " + distance / monsterMove.MoveTime * 1000);
+            PrintComputedSplineMovementParams(packet, distance, monsterMove);
+        }
+
+        public static void PrintComputedSplineMovementParams(Packet packet, double distance, PacketMonsterMove monsterMove, params object[] indexes)
+        {
+            packet.AddValue("Computed Distance", distance, indexes);
+            packet.AddValue("Computed Speed", (distance / monsterMove.MoveTime) * 1000, indexes);
+            if (monsterMove.Jump != null && monsterMove.Flags.HasAnyFlag(UniversalSplineFlag.Parabolic))
+                PrintComputedSplineMovementJumpHeight(packet, monsterMove.MoveTime - monsterMove.Jump.StartTime, monsterMove.Jump.Gravity, indexes);
+            else if (monsterMove.SpellEffect != null && monsterMove.SpellEffect.JumpGravity > 0)
+                PrintComputedSplineMovementJumpHeight(packet, monsterMove.MoveTime, monsterMove.SpellEffect.JumpGravity, indexes);
+        }
+
+        private static void PrintComputedSplineMovementJumpHeight(Packet packet, uint moveTime, float jumpGravity, params object[] indexes)
+        {
+            const double defaultGravity = 19.29110336303710937;
+
+            static double ComputeFallElevation(double timePassed, double startVelocity, double gravity)
+            {
+                const double termVel = 60.148003;
+
+                if (startVelocity > termVel)
+                    startVelocity = termVel;
+
+                var terminalTime = (termVel - startVelocity) / gravity; // the time that needed to reach terminalVelocity
+
+                if (timePassed > terminalTime)
+                    return termVel * (timePassed - terminalTime) +
+                           startVelocity * terminalTime +
+                           gravity * terminalTime * terminalTime * 0.5f;
+
+                return timePassed * (startVelocity + timePassed * gravity * 0.5f);
+            }
+
+            var speedZ = moveTime * jumpGravity / 2.0 / 1000.0;
+            var height = -ComputeFallElevation(moveTime / 2.0 / 1000.0, -speedZ, jumpGravity);
+
+            var speedZWithDefaultGravity = moveTime * defaultGravity / 2.0 / 1000.0;
+            var heightWithDefaultGravity = -ComputeFallElevation(moveTime / 2.0 / 1000.0, -speedZWithDefaultGravity, defaultGravity);
+
+            packet.AddValue("Computed Jump Height", height, indexes);
+            packet.AddValue("Computed Jump Height (with default gravity)", heightWithDefaultGravity, indexes);
         }
 
         private static void ReadSplineMovement510(Packet packet, Vector3 pos)
@@ -428,48 +468,56 @@ namespace WowPacketParser.Parsing.Parsers
 
             if (flags.HasAnyFlag(SplineFlag422.AnimationTier))
             {
-                packet.ReadByteE<MovementAnimationState>("Animation State");
-                packet.ReadInt32("Asynctime in ms"); // Async-time in ms
+                monsterMove.AnimTier = (uint)packet.ReadByteE<MovementAnimationState>("AnimTier");
+                packet.ReadInt32("TierTransStartTime");
             }
 
             monsterMove.MoveTime = (uint)packet.ReadInt32("Move Time");
 
-            if (flags.HasAnyFlag(SplineFlag422.Trajectory))
+            if (flags.HasAnyFlag(SplineFlag422.Parabolic))
             {
-                packet.ReadSingle("Vertical Speed");
-                packet.ReadInt32("Unk Int32 2");
+                monsterMove.Jump = new();
+                monsterMove.Jump.Gravity = packet.ReadSingle("JumpGravity");
+                monsterMove.Jump.StartTime = packet.ReadUInt32("SpecialTime");
             }
 
-            var waypoints = packet.ReadInt32("Waypoints");
+            double distance = 0;
 
-            if (flags.HasAnyFlag(SplineFlag422.UsePathSmoothing))
+            if (flags.HasAnyFlag(SplineFlag422.UncompressedPath))
             {
+                var waypoints = packet.ReadInt32("PointsCount");
+
+                var start = pos;
+
                 for (var i = 0; i < waypoints; i++)
-                    monsterMove.Points.Add(packet.ReadVector3("Waypoint", i));
+                {
+                    var vec = packet.ReadVector3("WayPoints", i);
+                    monsterMove.Points.Add(vec);
+                    distance += Vector3.GetDistance(start, vec);
+                }
             }
             else
             {
-                var newpos = packet.ReadVector3("Waypoint Endpoint");
-                monsterMove.Points.Add(newpos);
+                var waypoints = packet.ReadInt32("PackedDeltasCount");
+                var endpos = packet.ReadVector3("Waypoint Endpoint");
+                monsterMove.Points.Add(endpos);
 
-                var mid = new Vector3
-                {
-                    X = (pos.X + newpos.X)*0.5f,
-                    Y = (pos.Y + newpos.Y)*0.5f,
-                    Z = (pos.Z + newpos.Z)*0.5f
-                };
+                Vector3 mid = (pos + endpos) * 0.5f;
+                var start = pos;
 
                 for (var i = 1; i < waypoints; i++)
                 {
-                    var vec = packet.ReadPackedVector3();
-                    vec.X += mid.X;
-                    vec.Y += mid.Y;
-                    vec.Z += mid.Z;
-
+                    var vec = mid - packet.ReadPackedVector3();
+                    distance += Vector3.GetDistance(start, vec);
                     monsterMove.PackedPoints.Add(vec);
-                    packet.AddValue("Waypoint", vec);
+                    start = vec;
+                    packet.AddValue("WayPoints", vec, i);
                 }
+
+                distance += Vector3.GetDistance(start, endpos);
             }
+
+            PrintComputedSplineMovementParams(packet, distance, monsterMove);
         }
 
         [HasSniffData]

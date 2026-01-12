@@ -5473,7 +5473,6 @@ namespace WowPacketParserModule.V4_4_0_54481.UpdateFields.V1_15_7_60000
             data.SpawnTrackingStateAnimID = packet.ReadUInt32("SpawnTrackingStateAnimID", indexes);
             data.SpawnTrackingStateAnimKitID = packet.ReadUInt32("SpawnTrackingStateAnimKitID", indexes);
             data.StateWorldEffectIDs = new System.Nullable<uint>[packet.ReadUInt32()];
-            // data.StateWorldEffectsQuestObjectiveID = packet.ReadUInt32("StateWorldEffectsQuestObjectiveID", indexes);
             for (var i = 0; i < data.StateWorldEffectIDs.Length; ++i)
             {
                 data.StateWorldEffectIDs[i] = packet.ReadUInt32("StateWorldEffectIDs", indexes, i);

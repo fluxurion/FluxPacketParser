@@ -16,6 +16,7 @@ namespace WowPacketParser.Enums.Version
         public string Name;
         public int Size;
         public UpdateFieldType Format;
+        public Type EnumType;
     }
 
     public static class UpdateFields
@@ -64,15 +65,15 @@ namespace WowPacketParser.Enums.Version
             };
 
             bool loaded = false;
-            foreach (Type enumType in enumTypes)
+            foreach (Type ufEnumType in enumTypes)
             {
                 string vTypeString =
-                    $"WowPacketParserModule.{GetUpdateFieldDictionaryBuildName(build)}.Enums.{enumType.Name}";
+                    $"WowPacketParserModule.{GetUpdateFieldDictionaryBuildName(build)}.Enums.{ufEnumType.Name}";
                 Type vEnumType = asm.GetType(vTypeString);
                 if (vEnumType == null)
                 {
                     vTypeString =
-                        $"WowPacketParser.Enums.Version.{GetUpdateFieldDictionaryBuildName(build)}.{enumType.Name}";
+                        $"WowPacketParser.Enums.Version.{GetUpdateFieldDictionaryBuildName(build)}.{ufEnumType.Name}";
                     vEnumType = Assembly.GetExecutingAssembly().GetType(vTypeString);
                     if (vEnumType == null)
                         continue;   // versions prior to 4.3.0 do not have AreaTriggerField
@@ -86,22 +87,22 @@ namespace WowPacketParser.Enums.Version
 
                 for (int i = 0; i < vValues.Length; ++i)
                 {
-                    var format = enumType.GetMember(vNames[i])
+                    UpdateFieldAttribute attribute = (UpdateFieldAttribute)ufEnumType.GetMember(vNames[i])
                         .SelectMany(member => member.GetCustomAttributes(typeof(UpdateFieldAttribute), false))
                         .Where(attribute => ((UpdateFieldAttribute)attribute).Version <= ClientVersion.VersionDefiningBuild)
-                        .OrderByDescending(attribute => ((UpdateFieldAttribute)attribute).Version)
-                        .Select(attribute => ((UpdateFieldAttribute)attribute).UFAttribute)
-                        .DefaultIfEmpty(UpdateFieldType.Default).First();
+                        .OrderByDescending(attribute => ((UpdateFieldAttribute)attribute).Version).FirstOrDefault();;
+                    UpdateFieldType format = attribute?.UFAttribute ?? UpdateFieldType.Default;
+                    Type enumType = attribute?.EnumType ?? null;
 
-                    result.Add((int)vValues.GetValue(i), new UpdateFieldInfo() { Value = (int)vValues.GetValue(i), Name = vNames[i], Size = 0, Format = format });
+                    result.Add((int)vValues.GetValue(i), new UpdateFieldInfo() { Value = (int)vValues.GetValue(i), Name = vNames[i], Size = 0, Format = format, EnumType = enumType });
                     namesResult.Add(vNames[i], (int)vValues.GetValue(i));
                 }
 
                 for (var i = 0; i < result.Count - 1; ++i)
                     result.Values[i].Size = result.Keys[i + 1] - result.Keys[i];
 
-                dicts.Add(enumType, result);
-                nameToValueDict.Add(enumType, namesResult);
+                dicts.Add(ufEnumType, result);
+                nameToValueDict.Add(ufEnumType, namesResult);
                 loaded = true;
             }
 
@@ -981,8 +982,37 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V11_2_0_62876:
                 case ClientVersionBuild.V11_2_0_62958:
                 case ClientVersionBuild.V11_2_0_63003:
+                case ClientVersionBuild.V11_2_0_63163:
+                case ClientVersionBuild.V11_2_0_63305:
                 {
                     return "V11_2_0_62213";
+                }
+                case ClientVersionBuild.V11_2_5_63506:
+                case ClientVersionBuild.V11_2_5_63660:
+                case ClientVersionBuild.V11_2_5_63704:
+                case ClientVersionBuild.V11_2_5_63796:
+                case ClientVersionBuild.V11_2_5_63825:
+                case ClientVersionBuild.V11_2_5_63834:
+                case ClientVersionBuild.V11_2_5_63906:
+                case ClientVersionBuild.V11_2_5_64154:
+                case ClientVersionBuild.V11_2_5_64270:
+                case ClientVersionBuild.V11_2_5_64395:
+                case ClientVersionBuild.V11_2_5_64484:
+                case ClientVersionBuild.V11_2_5_64502:
+                {
+                    return "V11_2_5_63506";
+                }
+                case ClientVersionBuild.V11_2_7_64632:
+                case ClientVersionBuild.V11_2_7_64704:
+                case ClientVersionBuild.V11_2_7_64725:
+                case ClientVersionBuild.V11_2_7_64743:
+                case ClientVersionBuild.V11_2_7_64772:
+                case ClientVersionBuild.V11_2_7_64797:
+                case ClientVersionBuild.V11_2_7_64877:
+                case ClientVersionBuild.V11_2_7_64978:
+                case ClientVersionBuild.V11_2_7_65299:
+                {
+                    return "V11_2_7_64632";
                 }
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
@@ -1164,8 +1194,20 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V1_15_7_61257:
                 case ClientVersionBuild.V1_15_7_61582:
                 case ClientVersionBuild.V1_15_7_62797:
+                case ClientVersionBuild.V1_15_7_62915:
+                case ClientVersionBuild.V1_15_7_63306:
+                case ClientVersionBuild.V1_15_7_63696:
                 {
                     return "V1_15_7_60000";
+                }
+                case ClientVersionBuild.V1_15_8_63829:
+                case ClientVersionBuild.V1_15_8_64057:
+                case ClientVersionBuild.V1_15_8_64130:
+                case ClientVersionBuild.V1_15_8_64272:
+                case ClientVersionBuild.V1_15_8_64858:
+                case ClientVersionBuild.V1_15_8_64907:
+                {
+                    return "V1_15_8_63829";
                 }
                 case ClientVersionBuild.V2_5_1_38598:
                 case ClientVersionBuild.V2_5_1_38644:
@@ -1379,8 +1421,26 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V5_5_0_62422:
                 case ClientVersionBuild.V5_5_0_62518:
                 case ClientVersionBuild.V5_5_0_62655:
+                case ClientVersionBuild.V5_5_0_62959:
                 {
                     return "V5_5_0_61735";
+                }
+                case ClientVersionBuild.V5_5_1_63311:
+                case ClientVersionBuild.V5_5_1_63364:
+                case ClientVersionBuild.V5_5_1_63393:
+                case ClientVersionBuild.V5_5_1_63421:
+                case ClientVersionBuild.V5_5_1_63449:
+                case ClientVersionBuild.V5_5_1_63538:
+                case ClientVersionBuild.V5_5_1_63698:
+                {
+                    return "V5_5_1_63311";
+                }
+                case ClientVersionBuild.V5_5_2_64068:
+                case ClientVersionBuild.V5_5_2_64133:
+                case ClientVersionBuild.V5_5_2_64271:
+                case ClientVersionBuild.V5_5_2_64481:
+                {
+                    return "V5_5_2_64068";
                 }
                 default:
                 {

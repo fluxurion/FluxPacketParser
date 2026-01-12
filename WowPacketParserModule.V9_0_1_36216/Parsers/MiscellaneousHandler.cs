@@ -9,6 +9,13 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 {
     public static class MiscellaneousHandler
     {
+        public static void ReadGameModeData(Packet packet, params object[] indexes)
+        {
+            packet.ReadByte("GameMode", indexes);
+            packet.ReadInt32("Unused1127", indexes);
+            packet.ReadInt32("GameModeRecordID", indexes);
+        }
+
         public static void ReadGameRuleValuePair(Packet packet, params object[] indexes)
         {
             packet.ReadInt32E<GameRule>("Rule", indexes);
@@ -89,6 +96,10 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_2_0_42423))
             {
                 packet.ReadInt32("ContentSetID");
+                var disabledGameModesCount = ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_7_64632)
+                    ? packet.ReadUInt32("DisabledGameModesCount")
+                    : 0u;
+
                 var gameRuleValuesCount = packet.ReadUInt32("GameRulesCount");
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_0_0_55666))
                 {
@@ -112,12 +123,23 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                     packet.ReadInt32("AddonChatThrottle.UsedTriesPerMessage");
                 }
 
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_5_63506))
+                {
+                    packet.ReadInt32("GuildChatThrottle.UsedTriesPerMessage");
+                    packet.ReadInt32("GuildChatThrottle.TriesRestoredPerSecond");
+                    packet.ReadInt32("GroupChatThrottle.UsedTriesPerMessage");
+                    packet.ReadInt32("GroupChatThrottle.TriesRestoredPerSecond");
+                }
+
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_0_59347))
                 {
                     packet.ReadSingle("AddonPerformanceMsgWarning");
                     packet.ReadSingle("AddonPerformanceMsgError");
                     packet.ReadSingle("AddonPerformanceMsgOverall");
                 }
+
+                for (var i = 0; i < disabledGameModesCount; ++i)
+                    ReadGameModeData(packet, "DisabledGameModes", i);
 
                 for (var i = 0; i < gameRuleValuesCount; ++i)
                     ReadGameRuleValuePair(packet, "GameRules");
@@ -372,18 +394,33 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadInt32("MinimumExpansionLevel");
             packet.ReadInt32("MaximumExpansionLevel");
 
+            var disabledGameModesCount = 0u;
             var gameRuleValuesCount = 0u;
+            var availableGameModesCount = 0u;
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_2_0_42423))
             {
                 packet.ReadInt32("ContentSetID");
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_7_64632))
+                    disabledGameModesCount = packet.ReadUInt32("DisabledGameModesCount");
+
                 gameRuleValuesCount = packet.ReadUInt32("GameRuleValuesCount");
+
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_7_64632))
+                    availableGameModesCount = packet.ReadUInt32("AvailableGameModeIDCount");
 
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_7_54577))
                 {
                     packet.ReadInt32("ActiveTimerunningSeasonID");
                     packet.ReadInt32("RemainingTimerunningSeasonSeconds");
                 }
+
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_5_63506))
+                {
+                    packet.ReadInt32("TimerunningConversionMinCharacterAge");
+                    packet.ReadInt32("TimerunningConversionMaxSeasonID");
+                }
+
                 packet.ReadInt16("MaxPlayerGuidLookupsPerRequest");
             }
 
@@ -406,14 +443,19 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             if (launchEta)
                 packet.ReadInt32("LaunchETA");
 
-            if (realmHiddenAlertLen > 0)
-                packet.ReadWoWString("RealmHiddenAlert", realmHiddenAlertLen);
+            packet.ReadDynamicString("RealmHiddenAlert", realmHiddenAlertLen);
 
             for (int i = 0; i < liveRegionCharacterCopySourceRegionsCount; i++)
                 packet.ReadUInt32("LiveRegionCharacterCopySourceRegion", i);
 
+            for (var i = 0; i < disabledGameModesCount; ++i)
+                ReadGameModeData(packet, "DisabledGameModes", i);
+
             for (var i = 0; i < gameRuleValuesCount; ++i)
                 ReadGameRuleValuePair(packet, "GameRules", i);
+
+            for (var i = 0; i < availableGameModesCount; ++i)
+                packet.ReadInt32("AvailableGameModeID", i);
 
             for (var i = 0; i < debugTimeEventCount; ++i)
                 ReadDebugTimeInfo(packet, "DebugTimeEvent", i);
@@ -456,6 +498,14 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         public static void HandleWorldServerInfo(Packet packet)
         {
             CoreParsers.MovementHandler.CurrentDifficultyID = packet.ReadUInt32<DifficultyId>("DifficultyID");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_7_64632))
+            {
+                packet.ReadPackedGuid128("HouseGuid");
+                packet.ReadPackedGuid128("HouseOwnerBnetAccount");
+                packet.ReadPackedGuid128("HouseOwnerPlayer");
+                packet.ReadPackedGuid128("NeighborhoodGuid");
+            }
+
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_2_7_45114))
                 packet.ReadBit("IsTournamentRealm");
             else
