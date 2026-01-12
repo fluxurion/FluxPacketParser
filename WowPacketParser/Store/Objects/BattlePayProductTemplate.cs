@@ -22,8 +22,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("CardType")]
         public int CardType;
 
-        [DBFieldName("Unk1")]
-        public int Unk1;
+        [DBFieldName("Unknown3")]
+        public int Unknown3;
 
         [DBFieldName("ProductMultiplier")]
         public int ProductMultiplier;
@@ -52,8 +52,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("IconBorder")]
         public int IconBorder;
 
-        [DBFieldName("Unk2")]
-        public int Unk2;
+        [DBFieldName("Unknown1")]
+        public int Unknown1;
 
         [DBFieldName("UiTextureAtlasMemberID")]
         public int UiTextureAtlasMemberID;
@@ -99,17 +99,17 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("ProductInfoFlags")]
         public int ProductInfoFlags;
         
-        [DBFieldName("Unk3")]
-        public int Unk3;
+        [DBFieldName("Unknown2")]
+        public int Unknown2;
         
-        [DBFieldName("Unk4")]
-        public int Unk4;
+        [DBFieldName("Unknown3")]
+        public int Unknown3;
         
-        [DBFieldName("Unk5")]
-        public int Unk5;
+        [DBFieldName("Unknown4")]
+        public int Unknown4;
         
-        [DBFieldName("Unk6")]
-        public int Unk6;
+        [DBFieldName("Unknown5")]
+        public int Unknown5;
 
         [DBFieldName("DeliverableProductIDs")]
         public string DeliverableProductIDs;
@@ -117,20 +117,14 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;
 
-        [DBFieldName("HasUnk1InDisplayInfo")]
-        public int HasUnk1InDisplayInfo;
+        [DBFieldName("HasUnknown1InDisplayInfo")]
+        public int HasUnknown1InDisplayInfo;
 
         [DBFieldName("HasBattlePayDisplayInfo")]
         public int HasBattlePayDisplayInfo;
 
-        [DBFieldName("Unk7")]
-        public int Unk7;
-
-        [DBFieldName("ParentProductID")]
-        public int ParentProductID;
-
-        [DBFieldName("Unk8")]
-        public int Unk8;
+        [DBFieldName("ChoiceType")]
+        public int ChoiceType;
     }
 
     [DBTableName("battlepay_product_datas")]
@@ -145,17 +139,11 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Type")]
         public int Type;
 
-        [DBFieldName("Unk9")]
-        public uint Unk9;
-
-        [DBFieldName("Unk10")]
-        public int Unk10;
-
         [DBFieldName("ItemID")]
         public uint ItemID;
 
-        [DBFieldName("Amount")]
-        public uint Amount;
+        [DBFieldName("ItemCount")]
+        public uint ItemCount;
 
         [DBFieldName("MountSpellID")]
         public uint MountSpellID;
@@ -163,23 +151,29 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("BattlePetSpeciesCreatureID")]
         public uint BattlePetSpeciesCreatureID;
 
-        [DBFieldName("Unk11")]
-        public uint Unk11;
+        [DBFieldName("Unknown1")]
+        public uint Unknown1;
 
-        [DBFieldName("Unk12")]
-        public uint Unk12;
+        [DBFieldName("Unknown2")]
+        public uint Unknown2;
 
-        [DBFieldName("Unk13")]
-        public uint Unk13;
+        [DBFieldName("Unknown3")]
+        public uint Unknown3;
 
         [DBFieldName("TransmogSetID")]
         public uint TransmogSetID;
 
-        [DBFieldName("Unk14")]
-        public uint Unk14;
+        [DBFieldName("Unknown8")]
+        public uint Unknown8;
 
-        [DBFieldName("Unk15")]
-        public uint Unk15;
+        [DBFieldName("Unknown9")]
+        public uint Unknown9;
+
+        [DBFieldName("Unknown10")]
+        public uint Unknown10;
+
+        [DBFieldName("Unknown11")]
+        public uint Unknown11;
 
         [DBFieldName("HasDisplayInfo")]
         public int HasDisplayInfo;
@@ -190,11 +184,42 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Name")]
         public string Name;
 
-        [DBFieldName("Unk19")]
-        public int Unk19;
+        [DBFieldName("AlreadyOwned")]
+        public int AlreadyOwned;
 
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;
+    }
+
+    [DBTableName("battlepay_groups")]
+    public sealed record BattlePayGroup : IDataModel
+    {
+        [DBFieldName("Entry", true)]
+        public uint Entry;
+
+        [DBFieldName("GroupID")]
+        public uint GroupID;
+
+        [DBFieldName("IconFileDataID")]
+        public uint IconFileDataID;
+
+        [DBFieldName("DisplayType")]
+        public byte DisplayType;
+
+        [DBFieldName("Ordering")]
+        public uint Ordering;
+
+        [DBFieldName("Unknown")]
+        public uint Unknown;
+
+        [DBFieldName("MainGroupID")]
+        public uint MainGroupID;
+
+        [DBFieldName("Name")]
+        public string Name;
+
+        [DBFieldName("Description")]
+        public string Description;
     }
 
     [DBTableName("battlepay_shop_datas")]
@@ -203,32 +228,29 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Entry", true)]
         public uint Entry;
 
-        [DBFieldName("ShopEntry")]
-        public uint ShopEntry;
+        [DBFieldName("EntryID")]
+        public uint EntryID;
 
         [DBFieldName("GroupID")]
         public uint GroupID;
 
-        [DBFieldName("ProductInfoID")]
-        public uint ProductInfoID;
+        [DBFieldName("ProductID")]
+        public uint ProductID;
 
         [DBFieldName("Ordering")]
-        public int Ordering;
+        public uint Ordering;
 
         [DBFieldName("VasServiceType")]
-        public int VasServiceType;
+        public uint VasServiceType;
 
         [DBFieldName("StoreDeliveryType")]
-        public int StoreDeliveryType;
+        public byte StoreDeliveryType;
 
         [DBFieldName("HasBattlePayDisplayInfo")]
         public int HasBattlePayDisplayInfo;
 
-        [DBFieldName("Unk21")]
-        public int Unk21;
-
-        [DBFieldName("Unk22")]
-        public int Unk22;
+        [DBFieldName("Unknown")]
+        public int Unknown;
 
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;

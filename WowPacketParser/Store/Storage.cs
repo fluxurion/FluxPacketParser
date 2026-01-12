@@ -157,6 +157,13 @@ namespace WowPacketParser.Store
         public static readonly DataBag<BroadcastText> BroadcastTexts = new DataBag<BroadcastText>(new List<SQLOutput> { SQLOutput.broadcast_text });
         public static readonly DataBag<BroadcastTextLocale> BroadcastTextLocales = new DataBag<BroadcastTextLocale>(new List<SQLOutput> { SQLOutput.broadcast_text_locale });
 
+        // BattlePay
+        public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_display_infos });
+        public static readonly DataBag<BattlePayProductInfo> BattlePayProductInfos = new DataBag<BattlePayProductInfo>(new List<SQLOutput> { SQLOutput.battlepay_product_infos });
+        public static readonly DataBag<BattlePayProduct> BattlePayProductDatas = new DataBag<BattlePayProduct>(new List<SQLOutput> { SQLOutput.battlepay_product_datas });
+        public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_groups });
+        public static readonly DataBag<BattlePayShop> BattlePayShopDatas = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop_datas });
+
         //Player Choice
         public static readonly DataBag<PlayerChoiceTemplate> PlayerChoices = new DataBag<PlayerChoiceTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
         public static readonly DataBag<PlayerChoiceLocaleTemplate> PlayerChoiceLocales = new DataBag<PlayerChoiceLocaleTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
@@ -2146,14 +2153,6 @@ namespace WowPacketParser.Store
         public static readonly DataBag<UnitPowerBarLocaleHotfix440> UnitPowerBarHotfixesLocale440 = new DataBag<UnitPowerBarLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
         public static readonly DataBag<VignetteLocaleHotfix440> VignetteHotfixesLocale440 = new DataBag<VignetteLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
         public static readonly DataBag<WmoAreaTableLocaleHotfix440> WmoAreaTableHotfixesLocale440 = new DataBag<WmoAreaTableLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
-
-        //Battle Pay
-        public static readonly DataBag<BattlePayDisplayInfo> BattlePayDisplayInfos = new DataBag<BattlePayDisplayInfo>(new List<SQLOutput> { SQLOutput.battlepay_display_infos });
-        public static readonly DataBag<BattlePayProductInfo> BattlePayProductInfos = new DataBag<BattlePayProductInfo>(new List<SQLOutput> { SQLOutput.battlepay_product_infos });
-        public static readonly DataBag<BattlePayProduct> BattlePayProductDatas = new DataBag<BattlePayProduct>(new List<SQLOutput> { SQLOutput.battlepay_product_datas });
-        public static readonly DataBag<BattlePayShop> BattlePayShopDatas = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop_datas });
-        public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_groups });
-        
         public static void ClearContainers()
         {
             SniffData.Clear();

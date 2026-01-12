@@ -132,6 +132,11 @@ namespace WowPacketParser
                 Console.ReadKey();
                 Console.WriteLine();
             }
+            else
+            {
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+            }
         }
 
         private static void PrintUsage()
