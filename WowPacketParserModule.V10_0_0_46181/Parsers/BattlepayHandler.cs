@@ -18,7 +18,6 @@ using System.Xml.Linq;
 
 namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
-
     public static class BattlePayHandler
     {
         [Parser(Opcode.CMSG_BATTLE_PAY_GET_PRODUCT_LIST)]
@@ -197,7 +196,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         Unk7 = packet.ReadInt16("Unk7", index, "ProductInfo");
 
-                        if (DisplayFlag != 12 && DisplayFlag != 42 && DisplayFlag != 165 && DisplayFlag != 206)
+                        if (DisplayFlag != 12 && DisplayFlag != 42 && DisplayFlag != 65 && DisplayFlag != 165)
                             parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
 
                         Unk8 = packet.ReadByte("Unk8", index, "ProductInfo");
@@ -262,7 +261,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 uint DisplayFlag = 0;
                 if (HasDisplayInfo)
                 {
-                    DisplayFlag = packet.ReadByte("DisplayFlag", j, "Product Data");
+                    DisplayFlag = packet.ReadBits("DisplayFlag", 8, j, "Product Data");
                     ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, HasDisplayInfo, DisplayFlag, j);
                 }
 
