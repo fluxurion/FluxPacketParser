@@ -36,42 +36,81 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             var desc5Len = packet.ReadBits("Description5Length", 12, index);
 
             var visualCount = packet.ReadUInt32("VisualCount", index);
-            packet.ReadUInt32("CardType", index);
-            packet.ReadUInt32("Unknown3", index);
-            packet.ReadUInt32("Unknown4", index);
+            var cardType = packet.ReadUInt32("CardType", index);
+            var unknown3 = packet.ReadUInt32("Unknown3", index);
+            var productMultiplier = packet.ReadUInt32("Unknown4", index);
 
+            var iconFileDataID = 0;
             if (hasIconFileDataID)
-                packet.ReadUInt32("IconFileDataID", index);
+                iconFileDataID = (int)packet.ReadUInt32("IconFileDataID", index);
 
-            packet.ReadUInt32("UIModelSceneID", index);
+            var uiModelSceneID = packet.ReadUInt32("UIModelSceneID", index);
 
-            packet.ReadWoWString("Title", titleLen, index);
-            packet.ReadWoWString("Title2", title2Len, index);
-            packet.ReadWoWString("Description", descLen, index);
-            packet.ReadWoWString("Description2", desc2Len, index);
-            packet.ReadWoWString("Description3", desc3Len, index);
+            var title = packet.ReadWoWString("Title", titleLen, index);
+            var title2 = packet.ReadWoWString("Title2", title2Len, index);
+            var description = packet.ReadWoWString("Description", descLen, index);
+            var description2 = packet.ReadWoWString("Description2", desc2Len, index);
+            var description3 = packet.ReadWoWString("Description3", desc3Len, index);
 
+            var iconBorder = 0;
             if (hasIconBorder)
-                packet.ReadUInt32("IconBorder", index);
+                iconBorder = (int)packet.ReadUInt32("IconBorder", index);
+            var unknown1 = 0;
             if (hasUnknown1)
-                packet.ReadUInt32("Unknown1", index);
+                unknown1 = (int)packet.ReadUInt32("Unknown1", index);
+            var uiTextureAtlasMemberID = 0;
             if (hasUiTextureAtlas)
-                packet.ReadUInt32("UiTextureAtlasMemberID", index);
+                uiTextureAtlasMemberID = (int)packet.ReadUInt32("UiTextureAtlasMemberID", index);
+            var uiTextureAtlasMemberID2 = 0;
             if (hasUiTextureAtlas2)
-                packet.ReadUInt32("UiTextureAtlasMemberID2", index);
+                uiTextureAtlasMemberID2 = (int)packet.ReadUInt32("UiTextureAtlasMemberID2", index);
 
-            packet.ReadWoWString("Description4", desc4Len, index);
-            packet.ReadWoWString("Description5", desc5Len, index);
+            var description4 = packet.ReadWoWString("Description4", desc4Len, index);
+            var description5 = packet.ReadWoWString("Description5", desc5Len, index);
+
+            var creatureDisplayIDs = new List<uint>();
+            var previewUIModelSceneIDs = new List<uint>();
+            var transmogSetIDs = new List<uint>();
+            var visualNames = new List<string>();
 
             for (uint i = 0; i < visualCount; i++)
             {
                 packet.ResetBitReader();
                 var nameLen = packet.ReadBits("VisualNameLength", 10, index, i);
-                packet.ReadUInt32("CreatureDisplayID", index, i);
-                packet.ReadUInt32("PreviewUIModelSceneID", index, i);
-                packet.ReadUInt32("TransmogSetID", index, i);
-                packet.ReadWoWString("VisualName", nameLen, index, i);
+                creatureDisplayIDs.Add(packet.ReadUInt32("CreatureDisplayID", index, i));
+                previewUIModelSceneIDs.Add(packet.ReadUInt32("PreviewUIModelSceneID", index, i));
+                transmogSetIDs.Add(packet.ReadUInt32("TransmogSetID", index, i));
+                visualNames.Add(packet.ReadWoWString("VisualName", nameLen, index, i));
             }
+
+            BattlePayDisplayInfo displayInfo = new BattlePayDisplayInfo
+            {
+                Entry = (uint)index[0],
+                ProductInfoID = 0,
+                ProductDataID = 0,
+                ShopDataID = 0,
+                CardType = (int)cardType,
+                Unknown3 = (int)unknown3,
+                ProductMultiplier = (int)productMultiplier,
+                IconFileDataID = iconFileDataID,
+                UIModelSceneID = (int)uiModelSceneID,
+                Title = title,
+                Title2 = title2,
+                Description = description,
+                Description2 = description2,
+                Description3 = description3,
+                IconBorder = iconBorder,
+                Unknown1 = unknown1,
+                UiTextureAtlasMemberID = uiTextureAtlasMemberID,
+                UiTextureAtlasMemberID2 = uiTextureAtlasMemberID2,
+                Description4 = description4,
+                Description5 = description5,
+                PreviewCreatureDisplayIDs = string.Join(",", creatureDisplayIDs),
+                PreviewUIModelSceneIDs = string.Join(",", previewUIModelSceneIDs),
+                PreviewTransmogSets = string.Join(",", transmogSetIDs),
+                PreviewTitles = string.Join(",", visualNames)
+            };
+            Storage.BattlePayDisplayInfos.Add(displayInfo, packet.TimeSpan);
         }
 
         private static void ReadProductInfo(Packet packet, params object[] index)
@@ -484,6 +523,94 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
         public static void HandleBattlePayRequestPriceInfo(Packet packet)
         {
             packet.ReadByte("UnknownByte");
+        }
+
+        [Parser(Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN)]
+        public static void HandleFeatureSystemStatusGlueScreen(Packet packet)
+        {
+            packet.ResetBitReader();
+            packet.ReadBit("BpayStoreAvailable");
+            packet.ReadBit("BpayStoreDisabledByParentalControls");
+            packet.ReadBit("CharUndeleteEnabled");
+            packet.ReadBit("CommerceServerEnabled");
+            packet.ReadBit("VeteranTokenRedeemWillKick");
+            packet.ReadBit("WorldTokenRedeemWillKick");
+            packet.ReadBit("ExpansionPreorderInStore");
+            packet.ReadBit("KioskModeEnabled");
+            packet.ReadBit("CompetitiveModeEnabled");
+            packet.ReadBit("BoostEnabled");
+            packet.ReadBit("TrialBoostEnabled");
+            packet.ReadBit("RedeemForBalanceAvailable");
+            packet.ReadBit("PaidCharacterTransfersBetweenBnetAccountsEnabled");
+            packet.ReadBit("LiveRegionCharacterListEnabled");
+            packet.ReadBit("LiveRegionCharacterCopyEnabled");
+            packet.ReadBit("LiveRegionAccountCopyEnabled");
+            packet.ReadBit("LiveRegionKeyBindingsCopyEnabled");
+            packet.ReadBit("BrowserCrashReporterEnabled");
+            packet.ReadBit("IsEmployeeAccount");
+            var hasEuropaTicketConfig = packet.ReadBit("HasEuropaTicketConfig");
+            packet.ReadBit("NameReservationOnly");
+            var hasLaunchDurationETA = packet.ReadBit("HasLaunchDurationETA");
+            packet.ReadBit("TimerunningEnabled");
+            packet.ReadBit("ScriptsDisallowedForBeta");
+            packet.ReadBit("PlayerIdentityOptionsEnabled");
+            packet.ReadBit("AccountExportEnabled");
+            packet.ReadBit("AccountLockedPostExport");
+            var realmHiddenAlertLength = packet.ReadBits("RealmHiddenAlertLength", 11);
+            packet.ReadBit("BNSendWhisperUseV2Services");
+            packet.ReadBit("BNSendGameDataUseV2Services");
+            packet.ReadBit("CharacterSelectListModeRealmless");
+            packet.ReadBit("WowTokenLimitedMode");
+            packet.ReadBit("Unused1");
+            packet.ReadBit("Unused2");
+            packet.ReadBit("PandarenLevelBoostAllowed");
+
+            if (hasEuropaTicketConfig)
+            {
+                packet.ReadBit("EuropaTicketSystemEnabled");
+                packet.ReadBit("EuropaTicketSystemThrottleEnabled");
+            }
+
+            packet.ReadUInt32("CommercePricePollTimeSeconds");
+            packet.ReadUInt32("KioskSessionDurationMinutes");
+            packet.ReadInt64("RedeemForBalanceAmount");
+            packet.ReadInt32("MaxCharactersOnThisRealm");
+            var liveRegionCharacterCopySourceRegionsCount = packet.ReadUInt32("LiveRegionCharacterCopySourceRegionsCount");
+            packet.ReadInt32("ActiveBoostType");
+            packet.ReadInt32("TrialBoostType");
+            packet.ReadInt32("MinimumExpansionLevel");
+            packet.ReadInt32("MaximumExpansionLevel");
+            packet.ReadInt32("ContentSetID");
+            var gameRulesCount = packet.ReadUInt32("GameRulesCount");
+            packet.ReadInt32("ActiveTimerunningSeasonID");
+            packet.ReadInt32("RemainingTimerunningSeasonSeconds");
+            packet.ReadInt16("MaxPlayerGuidLookupsPerRequest");
+            packet.ReadInt16("NameLookupTelemetryInterval");
+            packet.ReadUInt32("NotFoundCacheTimeSeconds");
+            var debugTimeEventsCount = packet.ReadUInt32("DebugTimeEventsCount");
+            packet.ReadInt32("MostRecentTimeEventID");
+            packet.ReadUInt32("EventRealmQueues");
+
+            if (hasLaunchDurationETA)
+                packet.ReadInt32("LaunchDurationETA");
+
+            packet.ReadWoWString("RealmHiddenAlert", realmHiddenAlertLength);
+
+            for (uint i = 0; i < liveRegionCharacterCopySourceRegionsCount; i++)
+                packet.ReadInt32("LiveRegionCharacterCopySourceRegion", i);
+
+            for (uint i = 0; i < gameRulesCount; i++)
+            {
+                packet.ReadInt32("GameRuleType", i);
+                packet.ReadInt32("GameRuleValue", i);
+            }
+
+            for (uint i = 0; i < debugTimeEventsCount; i++)
+            {
+                packet.ReadInt32("DebugTimeEventID", i);
+                packet.ReadUInt64("DebugTimeEventTime", i);
+                packet.ReadCString("DebugTimeEventText", i);
+            }
         }
 
     }
