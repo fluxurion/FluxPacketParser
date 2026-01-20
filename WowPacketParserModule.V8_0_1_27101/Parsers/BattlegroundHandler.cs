@@ -175,5 +175,14 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
             }
             packet.ReadBit("Disqualified");
         }
+
+        [Parser(Opcode.SMSG_SEASON_INFO)]
+        public static void HandleSeasonInfo(Packet packet)
+        {
+            packet.ReadInt32("MythicPlusSeasonID");
+            packet.ReadInt32("PreviousArenaSeason");
+            packet.ReadInt32("CurrentArenaSeason");
+            packet.ReadInt32("PvpSeasonID");
+        }
     }
 }

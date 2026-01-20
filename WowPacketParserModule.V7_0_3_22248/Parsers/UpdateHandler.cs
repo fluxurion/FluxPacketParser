@@ -7,11 +7,11 @@ using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using WowPacketParserModule.V6_0_2_19033.Enums;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
 using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V7_0_3_22248.Parsers
 {
@@ -297,12 +297,7 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
                             splineMove.Points.Add(packet.ReadVector3("Points", index, i));
 
                         if (hasSpellEffectExtraData)
-                        {
-                            packet.ReadPackedGuid128("TargetGUID", index);
-                            packet.ReadUInt32("SpellVisualID", index);
-                            packet.ReadUInt32("ProgressCurveID", index);
-                            packet.ReadUInt32("ParabolicCurveID", index);
-                        }
+                            MovementHandler.ReadMonsterSplineSpellEffectExtraData(packet, index);
                     }
                 }
             }
@@ -437,8 +432,8 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
                 if (packet.ReadBit("HasAnimID", index))
                     areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasAnimId;
 
-                if (packet.ReadBit("unkbit50", index))
-                    areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.Unk3;
+                if (packet.ReadBit("HasVisualAnimIsDecay", index))
+                    areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay;
 
                 if (packet.ReadBit("HasAnimKitID", index))
                     areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasAnimKitId;
@@ -460,8 +455,9 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
                 if (packet.ReadBit("HasAreaTriggerUnkType", index))
                     areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasOrbit;
 
-                if ((areaTriggerTemplate.Flags & (uint)AreaTriggerCreatePropertiesFlags.Unk3) != 0)
-                    packet.ReadBit();
+                if ((areaTriggerTemplate.Flags & (uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay) != 0)
+                    if (!packet.ReadBit("VisualAnimIsDecay", index))
+                        areaTriggerTemplate.Flags &= ~(uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay;
 
                 if (hasAreaTriggerSpline)
                     foreach (var splinePoint in AreaTriggerHandler.ReadAreaTriggerSpline(spellAreaTrigger, packet, index, "AreaTriggerSpline"))

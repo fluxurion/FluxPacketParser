@@ -8,13 +8,13 @@ using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.UpdateFields;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using WowPacketParserModule.V6_0_2_19033.Enums;
 using WowPacketParserModule.V7_0_3_22248.Parsers;
 using CoreFields = WowPacketParser.Enums.Version;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
 using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V8_0_1_27101.Parsers
 {
@@ -664,8 +664,8 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
                     if (packet.ReadBit("HasAnimKitID", index))
                         createProperties.Flags |= (uint)AreaTriggerCreatePropertiesFlags.HasAnimKitId;
 
-                    if (packet.ReadBit("unkbit50", index))
-                        createProperties.Flags |= (uint)AreaTriggerCreatePropertiesFlags.Unk3;
+                    if (packet.ReadBit("HasVisualAnimIsDecay", index))
+                        createProperties.Flags |= (uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay;
 
                     hasAnimProgress = packet.ReadBit("HasAnimProgress", index);
                 }
@@ -701,8 +701,9 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
 
                 if (ClientVersion.RemovedInVersion(ClientVersionBuild.V10_0_0_46181))
                 {
-                    if ((createProperties.Flags & (uint)AreaTriggerCreatePropertiesFlags.Unk3) != 0)
-                        packet.ReadBit();
+                    if ((createProperties.Flags & (uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay) != 0)
+                        if (!packet.ReadBit("VisualAnimIsDecay", index))
+                            createProperties.Flags &= ~(uint)AreaTriggerCreatePropertiesFlags.VisualAnimIsDecay;
                 }
 
                 if (hasAreaTriggerSpline)

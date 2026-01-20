@@ -1,6 +1,4 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using WowPacketParser.DBC;
 using WowPacketParser.Enums;
@@ -8,12 +6,10 @@ using WowPacketParser.Enums.Version;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
-using WowPacketParser.SQL.Builders;
-using WowPacketParser.Store;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using static WowPacketParserModule.V6_0_2_19033.Enums.ProtoExtensions;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using SplineFacingType = WowPacketParserModule.V6_0_2_19033.Enums.SplineFacingType;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V4_4_0_54481.Parsers
 {
@@ -128,13 +124,15 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             return jump;
         }
 
-        public static void ReadMonsterSplineSpellEffectExtraData(Packet packet, params object[] indexes)
+        public static SplineSpellEffect ReadMonsterSplineSpellEffectExtraData(Packet packet, params object[] indexes)
         {
-            packet.ReadPackedGuid128("TargetGUID", indexes);
-            packet.ReadUInt32("SpellVisualID", indexes);
-            packet.ReadUInt32("ProgressCurveID", indexes);
-            packet.ReadUInt32("ParabolicCurveID", indexes);
-            packet.ReadSingle("JumpGravity", indexes);
+            SplineSpellEffect effect = new();
+            effect.Target = packet.ReadPackedGuid128("TargetGUID", indexes);
+            effect.SpellVisualID = packet.ReadUInt32("SpellVisualID", indexes);
+            effect.ProgressCurveID = packet.ReadUInt32("ProgressCurveID", indexes);
+            effect.ParabolicCurveID = packet.ReadUInt32("ParabolicCurveID", indexes);
+            effect.JumpGravity = packet.ReadSingle("JumpGravity", indexes);
+            return effect;
         }
 
         public static void ReadMonsterSplineFilter(Packet packet, params object[] indexes)
@@ -240,26 +238,21 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             }
 
             if (hasSpellEffectExtraData)
-                ReadMonsterSplineSpellEffectExtraData(packet, indexes, "MonsterSplineSpellEffectExtra");
+                monsterMove.SpellEffect = ReadMonsterSplineSpellEffectExtraData(packet, indexes, "MonsterSplineSpellEffectExtra");
 
             if (hasJumpExtraData)
-            {
                 monsterMove.Jump = ReadMonsterSplineJumpExtraData(packet, indexes, "MonsterSplineJumpExtraData");
-            }
 
             if (hasAnimTier)
             {
                 packet.ReadInt32("TierTransitionID", indexes);
                 packet.ReadUInt32("StartTime", indexes);
                 packet.ReadUInt32("EndTime", indexes);
-                packet.ReadByte("AnimTier", indexes);
+                monsterMove.AnimTier = packet.ReadByte("AnimTier", indexes);
             }
 
             if (endpos.X != 0 && endpos.Y != 0 && endpos.Z != 0)
-            {
-                packet.AddValue("Computed Distance", distance, indexes);
-                packet.AddValue("Computed Speed", (distance / monsterMove.MoveTime) * 1000, indexes);
-            }
+                WowPacketParser.Parsing.Parsers.MovementHandler.PrintComputedSplineMovementParams(packet, distance, monsterMove, indexes);
         }
 
         public static void ReadMovementMonsterSpline(Packet packet, Vector3 pos, params object[] indexes)

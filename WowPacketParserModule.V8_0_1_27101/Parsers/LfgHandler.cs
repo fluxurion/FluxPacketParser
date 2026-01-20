@@ -102,5 +102,33 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
             for (var i = 0; i < count; ++i)
                 ReadLFGPlayerRewards801(packet, i, "LFGPlayerRewards");
         }
+
+        [Parser(Opcode.SMSG_LFG_UPDATE_STATUS)]
+        public static void HandleLfgUpdateStatus(Packet packet)
+        {
+            V6_0_2_19033.Parsers.LfgHandler.ReadCliRideTicket(packet, "RideTicket");
+
+            packet.ReadByte("SubType");
+            packet.ReadByte("Reason");
+            var slotsCount = packet.ReadInt32("SlotsCount");
+            packet.ReadByte("RequestedRoles");
+            var suspendedPlayersCount = packet.ReadInt32("SuspendedPlayersCount");
+            packet.ReadUInt32<MapId>("QueueMapID");
+
+            for (int i = 0; i < slotsCount; i++)
+                packet.ReadInt32("Slots", i);
+
+            for (int i = 0; i < suspendedPlayersCount; i++)
+                packet.ReadPackedGuid128("SuspendedPlayers", i);
+
+            packet.ResetBitReader();
+
+            packet.ReadBit("IsParty");
+            packet.ReadBit("NotifyUI");
+            packet.ReadBit("Joined");
+            packet.ReadBit("LfgJoined");
+            packet.ReadBit("Queued");
+            packet.ReadBit("Unused");
+        }
     }
 }
