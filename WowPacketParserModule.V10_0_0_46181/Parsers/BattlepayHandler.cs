@@ -144,8 +144,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             if (hasUnkBits)
                 packet.ReadBits("UnkBits", 4, index);
 
-                        if (DisplayFlag != 12 && DisplayFlag != 42 && DisplayFlag != 65 && DisplayFlag != 165)
-                            parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
+            for (uint i = 0; i < itemCount; i++)
+                ReadProductItem(packet, index, i);
 
             packet.ReadWoWString("Name", nameLen, index);
 
@@ -180,17 +180,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("VasServiceType", index);
             packet.ReadByte("StoreDeliveryType", index);
 
-                packet.ResetBitReader();
-
-                var name = packet.ReadWoWString("Name", TitleSize, j, "Product Data");
-
-                var Unk19 = 0;
-                uint DisplayFlag = 0;
-                if (HasDisplayInfo)
-                {
-                    DisplayFlag = packet.ReadBits("DisplayFlag", 8, j, "Product Data");
-                    ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, HasDisplayInfo, DisplayFlag, j);
-                }
+            packet.ResetBitReader();
+            var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
 
             if (hasDisplay)
                 ReadDisplayInfo(packet, index);

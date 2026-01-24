@@ -271,12 +271,10 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
             BattlePayGroup group = new BattlePayGroup
             {
-                Entry = (uint)index[0],
                 GroupID = groupid,
                 IconFileDataID = iconfiledataid,
                 DisplayType = displaytype,
                 Ordering = ordering,
-                Unknown = unknown,
                 MainGroupID = maingroupid,
                 Name = name,
                 Description = description
