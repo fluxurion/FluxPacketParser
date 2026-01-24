@@ -192,7 +192,7 @@ namespace WowPacketParser.Store.Objects
     }
 
     [DBTableName("battlepay_groups")]
-    public sealed record BattlePayGroup : IDataModel
+    public sealed record BattlePayGroup_ : IDataModel
     {
         [DBFieldName("Entry", true)]
         public uint Entry;
