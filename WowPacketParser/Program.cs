@@ -126,16 +126,17 @@ namespace WowPacketParser
 
         private static void EndPrompt(bool forceKey = false)
         {
+            // Don't prompt for key press when console is redirected (GUI mode)
+            if (Console.IsInputRedirected || Console.IsOutputRedirected)
+            {
+                return;
+            }
+
             if (Settings.ShowEndPrompt || forceKey)
             {
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
                 Console.WriteLine();
-            }
-            else
-            {
-                Console.WriteLine("Press any key to continue.");
-                Console.ReadKey();
             }
         }
 
