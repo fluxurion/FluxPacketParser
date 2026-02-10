@@ -166,6 +166,9 @@ namespace WowPacketParser.Store
         public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_groups });
         public static readonly DataBag<BattlePayShop> BattlePayShopDatas = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop_datas });
 
+        // PerksProgram
+        public static readonly DataBag<PerksProgramVendorData> PerksProgramVendorDatas = new DataBag<PerksProgramVendorData>(new List<SQLOutput> { SQLOutput.perks_program_vendor_data });
+
         //Player Choice
         public static readonly DataBag<PlayerChoiceTemplate> PlayerChoices = new DataBag<PlayerChoiceTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
         public static readonly DataBag<PlayerChoiceLocaleTemplate> PlayerChoiceLocales = new DataBag<PlayerChoiceLocaleTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
@@ -2155,6 +2158,7 @@ namespace WowPacketParser.Store
         public static readonly DataBag<UnitPowerBarLocaleHotfix440> UnitPowerBarHotfixesLocale440 = new DataBag<UnitPowerBarLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
         public static readonly DataBag<VignetteLocaleHotfix440> VignetteHotfixesLocale440 = new DataBag<VignetteLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
         public static readonly DataBag<WmoAreaTableLocaleHotfix440> WmoAreaTableHotfixesLocale440 = new DataBag<WmoAreaTableLocaleHotfix440>(new List<SQLOutput> { SQLOutput.hotfixes });
+
         public static void ClearContainers()
         {
             SniffData.Clear();
