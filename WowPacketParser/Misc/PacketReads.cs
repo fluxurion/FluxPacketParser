@@ -9,6 +9,17 @@ using WowPacketParser.Enums;
 
 namespace WowPacketParser.Misc
 {
+    /// <summary>
+    /// Time unit for duration values
+    /// </summary>
+    public enum DurationUnit
+    {
+        Milliseconds,
+        Seconds,
+        Minutes,
+        Hours
+    }
+
     public sealed partial class Packet
     {
         public WowGuid ReadGuid()
@@ -771,6 +782,83 @@ namespace WowPacketParser.Misc
                     var s = value is string ? "()" : "[]";
                     return current + (s[0] + value.ToString() + s[1] + ' ');
                 });
+        }
+
+        /// <summary>
+        /// Reads a duration value and formats it as a human-readable time span
+        /// </summary>
+        /// <param name="name">Field name</param>
+        /// <param name="sizeInBytes">Size in bytes (1, 2, 4, or 8)</param>
+        /// <param name="unit">Time unit of the duration value (default: Milliseconds)</param>
+        /// <param name="indexes">Indexes for array elements</param>
+        /// <returns>Duration in the specified unit</returns>
+        public ulong ReadDuration(string name, int sizeInBytes = 4, DurationUnit unit = DurationUnit.Milliseconds, params object[] indexes)
+        {
+            ulong durationValue = sizeInBytes switch
+            {
+                1 => ReadByte(name, indexes),
+                2 => ReadUInt16(name, indexes),
+                4 => ReadUInt32(name, indexes),
+                8 => ReadUInt64(name, indexes),
+                _ => throw new ArgumentException($"Invalid size {sizeInBytes} for duration. Must be 1, 2, 4, or 8 bytes.", nameof(sizeInBytes))
+            };
+
+            if (durationValue == 0)
+                return durationValue;
+
+            try
+            {
+                TimeSpan timeSpan = unit switch
+                {
+                    DurationUnit.Milliseconds => TimeSpan.FromMilliseconds(durationValue),
+                    DurationUnit.Seconds => TimeSpan.FromSeconds(durationValue),
+                    DurationUnit.Minutes => TimeSpan.FromMinutes(durationValue),
+                    DurationUnit.Hours => TimeSpan.FromHours(durationValue),
+                    _ => TimeSpan.FromMilliseconds(durationValue)
+                };
+                
+                // Format the output based on duration length
+                string formatted;
+                if (timeSpan.TotalDays >= 1)
+                    formatted = $"{(int)timeSpan.TotalDays}d {timeSpan.Hours}h {timeSpan.Minutes}m {timeSpan.Seconds}s";
+                else if (timeSpan.TotalHours >= 1)
+                    formatted = $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m {timeSpan.Seconds}s";
+                else if (timeSpan.TotalMinutes >= 1)
+                    formatted = $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
+                else if (timeSpan.TotalSeconds >= 1)
+                    formatted = $"{timeSpan.Seconds}s {timeSpan.Milliseconds}ms";
+                else
+                    formatted = $"{timeSpan.Milliseconds}ms";
+
+                WriteLine($"{name}: {durationValue} {unit} ({formatted})", indexes);
+            }
+            catch (OverflowException)
+            {
+                // Value is too large for TimeSpan
+                string unitStr = unit switch
+                {
+                    DurationUnit.Milliseconds => "ms",
+                    DurationUnit.Seconds => "s",
+                    DurationUnit.Minutes => "m",
+                    DurationUnit.Hours => "h",
+                    _ => "unit"
+                };
+                WriteLine($"{name}: {durationValue} {unitStr} (overflow)", indexes);
+            }
+            
+            return durationValue;
+        }
+
+        /// <summary>
+        /// Reads a duration value in seconds and formats it as a human-readable time span
+        /// </summary>
+        /// <param name="name">Field name</param>
+        /// <param name="sizeInBytes">Size in bytes (1, 2, 4, or 8)</param>
+        /// <param name="indexes">Indexes for array elements</param>
+        /// <returns>Duration in seconds</returns>
+        public ulong ReadDurationSeconds(string name, int sizeInBytes = 4, params object[] indexes)
+        {
+            return ReadDuration(name, sizeInBytes, DurationUnit.Seconds, indexes);
         }
     }
 }

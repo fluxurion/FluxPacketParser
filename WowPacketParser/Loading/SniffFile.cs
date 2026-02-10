@@ -228,7 +228,13 @@ namespace WowPacketParser.Loading
                             if (!Console.IsOutputRedirected)
                                 ShowPercentProgress("Processing...", reader.PacketReader.GetCurrentSize(), reader.PacketReader.GetTotalSize());
                             else
-                                Console.WriteLine(reader.PacketReader.GetCurrentSize() * 1.0 / reader.PacketReader.GetTotalSize());
+                            {
+                                // Calculate percentage for both parsing and file loading progress
+                                var currentSize = reader.PacketReader.GetCurrentSize();
+                                var totalSize = reader.PacketReader.GetTotalSize();
+                                var percentage = (int)((currentSize * 100) / totalSize);
+                                Console.WriteLine($"Progress: {percentage}%");  // Output as "Progress: 93%" instead of "0.937"
+                            }
 
                             if (!packet.Status.HasAnyFlag(Settings.OutputFlag) || !packet.WriteToFile)
                             {

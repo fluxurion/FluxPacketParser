@@ -1,0 +1,650 @@
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
+
+namespace WowPacketParserGUI;
+
+public partial class MainForm : Form
+{
+    private TextBox filePathTextBox = null!;
+    private Button browseButton = null!;
+    private Button parseButton = null!;
+    private Button cancelButton = null!;
+    private Button reparseButton = null!;
+    private Button copyButton = null!;
+    private Button openEditorButton = null!; // Open in text editor button
+    private Button prevPageButton = null!;
+    private Button nextPageButton = null!;
+    private ComboBox packetComboBox = null!;
+    private TextBox searchTextBox = null!;
+    private RichTextBox outputTextBox = null!;
+    private ProgressBar progressBar = null!;
+    private Label progressLabel = null!;
+    private Label occurrenceLabel = null!;
+    private Label pageLabel = null!;
+    private List<string> allPackets = new();
+    private Dictionary<string, List<List<string>>> packetLines = new();
+    private string? currentFilePath;
+    private string? parsedContent;
+    private Process? currentProcess;
+    private int lastReportedProgress = -1;
+    private bool isReparsing = false;
+    private string? selectedPacketBeforeReparse;
+    private int currentPage = 0;
+    private int totalPages = 0;
+    private int pageBeforeReparse = 0;
+
+    public MainForm()
+    {
+        InitializeComponent();
+    }
+
+    private void InitializeComponent()
+    {
+        Text = "WowPacketParser GUI";
+        Size = new Size(900, 600);
+        StartPosition = FormStartPosition.CenterScreen;
+
+        // File selection
+        var fileLabel = new Label { Text = "PKT File:", Location = new Point(10, 15), Size = new Size(60, 23) };
+        filePathTextBox = new TextBox { Location = new Point(75, 12), Size = new Size(500, 23), ReadOnly = true };
+        browseButton = new Button { Text = "Browse", Location = new Point(585, 11), Size = new Size(75, 25) };
+        browseButton.Click += BrowseButton_Click;
+
+        // Parse button
+        parseButton = new Button { Text = "Parse", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false };
+        parseButton.Click += ParseButton_Click;
+        
+        // Cancel button
+        cancelButton = new Button { Text = "Cancel", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false, Visible = false };
+        cancelButton.Click += CancelButton_Click;
+
+        // Packet selection
+        var packetLabel = new Label { Text = "Packet:", Location = new Point(10, 50), Size = new Size(50, 23) };
+        searchTextBox = new TextBox { Location = new Point(65, 47), Size = new Size(200, 23), PlaceholderText = "Search packets..." };
+        searchTextBox.TextChanged += SearchTextBox_TextChanged;
+        
+        packetComboBox = new ComboBox { 
+            Location = new Point(275, 47), 
+            Size = new Size(300, 23), 
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Enabled = false
+        };
+        packetComboBox.SelectedIndexChanged += PacketComboBox_SelectedIndexChanged;
+
+        // Re-parse button
+        reparseButton = new Button { Text = "Re-parse", Location = new Point(585, 46), Size = new Size(75, 25), Enabled = false };
+        reparseButton.Click += ReparseButton_Click;
+
+        // Copy button
+        copyButton = new Button { Text = "Copy", Location = new Point(670, 46), Size = new Size(75, 25), Enabled = false };
+        copyButton.Click += CopyButton_Click;
+
+        // Open in editor button
+        openEditorButton = new Button { Text = "Open", Location = new Point(755, 46), Size = new Size(70, 25), Enabled = false };
+        openEditorButton.Click += OpenEditorButton_Click;
+
+        // Occurrence label
+        occurrenceLabel = new Label { 
+            Location = new Point(10, 80), 
+            Size = new Size(150, 23), 
+            Text = "",
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
+            Visible = false
+        };
+
+        // Previous page button
+        prevPageButton = new Button { 
+            Text = "◀ Prev", 
+            Location = new Point(170, 79), 
+            Size = new Size(70, 25), 
+            Enabled = false,
+            Visible = false
+        };
+        prevPageButton.Click += PrevPageButton_Click;
+
+        // Page label
+        pageLabel = new Label { 
+            Location = new Point(245, 80), 
+            Size = new Size(80, 23), 
+            Text = "",
+            TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+            Visible = false
+        };
+
+        // Next page button
+        nextPageButton = new Button { 
+            Text = "Next ▶", 
+            Location = new Point(330, 79), 
+            Size = new Size(70, 25), 
+            Enabled = false,
+            Visible = false
+        };
+        nextPageButton.Click += NextPageButton_Click;
+
+        // Progress bar
+        progressBar = new ProgressBar { Location = new Point(410, 80), Size = new Size(260, 23), Visible = false };
+        
+        // Progress label
+        progressLabel = new Label { 
+            Location = new Point(680, 80), 
+            Size = new Size(80, 23), 
+            Text = "0%",
+            TextAlign = System.Drawing.ContentAlignment.MiddleRight,
+            Visible = false
+        };
+
+        // Output
+        outputTextBox = new RichTextBox { 
+            Location = new Point(10, 110), 
+            Size = new Size(860, 440), 
+            ReadOnly = true, 
+            Font = new Font("Consolas", 9),
+            ScrollBars = RichTextBoxScrollBars.Both
+        };
+
+        Controls.AddRange(new Control[] { 
+            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton,
+            packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton,
+            occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
+            progressBar, progressLabel, outputTextBox 
+        });
+    }
+
+    private void BrowseButton_Click(object? sender, EventArgs e)
+    {
+        using var openFileDialog = new OpenFileDialog
+        {
+            Filter = "Packet files (*.pkt;*.bin)|*.pkt;*.bin|All files (*.*)|*.*",
+            Title = "Select packet file"
+        };
+
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            currentFilePath = openFileDialog.FileName;
+            filePathTextBox.Text = currentFilePath;
+            parseButton.Enabled = true;
+            reparseButton.Enabled = false;
+            copyButton.Enabled = false;
+            openEditorButton.Enabled = false;
+            outputTextBox.Clear();
+            allPackets.Clear();
+            packetComboBox.Items.Clear();
+            packetComboBox.Enabled = false;
+            occurrenceLabel.Visible = false;
+            HidePagination();
+            isReparsing = false;
+            currentPage = 0;
+            pageBeforeReparse = 0;
+        }
+    }
+
+    private void CopyButton_Click(object? sender, EventArgs e)
+    {
+        if (!string.IsNullOrEmpty(outputTextBox.Text))
+        {
+            Clipboard.SetText(outputTextBox.Text);
+            var originalText = copyButton.Text;
+            copyButton.Text = "Copied!";
+            Task.Delay(1000).ContinueWith(_ => 
+            {
+                this.Invoke(() => copyButton.Text = originalText);
+            });
+        }
+    }
+
+    private void OpenEditorButton_Click(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(currentFilePath))
+            return;
+
+        var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
+        
+        if (!File.Exists(parsedFile))
+        {
+            MessageBox.Show($"Parsed file not found: {parsedFile}", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = parsedFile,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void ReparseButton_Click(object? sender, EventArgs e)
+    {
+        selectedPacketBeforeReparse = packetComboBox.SelectedItem?.ToString();
+        pageBeforeReparse = currentPage;
+        isReparsing = true;
+        ParseButton_Click(sender, e);
+    }
+
+    private void PrevPageButton_Click(object? sender, EventArgs e)
+    {
+        if (currentPage > 0)
+        {
+            currentPage--;
+            DisplayCurrentPage();
+        }
+    }
+
+    private void NextPageButton_Click(object? sender, EventArgs e)
+    {
+        if (currentPage < totalPages - 1)
+        {
+            currentPage++;
+            DisplayCurrentPage();
+        }
+    }
+
+    private void HidePagination()
+    {
+        prevPageButton.Visible = false;
+        prevPageButton.Enabled = false;
+        nextPageButton.Visible = false;
+        nextPageButton.Enabled = false;
+        pageLabel.Visible = false;
+    }
+
+    private void UpdatePaginationButtons()
+    {
+        if (totalPages <= 1)
+        {
+            HidePagination();
+            return;
+        }
+
+        prevPageButton.Visible = true;
+        nextPageButton.Visible = true;
+        pageLabel.Visible = true;
+
+        prevPageButton.Enabled = currentPage > 0;
+        nextPageButton.Enabled = currentPage < totalPages - 1;
+        pageLabel.Text = $"{currentPage + 1} / {totalPages}";
+    }
+
+    private void DisplayCurrentPage()
+    {
+        var selectedPacket = packetComboBox.SelectedItem?.ToString();
+        if (selectedPacket == null || !packetLines.ContainsKey(selectedPacket))
+            return;
+
+        var occurrences = packetLines[selectedPacket];
+        if (currentPage < 0 || currentPage >= occurrences.Count)
+        {
+            currentPage = 0;
+            return;
+        }
+
+        var packetContent = string.Join("\n", occurrences[currentPage]);
+        outputTextBox.Text = packetContent;
+
+        outputTextBox.SelectionStart = 0;
+        outputTextBox.ScrollToCaret();
+
+        UpdatePaginationButtons();
+    }
+
+    private async void ParseButton_Click(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(currentFilePath)) return;
+
+        parseButton.Enabled = false;
+        parseButton.Visible = false;
+        reparseButton.Enabled = false;
+        copyButton.Enabled = false;
+        openEditorButton.Enabled = false;
+        cancelButton.Enabled = true;
+        cancelButton.Visible = true;
+        progressBar.Visible = true;
+        progressBar.Value = 0;
+        progressLabel.Visible = true;
+        progressLabel.Text = "0%";
+        occurrenceLabel.Visible = false;
+        HidePagination();
+        lastReportedProgress = -1;
+        
+        if (!isReparsing)
+        {
+            outputTextBox.Text = "Parsing...\n";
+        }
+
+        try
+        {
+            var wppPath = "";
+            
+            var possiblePaths = new[]
+            {
+                Path.Combine(Application.StartupPath, "WowPacketParser.exe"),
+                Path.Combine(Directory.GetCurrentDirectory(), "WowPacketParser.exe"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "WowPacketParser", "bin", "Release", "WowPacketParser.exe"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "WowPacketParser", "bin", "Debug", "net9.0", "WowPacketParser.exe"),
+                @"C:\FluxPacketParser\WowPacketParser\bin\Release\WowPacketParser.exe"
+            };
+            
+            foreach (var path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    wppPath = path;
+                    break;
+                }
+            }
+            
+            if (string.IsNullOrEmpty(wppPath))
+            {
+                using var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "WowPacketParser.exe|WowPacketParser.exe|All files (*.*)|*.*",
+                    Title = "Locate WowPacketParser.exe"
+                };
+                
+                if (openFileDialog.ShowDialog() != DialogResult.OK)
+                {
+                    outputTextBox.Text = "WowPacketParser.exe not found. Please locate it manually.";
+                    return;
+                }
+                
+                wppPath = openFileDialog.FileName;
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = wppPath,
+                Arguments = $"\"{currentFilePath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                CreateNoWindow = true
+            };
+
+            currentProcess = Process.Start(startInfo);
+            if (currentProcess != null)
+            {
+                currentProcess.OutputDataReceived += OutputDataReceived;
+                currentProcess.ErrorDataReceived += ErrorDataReceived;
+                
+                currentProcess.BeginOutputReadLine();
+                currentProcess.BeginErrorReadLine();
+                
+                await currentProcess.WaitForExitAsync();
+                
+                if (!currentProcess.HasExited)
+                {
+                    await currentProcess.StandardInput.WriteLineAsync();
+                    await currentProcess.WaitForExitAsync();
+                }
+                progressBar.Value = 95;
+                progressLabel.Text = "95%";
+                
+                var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
+                if (File.Exists(parsedFile))
+                {
+                    if (!isReparsing)
+                    {
+                        outputTextBox.AppendText("\nLoading parsed data...\n");
+                    }
+                    
+                    await Task.Run(async () =>
+                    {
+                        var fileInfo = new FileInfo(parsedFile);
+                        var totalBytes = fileInfo.Length;
+                        var totalRead = 0L;
+                        
+                        using var fileStream = new FileStream(parsedFile, FileMode.Open, FileAccess.Read);
+                        using var reader = new StreamReader(fileStream);
+                        
+                        var content = new System.Text.StringBuilder();
+                        var readBuffer = new char[4096];
+                        int bytesRead;
+                        
+                        while ((bytesRead = await reader.ReadAsync(readBuffer, 0, readBuffer.Length)) > 0)
+                        {
+                            content.Append(readBuffer, 0, bytesRead);
+                            totalRead += bytesRead * sizeof(char);
+                            
+                            var fileProgress = (int)((totalRead * 5) / totalBytes);
+                            var newProgress = Math.Min(95 + fileProgress, 100);
+                            progressBar.Invoke(() => 
+                            {
+                                progressBar.Value = newProgress;
+                                progressLabel.Text = $"{newProgress}%";
+                            });
+                        }
+                        
+                        var parsedContent = content.ToString();
+                        this.parsedContent = parsedContent;
+                        
+                        if (!isReparsing)
+                        {
+                            outputTextBox.Invoke(() => outputTextBox.AppendText("Parsing complete. Select a packet to view.\n"));
+                        }
+                        
+                        ExtractPackets(parsedContent);
+                        UpdatePacketComboBox();
+                        
+                        progressBar.Invoke(() => 
+                        {
+                            progressBar.Value = 100;
+                            progressLabel.Text = "100%";
+                        });
+                        
+                        if (isReparsing && !string.IsNullOrEmpty(selectedPacketBeforeReparse))
+                        {
+                            packetComboBox.Invoke(() =>
+                            {
+                                var index = packetComboBox.Items.IndexOf(selectedPacketBeforeReparse);
+                                if (index >= 0)
+                                {
+                                    packetComboBox.SelectedIndex = index;
+                                    
+                                    var occurrences = packetLines[selectedPacketBeforeReparse];
+                                    totalPages = occurrences.Count;
+                                    
+                                    currentPage = Math.Min(pageBeforeReparse, totalPages - 1);
+                                    if (currentPage < 0) currentPage = 0;
+                                    
+                                    DisplayCurrentPage();
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (!isReparsing)
+            {
+                outputTextBox.AppendText($"\nError: {ex.Message}\n");
+            }
+        }
+        finally
+        {
+            parseButton.Enabled = true;
+            parseButton.Visible = true;
+            reparseButton.Enabled = true;
+            copyButton.Enabled = packetComboBox.Items.Count > 0;
+            openEditorButton.Enabled = packetComboBox.Items.Count > 0;
+            cancelButton.Enabled = false;
+            cancelButton.Visible = false;
+            progressBar.Visible = false;
+            progressLabel.Visible = false;
+            currentProcess = null;
+            isReparsing = false;
+            selectedPacketBeforeReparse = null;
+            pageBeforeReparse = 0;
+        }
+    }
+    
+    private void CancelButton_Click(object? sender, EventArgs e)
+    {
+        if (currentProcess != null && !currentProcess.HasExited)
+        {
+            currentProcess.Kill();
+            if (!isReparsing)
+            {
+                outputTextBox.AppendText("\nParsing cancelled.\n");
+            }
+        }
+    }
+
+    private void ExtractPackets(string output)
+    {
+        allPackets.Clear();
+        packetLines.Clear();
+        var lines = output.Split('\n');
+        var packetRegex = new Regex(@"(ServerToClient|ClientToServer):\s+(\w+)\s+\(0x[0-9A-F]+\)");
+        
+        string? currentPacket = null;
+        var currentPacketLines = new List<string>();
+
+        foreach (var line in lines)
+        {
+            var match = packetRegex.Match(line);
+            if (match.Success)
+            {
+                if (currentPacket != null && currentPacketLines.Count > 0)
+                {
+                    if (!packetLines.ContainsKey(currentPacket))
+                    {
+                        packetLines[currentPacket] = new List<List<string>>();
+                    }
+                    packetLines[currentPacket].Add(new List<string>(currentPacketLines));
+                }
+                
+                currentPacket = $"{match.Groups[1].Value}: {match.Groups[2].Value}";
+                if (!allPackets.Contains(currentPacket))
+                    allPackets.Add(currentPacket);
+                    
+                currentPacketLines.Clear();
+                currentPacketLines.Add(line);
+            }
+            else if (currentPacket != null)
+            {
+                currentPacketLines.Add(line);
+            }
+        }
+        
+        if (currentPacket != null && currentPacketLines.Count > 0)
+        {
+            if (!packetLines.ContainsKey(currentPacket))
+            {
+                packetLines[currentPacket] = new List<List<string>>();
+            }
+            packetLines[currentPacket].Add(new List<string>(currentPacketLines));
+        }
+
+        allPackets.Sort();
+    }
+
+    private void UpdatePacketComboBox()
+    {
+        packetComboBox.Invoke(() =>
+        {
+            var previousSelection = packetComboBox.SelectedItem?.ToString();
+            
+            packetComboBox.Items.Clear();
+            
+            var searchTerm = searchTextBox.Text.ToLower();
+            var filteredPackets = string.IsNullOrEmpty(searchTerm) 
+                ? allPackets 
+                : allPackets.Where(p => p.ToLower().Contains(searchTerm) || 
+                                       p.Split(':')[1].Trim().ToLower().Contains(searchTerm)).ToList();
+
+            packetComboBox.Items.AddRange(filteredPackets.ToArray());
+            packetComboBox.Enabled = filteredPackets.Count > 0;
+            
+            if (!string.IsNullOrEmpty(previousSelection))
+            {
+                var index = packetComboBox.Items.IndexOf(previousSelection);
+                if (index >= 0)
+                {
+                    packetComboBox.SelectedIndex = index;
+                }
+            }
+        });
+    }
+
+    private void SearchTextBox_TextChanged(object? sender, EventArgs e)
+    {
+        UpdatePacketComboBox();
+    }
+
+    private void PacketComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (packetComboBox.SelectedItem == null) return;
+
+        var selectedPacket = packetComboBox.SelectedItem.ToString();
+        if (selectedPacket != null && packetLines.ContainsKey(selectedPacket))
+        {
+            var occurrences = packetLines[selectedPacket];
+            
+            if (!isReparsing)
+            {
+                currentPage = 0;
+            }
+            totalPages = occurrences.Count;
+            
+            occurrenceLabel.Text = occurrences.Count == 1 
+                ? "1 occurrence" 
+                : $"{occurrences.Count} occurrences";
+            occurrenceLabel.Visible = true;
+            
+            DisplayCurrentPage();
+            
+            copyButton.Enabled = true;
+            openEditorButton.Enabled = true;
+        }
+    }
+
+    private void OutputDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Data))
+        {
+            this.Invoke((Action)(() => 
+            {
+                if (e.Data.StartsWith("Progress: ") && e.Data.EndsWith("%"))
+                {
+                    if (int.TryParse(e.Data.Substring(10, e.Data.Length - 11), out int percentage))
+                    {
+                        if (percentage != lastReportedProgress)
+                        {
+                            lastReportedProgress = percentage;
+                            progressBar.Value = Math.Min(percentage, 100);
+                            progressLabel.Text = $"{percentage}%";
+                        }
+                    }
+                }
+                else if (!isReparsing)
+                {
+                    outputTextBox.AppendText(e.Data + Environment.NewLine);
+                    outputTextBox.SelectionStart = outputTextBox.Text.Length;
+                    outputTextBox.ScrollToCaret();
+                }
+            }));
+        }
+    }
+
+    private void ErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Data) && !isReparsing)
+        {
+            this.Invoke((Action)(() => 
+            {
+                outputTextBox.AppendText(e.Data + Environment.NewLine);
+                outputTextBox.SelectionStart = outputTextBox.Text.Length;
+                outputTextBox.ScrollToCaret();
+            }));
+        }
+    }
+}
