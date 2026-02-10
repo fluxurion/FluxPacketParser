@@ -20,19 +20,23 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         private static void ReadDisplayInfo(Packet packet, params object[] index)
         {
             packet.ResetBitReader();
-            var hasIconFileDataID = packet.ReadBit("HasIconFileDataID", index);
             var hasUIModelSceneID = packet.ReadBit("HasUIModelSceneID", index);
+            var hasIconFileDataID = packet.ReadBit("HasIconFileDataID", index);
+
             var titleLen = packet.ReadBits("TitleLength", 10, index);
             var title2Len = packet.ReadBits("Title2Length", 10, index);
             var descLen = packet.ReadBits("DescriptionLength", 13, index);
             var desc2Len = packet.ReadBits("Description2Length", 13, index);
             var desc3Len = packet.ReadBits("Description3Length", 13, index);
+
             var hasIconBorder = packet.ReadBit("HasIconBorder", index);
             var hasUnk1 = packet.ReadBit("HasUnk1", index);
             var hasUnk2 = packet.ReadBit("HasUnk2", index);
             var hasUiTextureAtlas = packet.ReadBit("HasUiTextureAtlasMemberID", index);
+
             var desc4Len = packet.ReadBits("Description4Length", 13, index);
             var desc5Len = packet.ReadBits("Description5Length", 13, index);
+            packet.ResetBitReader();
 
             var visualCount = packet.ReadUInt32("VisualCount", index);
             packet.ReadUInt32("CardType", index);
@@ -65,7 +69,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             for (uint i = 0; i < visualCount; i++)
             {
                 packet.ResetBitReader();
-                var nameLen = packet.ReadBits("VisualNameLength", 10, index, i);
+                var nameLen = packet.ReadBits("VisualNameLength", 15, index, i);
+                packet.ResetBitReader();
                 packet.ReadUInt32("CreatureDisplayID", index, i);
                 packet.ReadUInt32("PreviewUIModelSceneID", index, i);
                 packet.ReadUInt32("TransmogSetID", index, i);
@@ -80,7 +85,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt64("CurrentPrice", index);
             var bundleCount = packet.ReadUInt32("BundleProductIDCount", index);
             packet.ReadUInt32("Unk1", index);
-            packet.ReadUInt32("Unk2", index);
             var unkIntCount = packet.ReadUInt32("UnkIntCount", index);
             packet.ReadUInt32("Flags", index);
 
@@ -93,6 +97,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ResetBitReader();
             packet.ReadBits("ChoiceType", 7, index);
             var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
+            packet.ResetBitReader();
 
             if (hasDisplay)
                 ReadDisplayInfo(packet, index);
@@ -111,9 +116,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadBit("IsPet", index);
             var hasPetResult = packet.ReadBit("HasPetResult", index);
             var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
-
             if (hasPetResult)
                 packet.ReadBits("PetResult", 4, index);
+            packet.ResetBitReader();
 
             if (hasDisplay)
                 ReadDisplayInfo(packet, index);
@@ -136,16 +141,12 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             packet.ResetBitReader();
             var nameLen = packet.ReadBits("NameLength", 8, index);
-            packet.ReadBit("AlreadyOwned", index);
             var hasUnkBits = packet.ReadBit("HasUnkBits", index);
-            var itemCount = packet.ReadBits("ItemCount", 7, index);
+            packet.ReadBit("AlreadyOwned", index);
             var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
-
             if (hasUnkBits)
                 packet.ReadBits("UnkBits", 4, index);
-
-                        if (DisplayFlag != 12 && DisplayFlag != 42 && DisplayFlag != 65 && DisplayFlag != 165)
-                            parentProductID = packet.ReadInt32("ParentProductID", index, "ProductInfo");
+            packet.ResetBitReader();
 
             packet.ReadWoWString("Name", nameLen, index);
 
@@ -165,6 +166,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ResetBitReader();
             var nameLen = packet.ReadBits("NameLength", 8, index);
             var descLen = packet.ReadBits("DescriptionLength", 24, index);
+            packet.ResetBitReader();
 
             packet.ReadWoWString("Name", nameLen, index);
             if (descLen > 1)
@@ -179,19 +181,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("Ordering", index);
             packet.ReadUInt32("VasServiceType", index);
             packet.ReadByte("StoreDeliveryType", index);
-
-                packet.ResetBitReader();
-
-                var name = packet.ReadWoWString("Name", TitleSize, j, "Product Data");
-
-                var Unk19 = 0;
-                uint DisplayFlag = 0;
-                if (HasDisplayInfo)
-                {
-                    DisplayFlag = packet.ReadBits("DisplayFlag", 8, j, "Product Data");
-                    ReadBattlepayDisplayInfo(packet, 2000 + j, 0, productid, 0, HasDisplayInfo, DisplayFlag, j);
-                }
-
+            packet.ResetBitReader();
+            var hasDisplay = packet.ReadBit("HasDisplayInfo", index);
             if (hasDisplay)
                 ReadDisplayInfo(packet, index);
         }
@@ -209,10 +200,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("Unk55AC", index);
 
             packet.ResetBitReader();
-            var hasProduct = packet.ReadBit("HasProduct", index);
+            var hasProducts = packet.ReadBit("HasProducts", index);
             packet.ReadBit("Revoked", index);
+            packet.ResetBitReader();
 
-            if (hasProduct)
+            if (hasProducts)
                 ReadProduct(packet, index);
         }
 
@@ -228,6 +220,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             packet.ResetBitReader();
             var walletLen = packet.ReadBits("WalletNameLength", 8, index);
+            packet.ResetBitReader();
             packet.ReadWoWString("WalletName", walletLen, index);
         }
 
@@ -246,6 +239,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("Result");
             packet.ResetBitReader();
             var objectCount = packet.ReadBits("DistributionObjectCount", 11);
+            packet.ResetBitReader();
             for (uint i = 0; i < objectCount; i++)
                 ReadDistributionObject(packet, i);
         }
@@ -260,7 +254,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void HandleProductListResponse(Packet packet)
         {
             packet.ReadUInt32("Result");
-            packet.ReadUInt32("CurrencyID");
             var productInfoCount = packet.ReadUInt32("ProductInfoCount");
             var productCount = packet.ReadUInt32("ProductCount");
             var groupCount = packet.ReadUInt32("ProductGroupCount");
@@ -405,6 +398,5 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             packet.ReadByte("UnkByte");
         }
-
     }
 }
