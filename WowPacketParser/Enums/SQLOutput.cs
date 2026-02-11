@@ -53,6 +53,7 @@
         ObjectNames,
         page_text,
         page_text_locale,
+        perks_program_vendor_data,
         playerchoice,
         playerchoice_locale,
         playercreateinfo,
