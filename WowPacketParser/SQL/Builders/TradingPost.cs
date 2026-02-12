@@ -19,7 +19,7 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.PerksProgramVendorDatas);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.PerksProgramVendorDatas.OrderBy(x => x.Item1.Entry).ToArray() : Storage.PerksProgramVendorDatas.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.PerksProgramVendorDatas.OrderBy(x => x.Item1.Price).ToArray() : Storage.PerksProgramVendorDatas.ToArray(), templateDb, x => string.Empty);
         }
     }
 }
