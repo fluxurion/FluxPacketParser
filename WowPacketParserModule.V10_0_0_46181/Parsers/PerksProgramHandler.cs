@@ -15,10 +15,14 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             var activityCount = packet.ReadUInt32("ActivityCount");
             packet.ReadTime("TimeUntilEnd");
+            packet.ReadInt32("MonthlyProgress");
             packet.ReadTime("TimeUntilStart");
 
             for (var i = 0; i < activityCount; i++)
                 packet.ReadInt32("ActivityID", i);
+
+            packet.ReadInt32("UnkInt32");
+            packet.ReadInt32("UnkInt32");
         }
 
         [Parser(Opcode.SMSG_PERKS_PROGRAM_ACTIVITY_COMPLETE)]
@@ -72,9 +76,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     {
                         packet.ReadUInt32("VendorItemID", i);
                         packet.ReadTime64("BuyTime", i);
-                    }
-                    if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
                         packet.ReadByte("Flags");
+                    }
                     break;
                 case 4: // Collectors Cache
                     packet.ReadUInt32("UnkInt1");
@@ -88,7 +91,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadPackedGuid128("VendorGuid");
                     packet.ReadPackedGuid128("ModelSceneCameraGuid");
                     var itemCount = packet.ReadUInt32("VendorItemCount");
-                    //packet.ReadUInt32("Unknown");
                     for (var i = 0; i < itemCount; ++i)
                         ReadPerksVendorItem(packet, i);
                     if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
@@ -237,10 +239,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadInt32("WarbandSceneID", index);
                 var _Disabled = false;
                 // Bits only exist in pre-12.0
-                if (ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_2_0_52038))
-                    _Disabled = packet.ReadBit("Disabled", index);
-                else
-                    packet.ReadByte("Flag", index);
+                _Disabled = packet.ReadBit("Disabled", index);
                 if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_5_57171))
                     packet.ReadBit("DoesNotExpire", index);
                 // DB Storage Condition for Dragonflight (10.x)
