@@ -1,4 +1,6 @@
-﻿using WowPacketParser.Enums;
+﻿using System;
+using System.Reflection;
+using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Store;
@@ -71,11 +73,13 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                         packet.ReadUInt32("VendorItemID", i);
                         packet.ReadTime64("BuyTime", i);
                     }
+                    if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
+                        packet.ReadByte("Flags");
                     break;
-                case 4: // Unk4
+                case 4: // Collectors Cache
                     packet.ReadUInt32("UnkInt1");
                     packet.ReadUInt32("UnkInt2");
-                    packet.ReadUInt32("UnkInt3");
+                    packet.ReadUInt32("RewardAmount"); // Monthly 500 Trader's Tender
                     var unkIntsCount = packet.ReadUInt32("UnkIntsCount");
                     for (var i = 0; i < unkIntsCount; ++i)
                         packet.ReadUInt32("UnkInt", i);
@@ -83,9 +87,29 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 case 5: // AvailableItems
                     packet.ReadPackedGuid128("VendorGuid");
                     packet.ReadPackedGuid128("ModelSceneCameraGuid");
-                    var frozenCount = packet.ReadUInt32("FrozenPerksVendorItemsCount");
-                    for (var i = 0; i < frozenCount; ++i)
+                    var itemCount = packet.ReadUInt32("VendorItemCount");
+                    //packet.ReadUInt32("Unknown");
+                    for (var i = 0; i < itemCount; ++i)
                         ReadPerksVendorItem(packet, i);
+                    if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
+                    {
+                        packet.ReadByte("UnkByte1");
+                        packet.ReadByte("UnkByte2");
+                        packet.ReadInt32("CurrencyID");
+                        packet.ReadInt16("UnkInt16");
+                        packet.ReadInt32("UnkInt32");
+                        ReadPerksVendorItem(packet, 999);
+                        packet.ReadInt32("UnkInt32");
+                        packet.ReadInt16("UnkInt16");
+                        packet.ReadByte("UnkByte");
+                        packet.ReadInt16("UnkInt16");
+                    }
+                    break;
+                case 8:
+                    packet.ReadInt32("UnkInt32");
+                    break;
+                case 10:
+                    packet.ReadInt32("UnkInt32");
                     break;
                 default:
                     break;
@@ -168,58 +192,76 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         private static void ReadPerksVendorItem(Packet packet, int index)
         {
             packet.ResetBitReader();
-
-            // AvailableUntil (Retail 11.1.7+)
-            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_7_61491))
-                packet.ReadTime64("AvailableUntil", index);
-
-
-            var _VendorItemID = packet.ReadInt32("VendorItemID", index);
-            var _MountID = packet.ReadInt32("MountID", index);
-            var _BattlePetSpeciesID = packet.ReadInt32("BattlePetSpeciesID", index);
-            var _TransmogSetID = packet.ReadInt32("TransmogSetID", index);
-            var _ItemModifiedAppearanceID = packet.ReadInt32("ItemModifiedAppearanceID", index);
-            var _TransmogIllusionID = packet.ReadInt32("TransmogIllusionID", index);
-            var _ToyID = packet.ReadInt32("ToyID", index);
-            var _Price = packet.ReadInt32("Price", index);
-
-            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_7_58123)
-                || ClientVersion.AddedInVersion(ClientBranch.Cata, ClientVersionBuild.V4_4_2_59185)
-                || ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_6_58797)
-                || ClientVersion.AddedInVersion(ClientBranch.WotLK, ClientVersionBuild.V3_4_4_59817))
-                packet.ReadInt32("OriginalPrice", index);
-
-            // AvailableUntil (not Retail or removed in Retail 11.1.7+)
-            if (ClientVersion.Branch != ClientBranch.Retail
-                || ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_7_61491))
-                packet.ReadTime64("AvailableUntil", index);
-
-            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_0_59347)
-                || ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_7_60000)
-                || ClientVersion.AddedInVersion(ClientBranch.WotLK, ClientVersionBuild.V3_4_4_59817))
-                packet.ReadInt32("WarbandSceneID", index);
-
-            var _Disabled = packet.ReadBit("Disabled", index);
-
-            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_5_57171)
-                || ClientVersion.AddedInVersion(ClientBranch.Cata, ClientVersionBuild.V4_4_2_59185)
-                || ClientVersion.AddedInVersion(ClientBranch.WotLK, ClientVersionBuild.V3_4_4_59817))
-                packet.ReadBit("DoesNotExpire", index);
-
-            PerksProgramVendorData perksvendordata = new PerksProgramVendorData
+            // 11.1.7+ and 12.0 move AvailableUntil to the front
+            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_7_61491)
+                || ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
             {
-                ItemID =  _VendorItemID,
-                MountID = _MountID,
-                BattlePetSpeciesID = _BattlePetSpeciesID,
-                TransmogSetID = _TransmogSetID,
-                ItemModifiedAppearanceID = _ItemModifiedAppearanceID,
-                TransmogIllusionID = _TransmogIllusionID,
-                ToyID = _ToyID,
-                Price = _Price,
-                Disabled = _Disabled
-            };
-            Storage.PerksProgramVendorDatas.Add(perksvendordata, packet.TimeSpan);
+                packet.ReadTime64("AvailableUntil", index); // 8 bytes
+            }
+            int _VendorItemID = 0, _MountSourceSpellID = 0, _BattlePetSpeciesID = 0, _TransmogSetID = 0;
+            int _ItemModifiedAppearanceID = 0, _TransmogIllusionID = 0, _ToyID = 0, _Price = 0;
+            if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
+            {
+                _VendorItemID = packet.ReadInt32("VendorItemID", index);
+                packet.ReadInt32("MountSourceSpellID", index);
+                packet.ReadInt32("BattlePetSpeciesID", index);
+                packet.ReadInt32("TransmogSetID", index);
+                packet.ReadInt32("ItemModifiedAppearanceID", index);
 
+                if (_VendorItemID > 0)
+                {
+                    packet.ReadInt32("TransmogIllusionID", index);
+                    packet.ReadInt32("ToyID", index);
+                    packet.ReadInt32("Price", index);
+                    packet.ReadInt32("OriginalPrice?", index);
+                    packet.ReadInt32("WarbandSceneID?", index);
+                    packet.ReadByte("Flag", index);
+                }
+            }
+            else
+            {
+                // Standard Legacy Order (10.x / 11.x)
+                _VendorItemID = packet.ReadInt32("VendorItemID", index);
+                _MountSourceSpellID = packet.ReadInt32("MountSourceSpellID", index);
+                _BattlePetSpeciesID = packet.ReadInt32("BattlePetSpeciesID", index);
+                _TransmogSetID = packet.ReadInt32("TransmogSetID", index);
+                _ItemModifiedAppearanceID = packet.ReadInt32("ItemModifiedAppearanceID", index);
+                _TransmogIllusionID = packet.ReadInt32("TransmogIllusionID", index);
+                _ToyID = packet.ReadInt32("ToyID", index);
+                _Price = packet.ReadInt32("Price", index);
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_7_58123))
+                    packet.ReadInt32("OriginalPrice", index);
+                if (ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_7_61491))
+                    packet.ReadTime64("AvailableUntil", index);
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_0_59347))
+                    packet.ReadInt32("WarbandSceneID", index);
+                var _Disabled = false;
+                // Bits only exist in pre-12.0
+                if (ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_2_0_52038))
+                    _Disabled = packet.ReadBit("Disabled", index);
+                else
+                    packet.ReadByte("Flag", index);
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_5_57171))
+                    packet.ReadBit("DoesNotExpire", index);
+                // DB Storage Condition for Dragonflight (10.x)
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_0_0_46181) &&
+                    ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_0_55666))
+                {
+                    PerksProgramVendorData perksvendordata = new PerksProgramVendorData
+                    {
+                        ItemID = _VendorItemID,
+                        MountSourceSpellID = _MountSourceSpellID,
+                        BattlePetSpeciesID = _BattlePetSpeciesID,
+                        TransmogSetID = _TransmogSetID,
+                        ItemModifiedAppearanceID = _ItemModifiedAppearanceID,
+                        TransmogIllusionID = _TransmogIllusionID,
+                        ToyID = _ToyID,
+                        Price = _Price,
+                        Disabled = _Disabled
+                    };
+                    Storage.PerksProgramVendorDatas.Add(perksvendordata, packet.TimeSpan);
+                }
+            }
         }
     }
 }

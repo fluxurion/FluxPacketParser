@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace WowPacketParserGUI;
 
@@ -11,9 +12,11 @@ public partial class MainForm : Form
     private Button cancelButton = null!;
     private Button reparseButton = null!;
     private Button copyButton = null!;
-    private Button openEditorButton = null!; // Open in text editor button
+    private Button openEditorButton = null!;
+    private Button openConfigButton = null!; // NEW: Open config button
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
+    private TextBox highlightTextBox = null!;
     private ComboBox packetComboBox = null!;
     private TextBox searchTextBox = null!;
     private RichTextBox outputTextBox = null!;
@@ -53,19 +56,24 @@ public partial class MainForm : Form
         // Parse button
         parseButton = new Button { Text = "Parse", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false };
         parseButton.Click += ParseButton_Click;
-        
+
         // Cancel button
         cancelButton = new Button { Text = "Cancel", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false, Visible = false };
         cancelButton.Click += CancelButton_Click;
+
+        // NEW: Open config button
+        openConfigButton = new Button { Text = "Config", Location = new Point(755, 11), Size = new Size(70, 25) };
+        openConfigButton.Click += OpenConfigButton_Click;
 
         // Packet selection
         var packetLabel = new Label { Text = "Packet:", Location = new Point(10, 50), Size = new Size(50, 23) };
         searchTextBox = new TextBox { Location = new Point(65, 47), Size = new Size(200, 23), PlaceholderText = "Search packets..." };
         searchTextBox.TextChanged += SearchTextBox_TextChanged;
-        
-        packetComboBox = new ComboBox { 
-            Location = new Point(275, 47), 
-            Size = new Size(300, 23), 
+
+        packetComboBox = new ComboBox
+        {
+            Location = new Point(275, 47),
+            Size = new Size(300, 23),
             DropDownStyle = ComboBoxStyle.DropDownList,
             Enabled = false
         };
@@ -84,69 +92,95 @@ public partial class MainForm : Form
         openEditorButton.Click += OpenEditorButton_Click;
 
         // Occurrence label
-        occurrenceLabel = new Label { 
-            Location = new Point(10, 80), 
-            Size = new Size(150, 23), 
+        occurrenceLabel = new Label
+        {
+            Location = new Point(10, 80),
+            Size = new Size(150, 23),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Visible = false
         };
 
         // Previous page button
-        prevPageButton = new Button { 
-            Text = "◀ Prev", 
-            Location = new Point(170, 79), 
-            Size = new Size(70, 25), 
+        prevPageButton = new Button
+        {
+            Text = "◀ Prev",
+            Location = new Point(170, 79),
+            Size = new Size(70, 25),
             Enabled = false,
             Visible = false
         };
         prevPageButton.Click += PrevPageButton_Click;
 
         // Page label
-        pageLabel = new Label { 
-            Location = new Point(245, 80), 
-            Size = new Size(80, 23), 
+        pageLabel = new Label
+        {
+            Location = new Point(245, 80),
+            Size = new Size(80, 23),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
             Visible = false
         };
 
         // Next page button
-        nextPageButton = new Button { 
-            Text = "Next ▶", 
-            Location = new Point(330, 79), 
-            Size = new Size(70, 25), 
+        nextPageButton = new Button
+        {
+            Text = "Next ▶",
+            Location = new Point(330, 79),
+            Size = new Size(70, 25),
             Enabled = false,
             Visible = false
         };
         nextPageButton.Click += NextPageButton_Click;
 
+        // Highlight text label and input
+        var highlightLabel = new Label
+        {
+            Text = "Highlight:",
+            Location = new Point(410, 80),
+            Size = new Size(60, 23),
+            TextAlign = System.Drawing.ContentAlignment.MiddleRight,
+            Visible = false
+        };
+
+        highlightTextBox = new TextBox
+        {
+            Location = new Point(475, 79),
+            Size = new Size(150, 23),
+            PlaceholderText = "Text to highlight...",
+            Visible = false
+        };
+        highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
+
         // Progress bar
         progressBar = new ProgressBar { Location = new Point(410, 80), Size = new Size(260, 23), Visible = false };
-        
+
         // Progress label
-        progressLabel = new Label { 
-            Location = new Point(680, 80), 
-            Size = new Size(80, 23), 
+        progressLabel = new Label
+        {
+            Location = new Point(680, 80),
+            Size = new Size(80, 23),
             Text = "0%",
             TextAlign = System.Drawing.ContentAlignment.MiddleRight,
             Visible = false
         };
 
         // Output
-        outputTextBox = new RichTextBox { 
-            Location = new Point(10, 110), 
-            Size = new Size(860, 440), 
-            ReadOnly = true, 
+        outputTextBox = new RichTextBox
+        {
+            Location = new Point(10, 110),
+            Size = new Size(860, 440),
+            ReadOnly = true,
             Font = new Font("Consolas", 9),
             ScrollBars = RichTextBoxScrollBars.Both
         };
 
-        Controls.AddRange(new Control[] { 
-            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton,
+        Controls.AddRange(new Control[] {
+            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton, openConfigButton, // NEW: Added openConfigButton
             packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
-            progressBar, progressLabel, outputTextBox 
+            highlightLabel, highlightTextBox,
+            progressBar, progressLabel, outputTextBox
         });
     }
 
@@ -171,6 +205,7 @@ public partial class MainForm : Form
             packetComboBox.Items.Clear();
             packetComboBox.Enabled = false;
             occurrenceLabel.Visible = false;
+            highlightTextBox.Clear();
             HidePagination();
             isReparsing = false;
             currentPage = 0;
@@ -185,7 +220,7 @@ public partial class MainForm : Form
             Clipboard.SetText(outputTextBox.Text);
             var originalText = copyButton.Text;
             copyButton.Text = "Copied!";
-            Task.Delay(1000).ContinueWith(_ => 
+            Task.Delay(1000).ContinueWith(_ =>
             {
                 this.Invoke(() => copyButton.Text = originalText);
             });
@@ -198,7 +233,7 @@ public partial class MainForm : Form
             return;
 
         var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
-        
+
         if (!File.Exists(parsedFile))
         {
             MessageBox.Show($"Parsed file not found: {parsedFile}", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -216,6 +251,69 @@ public partial class MainForm : Form
         catch (Exception ex)
         {
             MessageBox.Show($"Error opening file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    // NEW: Open config file button handler
+    private void OpenConfigButton_Click(object? sender, EventArgs e)
+    {
+        var possibleConfigPaths = new[]
+        {
+            Path.Combine(Application.StartupPath, "WowPacketParser.dll.config"),
+            Path.Combine(Directory.GetCurrentDirectory(), "WowPacketParser.dll.config"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "WowPacketParser", "bin", "Release", "WowPacketParser.dll.config"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "WowPacketParser", "bin", "Debug", "net9.0", "WowPacketParser.dll.config"),
+            @"C:\FluxPacketParser\WowPacketParser\bin\Release\WowPacketParser.dll.config"
+        };
+
+        string? configPath = null;
+        foreach (var path in possibleConfigPaths)
+        {
+            if (File.Exists(path))
+            {
+                configPath = path;
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(configPath))
+        {
+            var result = MessageBox.Show(
+                "WowPacketParser.dll.config not found in default locations.\n\nWould you like to locate it manually?",
+                "Config File Not Found",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                using var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Config files (*.config)|*.config|All files (*.*)|*.*",
+                    Title = "Locate WowPacketParser.dll.config",
+                    FileName = "WowPacketParser.dll.config"
+                };
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    configPath = openFileDialog.FileName;
+                }
+            }
+        }
+
+        if (!string.IsNullOrEmpty(configPath))
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = configPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening config file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 
@@ -245,6 +343,51 @@ public partial class MainForm : Form
         }
     }
 
+    private void HighlightTextBox_TextChanged(object? sender, EventArgs e)
+    {
+        HighlightText(highlightTextBox.Text);
+    }
+
+    private void HighlightText(string searchText)
+    {
+        outputTextBox.SuspendLayout();
+
+        try
+        {
+            // Clear previous highlights
+            outputTextBox.SelectionStart = 0;
+            outputTextBox.SelectionLength = outputTextBox.Text.Length;
+            outputTextBox.SelectionColor = Color.Black;
+            outputTextBox.SelectionBackColor = Color.White;
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                outputTextBox.ResumeLayout();
+                return;
+            }
+
+            // Find and highlight all occurrences (case-insensitive)
+            int startIndex = 0;
+            while (true)
+            {
+                int index = outputTextBox.Text.IndexOf(searchText, startIndex, StringComparison.OrdinalIgnoreCase);
+                if (index < 0) break;
+
+                outputTextBox.Select(index, searchText.Length);
+                outputTextBox.SelectionBackColor = Color.Yellow;
+                outputTextBox.SelectionColor = Color.Black;
+
+                startIndex = index + searchText.Length;
+            }
+
+            outputTextBox.DeselectAll();
+        }
+        finally
+        {
+            outputTextBox.ResumeLayout();
+        }
+    }
+
     private void HidePagination()
     {
         prevPageButton.Visible = false;
@@ -258,13 +401,19 @@ public partial class MainForm : Form
     {
         if (totalPages <= 1)
         {
-            HidePagination();
+            prevPageButton.Visible = false;
+            prevPageButton.Enabled = false;
+            nextPageButton.Visible = false;
+            nextPageButton.Enabled = false;
+            pageLabel.Visible = false;
+            highlightTextBox.Visible = true;
             return;
         }
 
         prevPageButton.Visible = true;
         nextPageButton.Visible = true;
         pageLabel.Visible = true;
+        highlightTextBox.Visible = true;
 
         prevPageButton.Enabled = currentPage > 0;
         nextPageButton.Enabled = currentPage < totalPages - 1;
@@ -290,6 +439,11 @@ public partial class MainForm : Form
         outputTextBox.SelectionStart = 0;
         outputTextBox.ScrollToCaret();
 
+        if (!string.IsNullOrWhiteSpace(highlightTextBox.Text))
+        {
+            HighlightText(highlightTextBox.Text);
+        }
+
         UpdatePaginationButtons();
     }
 
@@ -309,9 +463,10 @@ public partial class MainForm : Form
         progressLabel.Visible = true;
         progressLabel.Text = "0%";
         occurrenceLabel.Visible = false;
+        highlightTextBox.Clear();
         HidePagination();
         lastReportedProgress = -1;
-        
+
         if (!isReparsing)
         {
             outputTextBox.Text = "Parsing...\n";
@@ -320,7 +475,7 @@ public partial class MainForm : Form
         try
         {
             var wppPath = "";
-            
+
             var possiblePaths = new[]
             {
                 Path.Combine(Application.StartupPath, "WowPacketParser.exe"),
@@ -329,7 +484,7 @@ public partial class MainForm : Form
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "WowPacketParser", "bin", "Debug", "net9.0", "WowPacketParser.exe"),
                 @"C:\FluxPacketParser\WowPacketParser\bin\Release\WowPacketParser.exe"
             };
-            
+
             foreach (var path in possiblePaths)
             {
                 if (File.Exists(path))
@@ -338,7 +493,7 @@ public partial class MainForm : Form
                     break;
                 }
             }
-            
+
             if (string.IsNullOrEmpty(wppPath))
             {
                 using var openFileDialog = new OpenFileDialog
@@ -346,13 +501,13 @@ public partial class MainForm : Form
                     Filter = "WowPacketParser.exe|WowPacketParser.exe|All files (*.*)|*.*",
                     Title = "Locate WowPacketParser.exe"
                 };
-                
+
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
                     outputTextBox.Text = "WowPacketParser.exe not found. Please locate it manually.";
                     return;
                 }
-                
+
                 wppPath = openFileDialog.FileName;
             }
 
@@ -372,12 +527,12 @@ public partial class MainForm : Form
             {
                 currentProcess.OutputDataReceived += OutputDataReceived;
                 currentProcess.ErrorDataReceived += ErrorDataReceived;
-                
+
                 currentProcess.BeginOutputReadLine();
                 currentProcess.BeginErrorReadLine();
-                
+
                 await currentProcess.WaitForExitAsync();
-                
+
                 if (!currentProcess.HasExited)
                 {
                     await currentProcess.StandardInput.WriteLineAsync();
@@ -385,7 +540,7 @@ public partial class MainForm : Form
                 }
                 progressBar.Value = 95;
                 progressLabel.Text = "95%";
-                
+
                 var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
                 if (File.Exists(parsedFile))
                 {
@@ -393,51 +548,51 @@ public partial class MainForm : Form
                     {
                         outputTextBox.AppendText("\nLoading parsed data...\n");
                     }
-                    
+
                     await Task.Run(async () =>
                     {
                         var fileInfo = new FileInfo(parsedFile);
                         var totalBytes = fileInfo.Length;
                         var totalRead = 0L;
-                        
+
                         using var fileStream = new FileStream(parsedFile, FileMode.Open, FileAccess.Read);
                         using var reader = new StreamReader(fileStream);
-                        
+
                         var content = new System.Text.StringBuilder();
                         var readBuffer = new char[4096];
                         int bytesRead;
-                        
+
                         while ((bytesRead = await reader.ReadAsync(readBuffer, 0, readBuffer.Length)) > 0)
                         {
                             content.Append(readBuffer, 0, bytesRead);
                             totalRead += bytesRead * sizeof(char);
-                            
+
                             var fileProgress = (int)((totalRead * 5) / totalBytes);
                             var newProgress = Math.Min(95 + fileProgress, 100);
-                            progressBar.Invoke(() => 
+                            progressBar.Invoke(() =>
                             {
                                 progressBar.Value = newProgress;
                                 progressLabel.Text = $"{newProgress}%";
                             });
                         }
-                        
+
                         var parsedContent = content.ToString();
                         this.parsedContent = parsedContent;
-                        
+
                         if (!isReparsing)
                         {
                             outputTextBox.Invoke(() => outputTextBox.AppendText("Parsing complete. Select a packet to view.\n"));
                         }
-                        
+
                         ExtractPackets(parsedContent);
                         UpdatePacketComboBox();
-                        
-                        progressBar.Invoke(() => 
+
+                        progressBar.Invoke(() =>
                         {
                             progressBar.Value = 100;
                             progressLabel.Text = "100%";
                         });
-                        
+
                         if (isReparsing && !string.IsNullOrEmpty(selectedPacketBeforeReparse))
                         {
                             packetComboBox.Invoke(() =>
@@ -446,13 +601,13 @@ public partial class MainForm : Form
                                 if (index >= 0)
                                 {
                                     packetComboBox.SelectedIndex = index;
-                                    
+
                                     var occurrences = packetLines[selectedPacketBeforeReparse];
                                     totalPages = occurrences.Count;
-                                    
+
                                     currentPage = Math.Min(pageBeforeReparse, totalPages - 1);
                                     if (currentPage < 0) currentPage = 0;
-                                    
+
                                     DisplayCurrentPage();
                                 }
                             });
@@ -485,7 +640,7 @@ public partial class MainForm : Form
             pageBeforeReparse = 0;
         }
     }
-    
+
     private void CancelButton_Click(object? sender, EventArgs e)
     {
         if (currentProcess != null && !currentProcess.HasExited)
@@ -504,7 +659,7 @@ public partial class MainForm : Form
         packetLines.Clear();
         var lines = output.Split('\n');
         var packetRegex = new Regex(@"(ServerToClient|ClientToServer):\s+(\w+)\s+\(0x[0-9A-F]+\)");
-        
+
         string? currentPacket = null;
         var currentPacketLines = new List<string>();
 
@@ -521,11 +676,11 @@ public partial class MainForm : Form
                     }
                     packetLines[currentPacket].Add(new List<string>(currentPacketLines));
                 }
-                
+
                 currentPacket = $"{match.Groups[1].Value}: {match.Groups[2].Value}";
                 if (!allPackets.Contains(currentPacket))
                     allPackets.Add(currentPacket);
-                    
+
                 currentPacketLines.Clear();
                 currentPacketLines.Add(line);
             }
@@ -534,7 +689,7 @@ public partial class MainForm : Form
                 currentPacketLines.Add(line);
             }
         }
-        
+
         if (currentPacket != null && currentPacketLines.Count > 0)
         {
             if (!packetLines.ContainsKey(currentPacket))
@@ -552,18 +707,18 @@ public partial class MainForm : Form
         packetComboBox.Invoke(() =>
         {
             var previousSelection = packetComboBox.SelectedItem?.ToString();
-            
+
             packetComboBox.Items.Clear();
-            
+
             var searchTerm = searchTextBox.Text.ToLower();
-            var filteredPackets = string.IsNullOrEmpty(searchTerm) 
-                ? allPackets 
-                : allPackets.Where(p => p.ToLower().Contains(searchTerm) || 
+            var filteredPackets = string.IsNullOrEmpty(searchTerm)
+                ? allPackets
+                : allPackets.Where(p => p.ToLower().Contains(searchTerm) ||
                                        p.Split(':')[1].Trim().ToLower().Contains(searchTerm)).ToList();
 
             packetComboBox.Items.AddRange(filteredPackets.ToArray());
             packetComboBox.Enabled = filteredPackets.Count > 0;
-            
+
             if (!string.IsNullOrEmpty(previousSelection))
             {
                 var index = packetComboBox.Items.IndexOf(previousSelection);
@@ -588,20 +743,25 @@ public partial class MainForm : Form
         if (selectedPacket != null && packetLines.ContainsKey(selectedPacket))
         {
             var occurrences = packetLines[selectedPacket];
-            
+
             if (!isReparsing)
             {
                 currentPage = 0;
             }
             totalPages = occurrences.Count;
-            
-            occurrenceLabel.Text = occurrences.Count == 1 
-                ? "1 occurrence" 
+
+            occurrenceLabel.Text = occurrences.Count == 1
+                ? "1 occurrence"
                 : $"{occurrences.Count} occurrences";
             occurrenceLabel.Visible = true;
-            
+
             DisplayCurrentPage();
-            
+
+            if (totalPages > 0)
+            {
+                highlightTextBox.Visible = true;
+            }
+
             copyButton.Enabled = true;
             openEditorButton.Enabled = true;
         }
@@ -611,7 +771,7 @@ public partial class MainForm : Form
     {
         if (!string.IsNullOrEmpty(e.Data))
         {
-            this.Invoke((Action)(() => 
+            this.Invoke((Action)(() =>
             {
                 if (e.Data.StartsWith("Progress: ") && e.Data.EndsWith("%"))
                 {
@@ -639,7 +799,7 @@ public partial class MainForm : Form
     {
         if (!string.IsNullOrEmpty(e.Data) && !isReparsing)
         {
-            this.Invoke((Action)(() => 
+            this.Invoke((Action)(() =>
             {
                 outputTextBox.AppendText(e.Data + Environment.NewLine);
                 outputTextBox.SelectionStart = outputTextBox.Text.Length;

@@ -10,8 +10,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("ItemID", true)]
         public int ItemID;
 
-        [DBFieldName("MountID", true)]
-        public int MountID;
+        [DBFieldName("MountSourceSpellID", true)]
+        public int MountSourceSpellID;
 
         [DBFieldName("BattlePetSpeciesID", true)]
         public int BattlePetSpeciesID;
