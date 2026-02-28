@@ -29,10 +29,10 @@ namespace WowPacketParser.Store.Objects
         public int ProductMultiplier;
 
         [DBFieldName("IconFileDataID")]
-        public int IconFileDataID;
+        public uint IconFileDataID;
 
         [DBFieldName("UIModelSceneID")]
-        public int UIModelSceneID;
+        public uint UIModelSceneID;
 
         [DBFieldName("Title")]
         public string Title;
