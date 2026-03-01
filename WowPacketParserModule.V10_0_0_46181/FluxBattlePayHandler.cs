@@ -19,95 +19,98 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         private static void ReadVisualMetadata(Packet packet, params object[] index)
         {
             packet.ResetBitReader();
-            
-            var hasCreatureDisplayID = packet.ReadBit("HasCreatureDisplayID", index);
-            var hasItemID = packet.ReadBit("HasItemID", index);
+            var hasIconFileDataID = packet.ReadBit("HasIconFileDataID", index);
+            var hasPreview = packet.ReadBit("HasPreview", index);
             var titleLen = packet.ReadBits("TitleLength", 10, index);
             var title2Len = packet.ReadBits("Title2Length", 10, index);
-            var descriptionLen = packet.ReadBits("DescriptionLength", 13, index);
-            var description2Len = packet.ReadBits("Description2Length", 13, index);
-            var description3Len = packet.ReadBits("Description3Length", 13, index);
+            var descLen = packet.ReadBits("DescriptionLength", 13, index);
+            var desc2Len = packet.ReadBits("Description2Length", 13, index);
+            var desc3Len = packet.ReadBits("Description3Length", 13, index);
             var hasIconBorder = packet.ReadBit("HasIconBorder", index);
             var hasUnknown1 = packet.ReadBit("HasUnknown1", index);
-            var hasUiTextureAtlasMemberID = packet.ReadBit("HasUiTextureAtlasMemberID", index);
-            var hasUiTextureAtlasMemberID2 = packet.ReadBit("HasUiTextureAtlasMemberID2", index);
-            var description4Len = packet.ReadBits("Description4Length", 13, index);
-            var description5Len = packet.ReadBits("Description5Length", 12, index);
+            var hasUiTextureAtlas = packet.ReadBit("HasUiTextureAtlasMemberID", index);
+            var hasUiTextureAtlas2 = packet.ReadBit("HasUiTextureAtlasMemberID2", index);
+            var desc4Len = packet.ReadBits("Description4Length", 13, index);
+            var desc5Len = packet.ReadBits("Description5Length", 12, index);
 
-            var variationCount = packet.ReadUInt32("VisualsCount", index);
-            var cardType = packet.ReadInt32("CardType", index);
-            var unknown3 = packet.ReadInt32("Unknown3", index);
-            var productMultiplier = packet.ReadInt32("ProductMultiplier", index);
+            var visualCount = packet.ReadUInt32("VisualCount", index);
+            var cardType = packet.ReadUInt32("CardType", index);
+            var unknown3 = packet.ReadUInt32("Unknown3", index);
+            var productMultiplier = packet.ReadUInt32("ProductMultiplier", index);
 
-            var creatureDisplayID = 0;
-            if (hasCreatureDisplayID)
-                creatureDisplayID = (int)packet.ReadInt32("CreatureDisplayID", index);
+            var iconFileDataID = 0;
+            if (hasIconFileDataID)
+                iconFileDataID = (int)packet.ReadUInt32("IconFileDataID", index);
 
-            var itemID = 0;
-            if (hasItemID)
-                itemID = (int)packet.ReadInt32("ItemID", index);
+            var uiModelSceneID = 0;
+            if (hasPreview)
+                uiModelSceneID = (int)packet.ReadUInt32("UIModelSceneID", index);
 
-            var title = "";
-            if (titleLen > 0)
-                title = packet.ReadWoWString("Title", (int)titleLen, index);
-
-            var title2 = "";
-            if (title2Len > 0)
-                title2 = packet.ReadWoWString("Title2", (int)title2Len, index);
-
-            var description = "";
-            if (descriptionLen > 0)
-                description = packet.ReadWoWString("Description", (int)descriptionLen, index);
-
-            var description2 = "";
-            if (description2Len > 0)
-                description2 = packet.ReadWoWString("Description2", (int)description2Len, index);
-
-            var description3 = "";
-            if (description3Len > 0)
-                description3 = packet.ReadWoWString("Description3", (int)description3Len, index);
+            var title = packet.ReadWoWString("Title", titleLen, index);
+            var title2 = packet.ReadWoWString("Title2", title2Len, index);
+            var description = packet.ReadWoWString("Description", descLen, index);
+            var description2 = packet.ReadWoWString("Description2", desc2Len, index);
+            var description3 = packet.ReadWoWString("Description3", desc3Len, index);
 
             var iconBorder = 0;
             if (hasIconBorder)
-                iconBorder = (int)packet.ReadInt32("IconBorder", index);
-
+                iconBorder = (int)packet.ReadUInt32("IconBorder", index);
             var unknown1 = 0;
             if (hasUnknown1)
-                unknown1 = (int)packet.ReadInt32("Unknown1", index);
-
+                unknown1 = (int)packet.ReadUInt32("Unknown1", index);
             var uiTextureAtlasMemberID = 0;
-            if (hasUiTextureAtlasMemberID)
-                uiTextureAtlasMemberID = (int)packet.ReadInt32("UiTextureAtlasMemberID", index);
-
+            if (hasUiTextureAtlas)
+                uiTextureAtlasMemberID = (int)packet.ReadUInt32("UiTextureAtlasMemberID", index);
             var uiTextureAtlasMemberID2 = 0;
-            if (hasUiTextureAtlasMemberID2)
-                uiTextureAtlasMemberID2 = (int)packet.ReadInt32("UiTextureAtlasMemberID2", index);
+            if (hasUiTextureAtlas2)
+                uiTextureAtlasMemberID2 = (int)packet.ReadUInt32("UiTextureAtlasMemberID2", index);
 
-            var description4 = "";
-            if (description4Len > 0)
-                description4 = packet.ReadWoWString("Description4", (int)description4Len, index);
-
-            var description5 = "";
-            if (description5Len > 0)
-                description5 = packet.ReadWoWString("Description5", (int)description5Len, index);
+            var description4 = packet.ReadWoWString("Description4", desc4Len, index);
+            var description5 = packet.ReadWoWString("Description5", desc5Len, index);
 
             var creatureDisplayIDs = new List<uint>();
             var previewUIModelSceneIDs = new List<uint>();
             var transmogSetIDs = new List<uint>();
             var visualNames = new List<string>();
 
-            for (var i = 0u; i < variationCount; i++)
+            for (uint i = 0; i < visualCount; i++)
             {
                 packet.ResetBitReader();
-                var variationNameLen = packet.ReadBits("VisualNameLength", 10, index, i);
-
+                var nameLen = packet.ReadBits("VisualNameLength", 10, index, i);
                 creatureDisplayIDs.Add(packet.ReadUInt32("CreatureDisplayID", index, i));
                 previewUIModelSceneIDs.Add(packet.ReadUInt32("PreviewUIModelSceneID", index, i));
                 transmogSetIDs.Add(packet.ReadUInt32("TransmogSetID", index, i));
-
-                if (variationNameLen > 0)
-                    visualNames.Add(packet.ReadWoWString("VisualName", (int)variationNameLen, index, i));
+                visualNames.Add(packet.ReadWoWString("VisualName", nameLen, index, i));
             }
+
+            BattlePayDisplayInfo displayInfo = new BattlePayDisplayInfo
+            {
+                Entry = (uint)index[0],
+                ProductInfoID = 0,
+                ProductDataID = 0,
+                ShopDataID = 0,
+                CardType = (int)cardType,
+                Unknown3 = (int)unknown3,
+                ProductMultiplier = (int)productMultiplier,
+                IconFileDataID = (uint)iconFileDataID,
+                UIModelSceneID = (uint)uiModelSceneID,
+                Title = title,
+                Title2 = title2,
+                Description = description,
+                Description2 = description2,
+                Description3 = description3,
+                IconBorder = iconBorder,
+                Unknown1 = unknown1,
+                UiTextureAtlasMemberID = uiTextureAtlasMemberID,
+                UiTextureAtlasMemberID2 = uiTextureAtlasMemberID2,
+                Description4 = description4,
+                Description5 = description5,
+                PreviewCreatureDisplayIDs = string.Join(",", creatureDisplayIDs),
+                PreviewUIModelSceneIDs = string.Join(",", previewUIModelSceneIDs),
+                PreviewTransmogSets = string.Join(",", transmogSetIDs),
+                PreviewTitles = string.Join(",", visualNames)
+            };
+            Storage.BattlePayDisplayInfos.Add(displayInfo, packet.TimeSpan);
         }
 
         private static void ReadProductInfo(Packet packet, params object[] index)
@@ -119,22 +122,34 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var deliverableCount = packet.ReadUInt32("DeliverableProductIDCount", index);
             var unknown1 = packet.ReadUInt32("Unknown1", index);
 
-            uint unknown2 = 0;
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_0_52038))
-                unknown2 = packet.ReadUInt32("Unknown2", index);
+            uint unknown2 = packet.ReadUInt32("Unknown2", index);
 
-            var deliverableProductIDsSize = packet.ReadUInt32("DeliverableProductIDsSize", index);
+            var deliverableProductIDExtra = packet.ReadUInt32("deliverableProductIDExtra", index);
             var productinfoflags = packet.ReadUInt32("ProductInfoFlags", index);
+
+            var unk1027 = packet.ReadUInt32("Unk1027", index);
 
             var deliverableProducts = new List<uint>();
             for (uint i = 0; i < deliverableCount; i++)
                 deliverableProducts.Add(packet.ReadUInt32("DeliverableProductID", index, i));
 
-            for (uint i = 0; i < deliverableProductIDsSize; i++)
-                packet.ReadUInt32("UnknownInt", index, i);
-
             packet.ResetBitReader();
             var hasVisualMetadata = packet.ReadBit("HasVisualMetadata", index);
+
+            if (productinfoflags == 1)
+            {
+                packet.ReadUInt16("UnknownIfFlags1_1", index);
+                packet.ReadUInt16("UnknownIfFlags1_2", index);
+            }
+            else if (productinfoflags == 2)
+            {
+                packet.ReadUInt16("UnknownIfFlags2_1", index);
+                packet.ReadUInt16("UnknownIfFlags2_2", index);
+                packet.ReadUInt16("UnknownIfFlags2_3", index);
+                packet.ReadUInt16("UnknownIfFlags2_4", index);
+            }
+            else if (hasVisualMetadata)
+                ReadVisualMetadata(packet, index);
 
             BattlePayProductInfo productInfo = new BattlePayProductInfo
             {
@@ -154,9 +169,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 HasBattlePayDisplayInfo = hasVisualMetadata ? 1 : 0
             };
             Storage.BattlePayProductInfos.Add(productInfo, packet.TimeSpan);
-
-            if (hasVisualMetadata)
-                ReadVisualMetadata(packet, index);
         }
 
         private static void ReadProductItem(Packet packet, params object[] index)
@@ -194,7 +206,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var unknown9 = packet.ReadUInt32("Unknown9", index);
 
             packet.ResetBitReader();
-            var nameLen = packet.ReadBits("NameLength", 7, index);
+            var nameLen = packet.ReadBits("NameLength", 8, index);
             var alreadyowned = packet.ReadBit("AlreadyOwned", index);
             var hasUnknownBits = packet.ReadBit("HasUnknownBits", index);
             var itemCountBits = packet.ReadBits("ItemCount", 7, index);
@@ -208,6 +220,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 ReadProductItem(packet, index, i);
 
             var name = packet.ReadWoWString("Name", (int)nameLen, index);
+
+            if (hasdisplayinfo)
+                ReadVisualMetadata(packet, index);
 
             BattlePayProduct product = new BattlePayProduct
             {
@@ -233,9 +248,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 DisplayFlag = 0
             };
             Storage.BattlePayProductDatas.Add(product, packet.TimeSpan);
-
-            if (hasdisplayinfo)
-                ReadVisualMetadata(packet, index);
         }
 
         private static void ReadGroup(Packet packet, params object[] index)
@@ -252,12 +264,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var descLen = packet.ReadBits("DescriptionLength", 24, index);
             
             var name = packet.ReadWoWString("Name", (int)nameLen, index);
-            
-            packet.ResetBitReader();
-            var hasVisualMetadata = packet.ReadBit("HasVisualMetadata", index);
-            
-            if (hasVisualMetadata)
-                ReadVisualMetadata(packet, index);
+            var description = descLen > 1 ? packet.ReadWoWString("Description", descLen, index) : "";
 
             BattlePayGroup group = new BattlePayGroup
             {
@@ -268,7 +275,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 Unk = unknown,
                 MainGroupID = maingroupid,
                 Name = name,
-                Description = ""
+                Description = description
             };
             Storage.BattlePayGroups.Add(group, packet.TimeSpan);
         }
@@ -285,6 +292,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ResetBitReader();
             var hasVisualMetadata = packet.ReadBit("HasVisualMetadata", index);
 
+            if (hasVisualMetadata)
+                ReadVisualMetadata(packet, index);
+
             BattlePayShop shop = new BattlePayShop
             {
                 Entry = (uint)index[0],
@@ -299,9 +309,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 DisplayFlag = 0
             };
             Storage.BattlePayShopDatas.Add(shop, packet.TimeSpan);
-
-            if (hasVisualMetadata)
-                ReadVisualMetadata(packet, index);
         }
 
         private static void ReadDistributionObject(Packet packet, params object[] index)
