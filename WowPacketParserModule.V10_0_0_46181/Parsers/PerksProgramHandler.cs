@@ -14,15 +14,14 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void HandlePerksProgramActivityUpdate(Packet packet)
         {
             var activityCount = packet.ReadUInt32("ActivityCount");
-            packet.ReadTime("TimeUntilEnd");
+            packet.ReadTime64("TimeUntilEnd");
+            packet.ReadTime64("TimeUntilStart");
             packet.ReadInt32("MonthlyProgress");
-            packet.ReadTime("TimeUntilStart");
 
             for (var i = 0; i < activityCount; i++)
+            {
                 packet.ReadInt32("ActivityID", i);
-
-            packet.ReadInt32("UnkInt32");
-            packet.ReadInt32("UnkInt32");
+            }
         }
 
         [Parser(Opcode.SMSG_PERKS_PROGRAM_ACTIVITY_COMPLETE)]
@@ -225,7 +224,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 // Standard Legacy Order (10.x / 11.x)
                 _VendorItemID = packet.ReadInt32("VendorItemID", index);
                 _MountSourceSpellID = packet.ReadInt32("MountSourceSpellID", index);
-                _BattlePetSpeciesID = packet.ReadInt32("BattlePetSpeciesID", index);
+                _BattlePetSpeciesID = packet.ReadInt32("BattlePetSpeciesCreatureID", index);
                 _TransmogSetID = packet.ReadInt32("TransmogSetID", index);
                 _ItemModifiedAppearanceID = packet.ReadInt32("ItemModifiedAppearanceID", index);
                 _TransmogIllusionID = packet.ReadInt32("TransmogIllusionID", index);
@@ -239,9 +238,15 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadInt32("WarbandSceneID", index);
                 var _Disabled = false;
                 // Bits only exist in pre-12.0
-                _Disabled = packet.ReadBit("Disabled", index);
-                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_5_57171))
-                    packet.ReadBit("DoesNotExpire", index);
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_2_0_52038))
+                {
+                    packet.ReadBit("isFrozen", index);
+                    packet.ReadBit("isPurchased", index);
+                    packet.ReadBit("isRefundable", index);
+                    packet.ReadBit("isAvailable", index);
+                }
+                else
+                    _Disabled = packet.ReadBit("Disabled", index);
                 // DB Storage Condition for Dragonflight (10.x)
                 if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_0_0_46181) &&
                     ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_0_55666))
