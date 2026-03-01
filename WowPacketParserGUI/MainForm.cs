@@ -13,7 +13,7 @@ public partial class MainForm : Form
     private Button reparseButton = null!;
     private Button copyButton = null!;
     private Button openEditorButton = null!;
-    private Button openConfigButton = null!; // NEW: Open config button
+    private Button openConfigButton = null!;
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
     private TextBox highlightTextBox = null!;
@@ -45,29 +45,84 @@ public partial class MainForm : Form
     {
         Text = "WowPacketParser GUI";
         Size = new Size(900, 600);
+        MinimumSize = new Size(800, 500);
         StartPosition = FormStartPosition.CenterScreen;
 
         // File selection
-        var fileLabel = new Label { Text = "PKT File:", Location = new Point(10, 15), Size = new Size(60, 23) };
-        filePathTextBox = new TextBox { Location = new Point(75, 12), Size = new Size(500, 23), ReadOnly = true };
-        browseButton = new Button { Text = "Browse", Location = new Point(585, 11), Size = new Size(75, 25) };
+        var fileLabel = new Label 
+        { 
+            Text = "PKT File:", 
+            Location = new Point(10, 15), 
+            Size = new Size(60, 23),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        
+        filePathTextBox = new TextBox 
+        { 
+            Location = new Point(75, 12), 
+            Size = new Size(500, 23), 
+            ReadOnly = true,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+        
+        browseButton = new Button 
+        { 
+            Text = "Browse", 
+            Location = new Point(585, 11), 
+            Size = new Size(75, 25),
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         browseButton.Click += BrowseButton_Click;
 
         // Parse button
-        parseButton = new Button { Text = "Parse", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false };
+        parseButton = new Button 
+        { 
+            Text = "Parse", 
+            Location = new Point(670, 11), 
+            Size = new Size(75, 25), 
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         parseButton.Click += ParseButton_Click;
 
         // Cancel button
-        cancelButton = new Button { Text = "Cancel", Location = new Point(670, 11), Size = new Size(75, 25), Enabled = false, Visible = false };
+        cancelButton = new Button 
+        { 
+            Text = "Cancel", 
+            Location = new Point(670, 11), 
+            Size = new Size(75, 25), 
+            Enabled = false, 
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         cancelButton.Click += CancelButton_Click;
 
-        // NEW: Open config button
-        openConfigButton = new Button { Text = "Config", Location = new Point(755, 11), Size = new Size(70, 25) };
+        // Open config button
+        openConfigButton = new Button 
+        { 
+            Text = "Config", 
+            Location = new Point(755, 11), 
+            Size = new Size(70, 25),
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         openConfigButton.Click += OpenConfigButton_Click;
 
         // Packet selection
-        var packetLabel = new Label { Text = "Packet:", Location = new Point(10, 50), Size = new Size(50, 23) };
-        searchTextBox = new TextBox { Location = new Point(65, 47), Size = new Size(200, 23), PlaceholderText = "Search packets..." };
+        var packetLabel = new Label 
+        { 
+            Text = "Packet:", 
+            Location = new Point(10, 50), 
+            Size = new Size(50, 23),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        
+        searchTextBox = new TextBox 
+        { 
+            Location = new Point(65, 47), 
+            Size = new Size(200, 23), 
+            PlaceholderText = "Search packets...",
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
         searchTextBox.TextChanged += SearchTextBox_TextChanged;
 
         packetComboBox = new ComboBox
@@ -75,20 +130,42 @@ public partial class MainForm : Form
             Location = new Point(275, 47),
             Size = new Size(300, 23),
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Enabled = false
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
         packetComboBox.SelectedIndexChanged += PacketComboBox_SelectedIndexChanged;
 
         // Re-parse button
-        reparseButton = new Button { Text = "Re-parse", Location = new Point(585, 46), Size = new Size(75, 25), Enabled = false };
+        reparseButton = new Button 
+        { 
+            Text = "Re-parse", 
+            Location = new Point(585, 46), 
+            Size = new Size(75, 25), 
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         reparseButton.Click += ReparseButton_Click;
 
         // Copy button
-        copyButton = new Button { Text = "Copy", Location = new Point(670, 46), Size = new Size(75, 25), Enabled = false };
+        copyButton = new Button 
+        { 
+            Text = "Copy", 
+            Location = new Point(670, 46), 
+            Size = new Size(75, 25), 
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         copyButton.Click += CopyButton_Click;
 
         // Open in editor button
-        openEditorButton = new Button { Text = "Open", Location = new Point(755, 46), Size = new Size(70, 25), Enabled = false };
+        openEditorButton = new Button 
+        { 
+            Text = "Open", 
+            Location = new Point(755, 46), 
+            Size = new Size(70, 25), 
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
         openEditorButton.Click += OpenEditorButton_Click;
 
         // Occurrence label
@@ -98,7 +175,8 @@ public partial class MainForm : Form
             Size = new Size(150, 23),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
         // Previous page button
@@ -108,7 +186,8 @@ public partial class MainForm : Form
             Location = new Point(170, 79),
             Size = new Size(70, 25),
             Enabled = false,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         prevPageButton.Click += PrevPageButton_Click;
 
@@ -119,7 +198,8 @@ public partial class MainForm : Form
             Size = new Size(80, 23),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
         // Next page button
@@ -129,7 +209,8 @@ public partial class MainForm : Form
             Location = new Point(330, 79),
             Size = new Size(70, 25),
             Enabled = false,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         nextPageButton.Click += NextPageButton_Click;
 
@@ -140,7 +221,8 @@ public partial class MainForm : Form
             Location = new Point(410, 80),
             Size = new Size(60, 23),
             TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
         highlightTextBox = new TextBox
@@ -148,12 +230,19 @@ public partial class MainForm : Form
             Location = new Point(475, 79),
             Size = new Size(150, 23),
             PlaceholderText = "Text to highlight...",
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
 
         // Progress bar
-        progressBar = new ProgressBar { Location = new Point(410, 80), Size = new Size(260, 23), Visible = false };
+        progressBar = new ProgressBar 
+        { 
+            Location = new Point(410, 80), 
+            Size = new Size(260, 23), 
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
 
         // Progress label
         progressLabel = new Label
@@ -162,26 +251,58 @@ public partial class MainForm : Form
             Size = new Size(80, 23),
             Text = "0%",
             TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-            Visible = false
+            Visible = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        // Output
+        // Output - This is the most important for resizing
         outputTextBox = new RichTextBox
         {
             Location = new Point(10, 110),
             Size = new Size(860, 440),
             ReadOnly = true,
             Font = new Font("Consolas", 9),
-            ScrollBars = RichTextBoxScrollBars.Both
+            ScrollBars = RichTextBoxScrollBars.Both,
+            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
         };
 
         Controls.AddRange(new Control[] {
-            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton, openConfigButton, // NEW: Added openConfigButton
+            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton, openConfigButton,
             packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             highlightLabel, highlightTextBox,
             progressBar, progressLabel, outputTextBox
         });
+
+        // Handle form resize to update button positions dynamically
+        this.Resize += MainForm_Resize;
+    }
+
+    private void MainForm_Resize(object? sender, EventArgs e)
+    {
+        // Update positions of buttons on the right side based on form width
+        int rightMargin = this.ClientSize.Width - 10;
+        
+        // Row 1 buttons
+        openConfigButton.Left = rightMargin - openConfigButton.Width;
+        parseButton.Left = openConfigButton.Left - parseButton.Width - 10;
+        cancelButton.Left = parseButton.Left;
+        browseButton.Left = parseButton.Left - browseButton.Width - 10;
+        
+        // Update file path textbox width
+        filePathTextBox.Width = browseButton.Left - filePathTextBox.Left - 10;
+        
+        // Row 2 buttons
+        openEditorButton.Left = rightMargin - openEditorButton.Width;
+        copyButton.Left = openEditorButton.Left - copyButton.Width - 10;
+        reparseButton.Left = copyButton.Left - reparseButton.Width - 10;
+        
+        // Update packet combo box width
+        packetComboBox.Width = reparseButton.Left - packetComboBox.Left - 10;
+        
+        // Update output textbox size
+        outputTextBox.Width = rightMargin - outputTextBox.Left;
+        outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 10;
     }
 
     private void BrowseButton_Click(object? sender, EventArgs e)
@@ -254,7 +375,6 @@ public partial class MainForm : Form
         }
     }
 
-    // NEW: Open config file button handler
     private void OpenConfigButton_Click(object? sender, EventArgs e)
     {
         var possibleConfigPaths = new[]
