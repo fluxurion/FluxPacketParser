@@ -6,22 +6,33 @@ using WowPacketParser.Parsing;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 
+// MODIFIED FOR 10.2
+
 namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
     public static class PerksProgramHandler
     {
+        [Parser(Opcode.CMSG_PERKS_PROGRAM_REQUEST_REFUND)]
+        public static void HandlePerksProgramRequestRefund(Packet packet)
+        {
+            packet.ReadUInt32("PerksVendorItemID");
+            packet.ReadPackedGuid128("VendorGUID");
+        }
+
+
         [Parser(Opcode.SMSG_PERKS_PROGRAM_ACTIVITY_UPDATE)]
         public static void HandlePerksProgramActivityUpdate(Packet packet)
         {
-            var activityCount = packet.ReadUInt32("ActivityCount");
-            packet.ReadTime64("TimeUntilEnd");
-            packet.ReadTime64("TimeUntilStart");
-            packet.ReadInt32("MonthlyProgress");
+            var activityCount = packet.ReadUInt32("ActivityCount"); // 4
+            packet.ReadTime64("TimeUntilEnd");                     // 4
+            packet.ReadTime64("TimeUntilStart");                   // 4
+
+            // Total Header: 20 bytes
 
             for (var i = 0; i < activityCount; i++)
-            {
-                packet.ReadInt32("ActivityID", i);
-            }
+                packet.ReadInt32("ActivityID", i);                 // 272 bytes (68 * 4)
+
+            packet.ReadUInt32("CurrentActivityID");                // 4 bytes
         }
 
         [Parser(Opcode.SMSG_PERKS_PROGRAM_ACTIVITY_COMPLETE)]
@@ -40,7 +51,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.CMSG_PERKS_PROGRAM_SET_FROZEN_VENDOR_ITEM)]
         public static void HandlePerksProgramSetFrozenVendorItem(Packet packet)
         {
-            packet.ReadBool("UnkBool");
+            packet.ReadBool("Set");
             packet.ReadUInt32("PerksVendorItemID");
             packet.ReadPackedGuid128("VendorGuid");
         }
@@ -60,24 +71,13 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.SMSG_PERKS_PROGRAM_RESULT)]
         public static void HandlePerksProgramResult(Packet packet)
         {
-            var type = packet.ReadBits("Type", 4);
-            var hasUnkLong = packet.ReadBit("HasUnkLong");
             packet.ResetBitReader();
-            if (hasUnkLong)
-                packet.ReadUInt64("UnkLong");
+            var typeFlag = packet.ReadByte("TypeFlag");
+            var type = typeFlag >> 4;
+            packet.WriteLine($"Type: {type}");
 
             switch (type)
             {
-                case 2: // BoughtItem
-                    packet.ReadUInt32("VendorItemID");
-                    var buyItemCount = packet.ReadUInt32("BuyItemCount");
-                    for (var i = 0; i < buyItemCount; ++i)
-                    {
-                        packet.ReadUInt32("VendorItemID", i);
-                        packet.ReadTime64("BuyTime", i);
-                        packet.ReadByte("Flags");
-                    }
-                    break;
                 case 4: // Collectors Cache
                     packet.ReadUInt32("UnkInt1");
                     packet.ReadUInt32("UnkInt2");
@@ -86,35 +86,47 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     for (var i = 0; i < unkIntsCount; ++i)
                         packet.ReadUInt32("UnkInt", i);
                     break;
+                case 2: // BoughtItem
+                case 3: // Same structure as case 2
+                    packet.ReadUInt32("VendorItemID");
+                    var buyItemCount = packet.ReadUInt32("BuyItemCount");
+                    for (var i = 0; i < buyItemCount; ++i)
+                    {
+                        packet.ReadUInt32("VendorItemID", i);
+                        packet.ReadTime64("BuyTime", i);
+                        packet.ReadByte("Flags", i);
+                    }
+                    break;
                 case 5: // AvailableItems
                     packet.ReadPackedGuid128("VendorGuid");
                     packet.ReadPackedGuid128("ModelSceneCameraGuid");
                     var itemCount = packet.ReadUInt32("VendorItemCount");
                     for (var i = 0; i < itemCount; ++i)
-                        ReadPerksVendorItem(packet, i);
-                    if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
                     {
-                        packet.ReadByte("UnkByte1");
-                        packet.ReadByte("UnkByte2");
-                        packet.ReadInt32("CurrencyID");
-                        packet.ReadInt16("UnkInt16");
-                        packet.ReadInt32("UnkInt32");
-                        ReadPerksVendorItem(packet, 999);
-                        packet.ReadInt32("UnkInt32");
-                        packet.ReadInt16("UnkInt16");
-                        packet.ReadByte("UnkByte");
-                        packet.ReadInt16("UnkInt16");
+                        ReadPerksVendorItemNew(packet, i);
                     }
                     break;
                 case 8:
                     packet.ReadInt32("UnkInt32");
                     break;
-                case 10:
-                    packet.ReadInt32("UnkInt32");
-                    break;
                 default:
                     break;
             }
+        }
+
+        // New structure based on sub_7C5A20
+        private static void ReadPerksVendorItemNew(Packet packet, int index)
+        {
+            packet.ReadInt32("VendorItemID", index);
+            packet.ReadInt32("MountSourceSpellID", index);
+            packet.ReadInt32("BattlePetSpeciesID", index);
+            packet.ReadInt32("TransmogSetID", index);
+            packet.ReadInt32("ItemModifiedAppearanceID", index);
+            packet.ReadInt32("TransmogIllusionID", index);
+            packet.ReadInt32("ToyID", index);
+            packet.ReadInt32("Price", index);
+            packet.ReadTime64("AvailableUntil", index);
+            packet.ReadByte("Flags", index);
         }
 
         [Parser(Opcode.SMSG_RESPONSE_PERK_RECENT_PURCHASES)]
@@ -186,8 +198,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             var itemsCount = packet.ReadUInt32("ItemsCount");
             for (var i = 0; i < itemsCount; ++i)
+            {
                 ReadPerksVendorItem(packet, i);
+            }
         }
+
 
         // Helper for PerksVendorItem
         private static void ReadPerksVendorItem(Packet packet, int index)
@@ -238,15 +253,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadInt32("WarbandSceneID", index);
                 var _Disabled = false;
                 // Bits only exist in pre-12.0
-                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_2_0_52038))
-                {
-                    packet.ReadBit("isFrozen", index);
-                    packet.ReadBit("isPurchased", index);
-                    packet.ReadBit("isRefundable", index);
-                    packet.ReadBit("isAvailable", index);
-                }
-                else
-                    _Disabled = packet.ReadBit("Disabled", index);
+                packet.ReadByte("Flags", index);
                 // DB Storage Condition for Dragonflight (10.x)
                 if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_0_0_46181) &&
                     ClientVersion.RemovedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_0_0_55666))
@@ -261,7 +268,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                         TransmogIllusionID = _TransmogIllusionID,
                         ToyID = _ToyID,
                         Price = _Price,
-                        Disabled = _Disabled
+                        //Disabled = _Disabled
                     };
                     Storage.PerksProgramVendorDatas.Add(perksvendordata, packet.TimeSpan);
                 }
