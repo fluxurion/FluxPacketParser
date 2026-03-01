@@ -38,13 +38,13 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             var visualCount = packet.ReadUInt32("VisualCount", index);
             var cardType = packet.ReadUInt32("CardType", index);
             var unknown3 = packet.ReadUInt32("Unknown3", index);
-            var productMultiplier = packet.ReadUInt32("Unknown4", index);
+            var productMultiplier = packet.ReadUInt32("ProductMultiplier", index);
 
             var iconFileDataID = 0;
             if (hasIconFileDataID)
                 iconFileDataID = (int)packet.ReadUInt32("IconFileDataID", index);
 
-            var uiModelSceneID = packet.ReadUInt32("UIModelSceneID", index);
+            var uiModelSceneID = (int)packet.ReadUInt32("UIModelSceneID", index);
 
             var title = packet.ReadWoWString("Title", titleLen, index);
             var title2 = packet.ReadWoWString("Title2", title2Len, index);
