@@ -4,9 +4,12 @@ using WowPacketParser.SQL;
 
 namespace WowPacketParser.Store.Objects
 {
-    [DBTableName("battlepay_group")]
+    [DBTableName("battlepay_groups")]
     public sealed record BattlePayGroup : IDataModel
     {
+        [DBFieldName("Entry", true)]
+        public uint Entry;
+
         [DBFieldName("GroupID", true)]
         public uint GroupID;
 
@@ -19,8 +22,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Ordering")]
         public uint Ordering;
 
-        [DBFieldName("Unk")]
-        public uint Unk;
+        [DBFieldName("Unknown")]
+        public uint Unknown;
 
         [DBFieldName("MainGroupID")]
         public uint MainGroupID;

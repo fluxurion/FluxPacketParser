@@ -77,10 +77,25 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             {
                 packet.ResetBitReader();
                 var nameLen = packet.ReadBits("VisualNameLength", 10, index, i);
-                creatureDisplayIDs.Add(packet.ReadUInt32("CreatureDisplayID", index, i));
-                previewUIModelSceneIDs.Add(packet.ReadUInt32("PreviewUIModelSceneID", index, i));
-                transmogSetIDs.Add(packet.ReadUInt32("TransmogSetID", index, i));
-                visualNames.Add(packet.ReadWoWString("VisualName", nameLen, index, i));
+                var creatureDisplayID = packet.ReadUInt32("CreatureDisplayID", index, i);
+                var previewUIModelSceneID = packet.ReadUInt32("PreviewUIModelSceneID", index, i);
+                var transmogSetID = packet.ReadUInt32("TransmogSetID", index, i);
+                var visualName = packet.ReadWoWString("VisualName", nameLen, index, i);
+
+                creatureDisplayIDs.Add(creatureDisplayID);
+                previewUIModelSceneIDs.Add(previewUIModelSceneID);
+                transmogSetIDs.Add(transmogSetID);
+                visualNames.Add(visualName);
+
+                Storage.BattlePayDisplayInfoVisuals.Add(new BattlePayDisplayInfoVisual
+                {
+                    DisplayInfoEntry = (uint)index[0],
+                    VisualIndex = i,
+                    CreatureDisplayID = creatureDisplayID,
+                    PreviewUIModelSceneID = previewUIModelSceneID,
+                    TransmogSetID = transmogSetID,
+                    VisualName = visualName
+                }, packet.TimeSpan);
             }
 
             BattlePayDisplayInfo displayInfo = new BattlePayDisplayInfo
@@ -89,6 +104,13 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 ProductInfoID = 0,
                 ProductDataID = 0,
                 ShopDataID = 0,
+                HasIconFileDataID = hasIconFileDataID ? 1 : 0,
+                HasPreview = hasPreview ? 1 : 0,
+                HasIconBorder = hasIconBorder ? 1 : 0,
+                HasUnknown1 = hasUnknown1 ? 1 : 0,
+                HasUiTextureAtlasMemberID = hasUiTextureAtlas ? 1 : 0,
+                HasUiTextureAtlasMemberID2 = hasUiTextureAtlas2 ? 1 : 0,
+                VisualCount = visualCount,
                 CardType = (int)cardType,
                 Unknown3 = (int)unknown3,
                 ProductMultiplier = (int)productMultiplier,
@@ -136,17 +158,24 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ResetBitReader();
             var hasVisualMetadata = packet.ReadBit("HasVisualMetadata", index);
 
+            int unknownIfFlags1_1 = 0;
+            int unknownIfFlags1_2 = 0;
+            int unknownIfFlags2_1 = 0;
+            int unknownIfFlags2_2 = 0;
+            int unknownIfFlags2_3 = 0;
+            int unknownIfFlags2_4 = 0;
+
             if (productinfoflags == 1)
             {
-                packet.ReadUInt16("UnknownIfFlags1_1", index);
-                packet.ReadUInt16("UnknownIfFlags1_2", index);
+                unknownIfFlags1_1 = packet.ReadUInt16("UnknownIfFlags1_1", index);
+                unknownIfFlags1_2 = packet.ReadUInt16("UnknownIfFlags1_2", index);
             }
             else if (productinfoflags == 2)
             {
-                packet.ReadUInt16("UnknownIfFlags2_1", index);
-                packet.ReadUInt16("UnknownIfFlags2_2", index);
-                packet.ReadUInt16("UnknownIfFlags2_3", index);
-                packet.ReadUInt16("UnknownIfFlags2_4", index);
+                unknownIfFlags2_1 = packet.ReadUInt16("UnknownIfFlags2_1", index);
+                unknownIfFlags2_2 = packet.ReadUInt16("UnknownIfFlags2_2", index);
+                unknownIfFlags2_3 = packet.ReadUInt16("UnknownIfFlags2_3", index);
+                unknownIfFlags2_4 = packet.ReadUInt16("UnknownIfFlags2_4", index);
             }
             else if (hasVisualMetadata)
                 ReadVisualMetadata(packet, index);
@@ -158,10 +187,20 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 NormalPrice = (long)normalprice,
                 CurrentPrice = (long)currentprice,
                 ProductInfoFlags = (int)productinfoflags,
-                Unknown2 = (int)unknown1,
-                Unknown3 = (int)unknown2,
+                Unknown1 = (int)unknown1,
+                Unknown2 = (int)unknown2,
+                Unknown3 = 0,
                 Unknown4 = 0,
                 Unknown5 = 0,
+                DeliverableProductIDExtra = deliverableProductIDExtra,
+                Unk1027 = unk1027,
+                UnknownIfFlags1_1 = unknownIfFlags1_1,
+                UnknownIfFlags1_2 = unknownIfFlags1_2,
+                UnknownIfFlags2_1 = unknownIfFlags2_1,
+                UnknownIfFlags2_2 = unknownIfFlags2_2,
+                UnknownIfFlags2_3 = unknownIfFlags2_3,
+                UnknownIfFlags2_4 = unknownIfFlags2_4,
+                HasVisualMetadata = hasVisualMetadata ? 1 : 0,
                 DeliverableProductIDs = string.Join(",", deliverableProducts),
                 ChoiceType = 0,
                 DisplayFlag = 0,
@@ -173,18 +212,34 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
         private static void ReadProductItem(Packet packet, params object[] index)
         {
-            packet.ReadUInt32("ID", index);
-            packet.ReadByte("UnknownByte", index);
-            packet.ReadUInt32("ItemID", index);
-            packet.ReadUInt32("Quantity", index);
-            packet.ReadUInt32("UnknownInt1", index);
-            packet.ReadUInt32("UnknownInt2", index);
+            var id = packet.ReadUInt32("ID", index);
+            var unknownByte = packet.ReadByte("UnknownByte", index);
+            var itemID = packet.ReadUInt32("ItemID", index);
+            var quantity = packet.ReadUInt32("Quantity", index);
+            var unknownInt1 = packet.ReadUInt32("UnknownInt1", index);
+            var unknownInt2 = packet.ReadUInt32("UnknownInt2", index);
 
             packet.ResetBitReader();
             var isPet = packet.ReadBit("IsPet", index);
             var hasPetResult = packet.ReadBit("HasPetResult", index);
             var petResultFlags = packet.ReadBits("PetResultFlags", 4, index);
             var hasVisualMetadata = packet.ReadBit("HasVisualMetadata", index);
+
+            Storage.BattlePayProductItems.Add(new BattlePayProductItem
+            {
+                ProductEntry = (uint)index[0],
+                ItemOrder = (uint)index[1],
+                ID = id,
+                UnknownByte = unknownByte,
+                ItemID = itemID,
+                Quantity = quantity,
+                UnknownInt1 = unknownInt1,
+                UnknownInt2 = unknownInt2,
+                IsPet = isPet ? 1 : 0,
+                HasPetResult = hasPetResult ? 1 : 0,
+                PetResultFlags = (uint)petResultFlags,
+                HasVisualMetadata = hasVisualMetadata ? 1 : 0
+            }, packet.TimeSpan);
 
             if (hasVisualMetadata)
                 ReadVisualMetadata(packet, index);
@@ -268,11 +323,12 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             BattlePayGroup group = new BattlePayGroup
             {
+                Entry = (uint)index[0],
                 GroupID = groupid,
                 IconFileDataID = iconfiledataid,
                 DisplayType = displaytype,
                 Ordering = ordering,
-                Unk = unknown,
+                Unknown = unknown,
                 MainGroupID = maingroupid,
                 Name = name,
                 Description = description
