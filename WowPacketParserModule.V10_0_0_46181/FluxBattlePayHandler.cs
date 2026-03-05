@@ -138,8 +138,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         private static void ReadProductInfo(Packet packet, params object[] index)
         {
             var productid = packet.ReadUInt32("ProductID", index);
-            var normalprice = packet.ReadUInt64("NormalPrice", index);
-            var currentprice = packet.ReadUInt64("CurrentPrice", index);
+            var normalprice = packet.ReadInt64("NormalPrice", index);
+            var currentprice = packet.ReadInt64("CurrentPrice", index);
             
             var deliverableCount = packet.ReadUInt32("DeliverableProductIDCount", index);
             var unknown1 = packet.ReadUInt32("Unknown1", index);
@@ -367,58 +367,86 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             Storage.BattlePayShopDatas.Add(shop, packet.TimeSpan);
         }
 
-        private static void ReadDistributionObject(Packet packet, params object[] index)
-        {
-            packet.ReadUInt64("DistributionID", index);
-            packet.ReadUInt32("Status", index);
-            packet.ReadUInt32("ProductID", index);
-            packet.ReadPackedGuid128("TargetPlayer", index);
-            packet.ReadPackedGuid128("UnknownGuid", index);
-            packet.ReadUInt32("TargetVirtualRealm", index);
-            packet.ReadUInt32("TargetNativeRealm", index);
-            packet.ReadUInt64("PurchaseID", index);
-            packet.ReadUInt32("Unknown55AC", index);
-
-            packet.ResetBitReader();
-            var hasProduct = packet.ReadBit("HasProduct", index);
-            packet.ReadBit("Revoked", index);
-
-            if (hasProduct)
-                ReadProduct(packet, index);
-        }
-
         private static void ReadPurchase(Packet packet, params object[] index)
         {
-            packet.ReadUInt64("PurchaseID", index);
-            packet.ReadUInt32("Status", index);
-            packet.ReadUInt32("ResultCode", index);
-            packet.ReadUInt32("ProductID", index);
-            packet.ReadUInt64("UnknownLong1", index);
-            packet.ReadUInt64("UnknownLong2", index);
-            packet.ReadUInt32("UnknownInt", index);
+                packet.ReadUInt64("PurchaseID", index);
+                packet.ReadUInt32("Status", index);         // 12 (Lezárt/Sikeres)
+                packet.ReadUInt32("ResultCode", index);     // 63 (Siker)
+                packet.ReadUInt32("ProductID", index);      
+                
+                // A logodban a PurchaseTime 0 volt, de az UnkInt-ben ott a timestamp!
+                // Ez azt jelenti, hogy a sorrend:
+                packet.ReadUInt64("UnkLong", index);        // Mindig 0 a logodban
+                packet.ReadUInt64("UnkLong2", index);       // Szintén 0
+                packet.ReadTime("PurchaseTime", index);   // Itt jön a 1624633674 (Unix TS)
+                packet.ReadUInt32("UnkInt1027", index);     // Padding/0
 
-            packet.ResetBitReader();
-            var walletLen = packet.ReadBits("WalletNameLength", 8, index);
-            packet.ReadWoWString("WalletName", (int)walletLen, index);
+                // String kezelés:
+                // A dumpban 0F 0F-et látunk a 'db' előtt.
+                // Ha a ReadBits(8) nem működik stabilan, próbáld meg így:
+                packet.ResetBitReader();
+                uint nameLen = packet.ReadBits(8); // WalletName hossza
+                packet.ReadWoWString("WalletName", nameLen, index);
         }
 
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE)]
         public static void HandlePurchaseListResponse(Packet packet)
         {
-            packet.ReadUInt32("Result");
-            var purchaseCount = packet.ReadUInt32("PurchaseCount");
-            for (uint i = 0; i < purchaseCount; i++)
+            packet.ReadUInt32("Result"); 
+            uint count = packet.ReadUInt32("PurchaseCount"); 
+
+            for (int i = 0; i < count; i++)
+            {
                 ReadPurchase(packet, i);
+            }
+        }
+
+        private static void ReadDistributionObject(Packet packet, params object[] index)
+        {
+                // Minden elem egy DistributionObject
+                packet.ReadUInt64("DistributionID", index);
+                packet.ReadUInt32("Status", index);
+                packet.ReadUInt32("ProductID", index);
+                
+                // Célzott karakter adatai
+                packet.ReadPackedGuid128("TargetPlayerGUID", index);
+                packet.ReadPackedGuid128("UnkGuid", index); // Gyakran üres/0
+                
+                packet.ReadUInt32("TargetVirtualRealmAddress", index);
+                packet.ReadUInt32("TargetNativeRealmAddress", index);
+                
+                // A vásárlás azonosítója, ami összeköti a korábbi tranzakcióval
+                packet.ReadUInt64("PurchaseID", index);
+                
+                // 10.2.7 specifikus kiegészítő azonosító
+                packet.ReadUInt32("UnkInt1027", index);
+
+                packet.ResetBitReader();
+                // Jelzi, hogy a termék adatai is mellékelve vannak-e
+                bool hasProduct = packet.ReadBit("HasProductInfo", index);
+                packet.ReadBit("IsRevoked", index); // Visszavont/Visszatérített ajándék
+
+                if (hasProduct)
+                {
+                    // Itt a BattlePay::ParseProductInfo-nál látott struktúra jön
+                    ReadProductInfo(packet, index); 
+                }
         }
 
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE)]
         public static void HandleDistributionListResponse(Packet packet)
         {
+            // A lekérdezés állapota (0 = Siker)
             packet.ReadUInt32("Result");
+
             packet.ResetBitReader();
-            var objectCount = packet.ReadBits("DistributionObjectCount", 11);
-            for (uint i = 0; i < objectCount; i++)
+            // 11 biten érkezik az objektumok száma (Dragonflight standard)
+            var count = packet.ReadBits("DistributionObjectCount", 11);
+
+            for (int i = 0; i < count; ++i)
+            {
                 ReadDistributionObject(packet, i);
+            }
         }
 
         [Parser(Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE)]
@@ -456,9 +484,17 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.CMSG_BATTLE_PAY_START_PURCHASE)]
         public static void HandleStartPurchase(Packet packet)
         {
-            packet.ReadUInt32("ClientToken");
+            packet.ReadUInt32("CurrencyID");
             packet.ReadUInt32("ProductID");
             packet.ReadPackedGuid128("TargetCharacter");
+            packet.ResetBitReader();
+            uint string1Len = packet.ReadBits("String1Length", 6);
+            uint string2Len = packet.ReadBits("String2Length", 12);
+            uint string3Len = packet.ReadBits("String3Length", 7);
+            packet.ResetBitReader();
+            packet.ReadWoWString("TargetName", string1Len);
+            packet.ReadWoWString("WalletName", string2Len);
+            packet.ReadWoWString("PromotionCode", string3Len);
         }
 
         [Parser(Opcode.SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE)]
@@ -495,10 +531,18 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE)]
         public static void HandleConfirmPurchaseResponse(Packet packet)
         {
+            // 1. Olvassuk a biteket (v4/v5 flag)
             packet.ResetBitReader();
-            packet.ReadBit("ConfirmPurchase");
-            packet.ReadUInt32("ServerToken");
-            packet.ReadUInt64("ClientCurrentPriceFixedPoint");
+            bool confirmed = packet.ReadBit("Confirmed");
+            
+            // A C++ kód itt hívja a FlushBits-et, ami azt jelenti, 
+            // hogy a következő adatok már a következő teljes bájton kezdődnek.
+            
+            // 2. ProductID (*(a1 + 36) -> UInt32)
+            packet.ReadUInt32("ProductID"); 
+
+            // 3. PurchaseID (*(a1 + 40) -> UInt64)
+            packet.ReadUInt64("PurchaseID");
         }
 
         [Parser(Opcode.CMSG_BATTLE_PAY_ACK_FAILED_RESPONSE)]
@@ -577,7 +621,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.CMSG_BATTLE_PAY_REQUEST_PRICE_INFO)]
         public static void HandleBattlePayRequestPriceInfo(Packet packet)
         {
-            packet.ReadByte("UnknownByte");
+            packet.ReadUInt32("UnkInt");
+            packet.ReadUInt32("ProductInfoID");
         }
     }
 }
