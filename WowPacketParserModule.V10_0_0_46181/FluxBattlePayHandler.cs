@@ -700,6 +700,80 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("UnkInt2");
         }
 
+        [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS)]
+        public static void HandleSyncWowEntitlements(Packet packet)
+        {
+            var purchaseCountSize = packet.ReadUInt32("PurchaseCountSize");
+            var productCount = packet.ReadUInt32("ProductCount");
+
+            for (uint i = 0; i < purchaseCountSize; i++)
+            {
+                packet.ReadUInt32("ProductID", i);
+                packet.ReadUInt32("Flags", i);
+                packet.ReadUInt32("Flags2", i);
+                packet.ReadUInt32("Unknown", i);
+                packet.ResetBitReader();
+                packet.ReadBits("UnknownBits", 7, i);
+                packet.ReadBit("UnknownBit", i);
+            }
+
+            for (uint i = 0; i < productCount; i++)
+            {
+                var productId = packet.ReadUInt32("ProductID", i);
+                var type = packet.ReadUInt32("Type", i);
+                var itemID = packet.ReadUInt32("ItemID", i);
+                var itemCount = packet.ReadUInt32("ItemCount", i);
+                var mountSpellID = packet.ReadUInt32("MountSpellID", i);
+                var battlePetSpeciesCreatureID = packet.ReadUInt32("BattlePetSpeciesCreatureID", i);
+                packet.ReadUInt32("Unknown1", i);
+                packet.ReadUInt32("Unknown2", i);
+                packet.ReadUInt32("Unknown3", i);
+                packet.ReadUInt32("Unknown4", i);
+                packet.ReadUInt32("Unknown5", i);
+                packet.ReadUInt32("Unknown6", i);
+
+                packet.ResetBitReader();
+                var nameLen = packet.ReadBits("NameLength", 8, i);
+                var hasPetResultVariable = packet.ReadBit("HasPetResultVariable", i);
+                var alreadyOwned = packet.ReadBit("AlreadyOwned", i);
+                var hasDisplay = packet.ReadBit("HasDisplay", i);
+                packet.ReadBit("UnknownBit", i);
+
+                uint petResultVariable = 0;
+                if (hasPetResultVariable)
+                    petResultVariable = packet.ReadBits("PetResultVariable", 4, i);
+
+                packet.ResetBitReader();
+                var name = packet.ReadWoWString("Name", (int)nameLen, i);
+
+                if (hasDisplay)
+                    ReadVisualMetadata(packet, i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_VALIDATE_PURCHASE_RESPONSE)]
+        public static void HandleValidatePurchaseResponse(Packet packet)
+        {
+            packet.ReadUInt32("Result");
+            packet.ReadUInt32("CurrencyID");
+            packet.ReadUInt64("PurchaseID");
+            packet.ReadUInt64("ClientToken");
+            packet.ResetBitReader();
+            packet.ReadBit("HasVasPurchase");
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_MOUNT_DELIVERED)]
+        public static void HandleBattlePayMountDelivered(Packet packet)
+        {
+            Substructures.ItemHandler.ReadItemInstance(packet);
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED)]
+        public static void HandleBattlePayCollectionItemDelivered(Packet packet)
+        {
+            Substructures.ItemHandler.ReadItemInstance(packet);
+        }
+
         
     }
 }
