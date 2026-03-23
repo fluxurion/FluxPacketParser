@@ -654,7 +654,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt32("ProductID");
             packet.ReadUInt64("DistributionID");
             packet.ReadPackedGuid128("CharGUID");
-            packet.ReadInt32("SpecID");
+            packet.ReadInt16("SpecID");
+            packet.ReadInt16("Faction");
         }
 
         [Parser(Opcode.SMSG_CHARACTER_UPGRADE_STARTED)]
