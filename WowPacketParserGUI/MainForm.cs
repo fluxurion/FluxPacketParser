@@ -14,6 +14,7 @@ public partial class MainForm : Form
     private Button copyButton = null!;
     private Button openEditorButton = null!;
     private Button openConfigButton = null!;
+    private Button firstCraftButton = null!;
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
     private TextBox highlightTextBox = null!;
@@ -44,8 +45,8 @@ public partial class MainForm : Form
     private void InitializeComponent()
     {
         Text = "WowPacketParser GUI";
-        Size = new Size(900, 600);
-        MinimumSize = new Size(800, 500);
+        Size = new Size(950, 600);
+        MinimumSize = new Size(950, 500);
         StartPosition = FormStartPosition.CenterScreen;
 
         // File selection
@@ -168,6 +169,17 @@ public partial class MainForm : Form
         };
         openEditorButton.Click += OpenEditorButton_Click;
 
+        // First Craft Treasures button
+        firstCraftButton = new Button 
+        { 
+            Text = "First Craft", 
+            Location = new Point(835, 46), 
+            Size = new Size(80, 25), 
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
+        };
+        firstCraftButton.Click += FirstCraftButton_Click;
+
         // Occurrence label
         occurrenceLabel = new Label
         {
@@ -259,7 +271,7 @@ public partial class MainForm : Form
         outputTextBox = new RichTextBox
         {
             Location = new Point(10, 110),
-            Size = new Size(860, 440),
+            Size = new Size(890, 440),
             ReadOnly = true,
             Font = new Font("Consolas", 9),
             ScrollBars = RichTextBoxScrollBars.Both,
@@ -268,7 +280,7 @@ public partial class MainForm : Form
 
         Controls.AddRange(new Control[] {
             fileLabel, filePathTextBox, browseButton, parseButton, cancelButton, openConfigButton,
-            packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton,
+            packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton, firstCraftButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             highlightLabel, highlightTextBox,
             progressBar, progressLabel, outputTextBox
@@ -293,7 +305,8 @@ public partial class MainForm : Form
         filePathTextBox.Width = browseButton.Left - filePathTextBox.Left - 10;
         
         // Row 2 buttons
-        openEditorButton.Left = rightMargin - openEditorButton.Width;
+        firstCraftButton.Left = rightMargin - firstCraftButton.Width;
+        openEditorButton.Left = firstCraftButton.Left - openEditorButton.Width - 10;
         copyButton.Left = openEditorButton.Left - copyButton.Width - 10;
         reparseButton.Left = copyButton.Left - reparseButton.Width - 10;
         
@@ -317,10 +330,35 @@ public partial class MainForm : Form
         {
             currentFilePath = openFileDialog.FileName;
             filePathTextBox.Text = currentFilePath;
+            
+            // Check if parsed file already exists
+            var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
+            if (File.Exists(parsedFile))
+            {
+                var fileInfo = new FileInfo(parsedFile);
+                var result = MessageBox.Show(
+                    $"Found existing parsed file:\n{parsedFile}\n\n" +
+                    $"Last modified: {fileInfo.LastWriteTime}\n\n" +
+                    "Click 'Yes' to load the existing parsed file.\n" +
+                    "Click 'No' to re-parse the PKT file.",
+                    "Existing Parsed File Found",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+                
+                if (result == DialogResult.Yes)
+                {
+                    // Load existing parsed file
+                    LoadExistingParsedFile(parsedFile);
+                    return;
+                }
+            }
+            
+            // Standard new file state
             parseButton.Enabled = true;
             reparseButton.Enabled = false;
             copyButton.Enabled = false;
             openEditorButton.Enabled = false;
+            firstCraftButton.Enabled = false;
             outputTextBox.Clear();
             allPackets.Clear();
             packetComboBox.Items.Clear();
@@ -332,6 +370,68 @@ public partial class MainForm : Form
             currentPage = 0;
             pageBeforeReparse = 0;
         }
+    }
+    
+    private void LoadExistingParsedFile(string parsedFile)
+    {
+        outputTextBox.Text = "Loading existing parsed file...\n";
+        
+        Task.Run(async () =>
+        {
+            try
+            {
+                var fileInfo = new FileInfo(parsedFile);
+                var totalBytes = fileInfo.Length;
+                var totalRead = 0L;
+
+                using var fileStream = new FileStream(parsedFile, FileMode.Open, FileAccess.Read);
+                using var reader = new StreamReader(fileStream);
+
+                var content = new System.Text.StringBuilder();
+                var readBuffer = new char[4096];
+                int bytesRead;
+
+                while ((bytesRead = await reader.ReadAsync(readBuffer, 0, readBuffer.Length)) > 0)
+                {
+                    content.Append(readBuffer, 0, bytesRead);
+                    totalRead += bytesRead;
+
+                    var progress = (int)((totalRead * 100) / totalBytes);
+                    this.Invoke(() =>
+                    {
+                        outputTextBox.Text = $"Loading existing parsed file... {Math.Min(progress, 100)}%\n";
+                    });
+                }
+
+                parsedContent = content.ToString();
+
+                this.Invoke(() =>
+                {
+                    outputTextBox.Text = "Existing parsed file loaded. Select a packet to view.\n" +
+                                        $"File date: {fileInfo.LastWriteTime}\n" +
+                                        "Click 'Re-parse' to parse the PKT file again if needed.";
+                    
+                    ExtractPackets(parsedContent);
+                    UpdatePacketComboBox();
+                    
+                    // Enable buttons - reparse is available since we have a PKT file selected
+                    parseButton.Enabled = false; // Already loaded, use reparse instead
+                    reparseButton.Enabled = true;
+                    copyButton.Enabled = packetComboBox.Items.Count > 0;
+                    openEditorButton.Enabled = true;
+                    firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
+                    packetComboBox.Enabled = packetComboBox.Items.Count > 0;
+                });
+            }
+            catch (Exception ex)
+            {
+                this.Invoke(() =>
+                {
+                    outputTextBox.Text = $"Error loading parsed file: {ex.Message}\n";
+                    MessageBox.Show($"Error loading parsed file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
+            }
+        });
     }
 
     private void CopyButton_Click(object? sender, EventArgs e)
@@ -750,6 +850,7 @@ public partial class MainForm : Form
             reparseButton.Enabled = true;
             copyButton.Enabled = packetComboBox.Items.Count > 0;
             openEditorButton.Enabled = packetComboBox.Items.Count > 0;
+            firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
             cancelButton.Enabled = false;
             cancelButton.Visible = false;
             progressBar.Visible = false;
@@ -926,5 +1027,188 @@ public partial class MainForm : Form
                 outputTextBox.ScrollToCaret();
             }));
         }
+    }
+
+    private async void FirstCraftButton_Click(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(parsedContent))
+        {
+            MessageBox.Show("No parsed data available. Please parse a file first.", "No Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // Show progress dialog for large files
+        var progressForm = new Form
+        {
+            Text = "Extracting First Craft Treasures...",
+            Size = new Size(400, 100),
+            StartPosition = FormStartPosition.CenterParent,
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            MaximizeBox = false,
+            MinimizeBox = false,
+            ControlBox = false
+        };
+        var progressLabel = new Label
+        {
+            Text = "Scanning parsed content for First Craft treasures...",
+            Location = new Point(20, 20),
+            Size = new Size(360, 23),
+            TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        };
+        progressForm.Controls.Add(progressLabel);
+        
+        // Show progress form non-blocking
+        progressForm.Show(this);
+        progressForm.Refresh();
+
+        try
+        {
+            // Run extraction on background thread
+            var treasures = await Task.Run(() => ExtractFirstCraftTreasures(parsedContent));
+            
+            progressForm.Close();
+            
+            using var dialog = new FirstCraftTreasureDialog(treasures);
+            dialog.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            progressForm.Close();
+            MessageBox.Show($"Error extracting treasures: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private List<FirstCraftTreasure> ExtractFirstCraftTreasures(string content)
+    {
+        var treasures = new List<FirstCraftTreasure>();
+        var lines = content.Split('\n');
+        
+        string? currentPacket = null;
+        string? currentPacketName = null;
+        string? timestamp = null;
+        var packetData = new Dictionary<string, string>();
+        
+        // Track spell casts to link to First Craft treasures
+        string? lastSpellCast = null;
+        int spellSearchStartIdx = 0;
+        
+        for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
+        {
+            var line = lines[lineIdx];
+            
+            // Detect spell cast packets (SMSG_SPELL_GO indicates a spell was cast)
+            if (line.Contains("SMSG_SPELL_GO") || line.Contains("SMSG_SPELL_START"))
+            {
+                // Reset last spell when we see a new spell cast
+                lastSpellCast = null;
+                spellSearchStartIdx = lineIdx + 1;
+                // Extract spell ID from subsequent lines (limit search to next 30 lines)
+                for (int i = spellSearchStartIdx; i < Math.Min(spellSearchStartIdx + 30, lines.Length); i++)
+                {
+                    var spellLine = lines[i];
+                    if (spellLine.Contains("SpellID:"))
+                    {
+                        var spellMatch = Regex.Match(spellLine, @"SpellID:\s+(\d+)");
+                        if (spellMatch.Success)
+                        {
+                            lastSpellCast = spellMatch.Groups[1].Value;
+                        }
+                        break;
+                    }
+                    // Stop if we hit another packet header
+                    if (spellLine.Contains("ServerToClient:") || spellLine.Contains("ClientToServer:"))
+                        break;
+                }
+                continue;
+            }
+            
+            // Detect packet header for First Craft related packets
+            if (line.Contains("SMSG_ITEM_PUSH_RESULT") || line.Contains("SMSG_SET_CURRENCY"))
+            {
+                currentPacket = line;
+                currentPacketName = line.Contains("SMSG_ITEM_PUSH_RESULT") ? "SMSG_ITEM_PUSH_RESULT" : "SMSG_SET_CURRENCY";
+                
+                // Extract timestamp
+                var timeMatch = Regex.Match(line, @"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d+)");
+                if (timeMatch.Success)
+                    timestamp = timeMatch.Groups[1].Value;
+                
+                packetData.Clear();
+                packetData["Packet"] = currentPacketName;
+                packetData["Timestamp"] = timestamp ?? "";
+                packetData["SpellID"] = lastSpellCast ?? "0";
+                continue;
+            }
+            
+            if (currentPacket == null) continue;
+            
+            // Parse key-value pairs
+            if (line.Contains(":"))
+            {
+                var parts = line.Split(new[] { ':' }, 2);
+                if (parts.Length == 2)
+                {
+                    var key = parts[0].Trim();
+                    var value = parts[1].Trim();
+                    packetData[key] = value;
+                }
+            }
+            
+            // Check for FirstCraftOperationID - this is the trigger
+            if (line.Contains("FirstCraftOperationID:"))
+            {
+                var opMatch = Regex.Match(line, @"FirstCraftOperationID:\s+(\d+)");
+                if (opMatch.Success)
+                {
+                    var operationId = opMatch.Groups[1].Value;
+                    
+                    // Determine type based on packet name, NOT field presence
+                    string type;
+                    string itemId;
+                    string quantity;
+                    
+                    if (currentPacketName == "SMSG_SET_CURRENCY")
+                    {
+                        // For SMSG_SET_CURRENCY - Type field contains CurrencyID
+                        type = "Currency";
+                        var typeValue = packetData.GetValueOrDefault("Type", "0");
+                        var typeMatch = Regex.Match(typeValue, @"^(\d+)");
+                        itemId = typeMatch.Success ? typeMatch.Groups[1].Value : "0";
+                        
+                        // Check multiple possible quantity fields
+                        var qtyValue = packetData.GetValueOrDefault("Quantity", "0");
+                        if (qtyValue == "0" || qtyValue == "")
+                            qtyValue = packetData.GetValueOrDefault("QuantityChange", "0");
+                        var qtyMatch = Regex.Match(qtyValue, @"^(\d+)");
+                        quantity = qtyMatch.Success ? qtyMatch.Groups[1].Value : "0";
+                    }
+                    else
+                    {
+                        // For SMSG_ITEM_PUSH_RESULT - ItemID field contains ItemID
+                        type = "Item";
+                        var itemValue = packetData.GetValueOrDefault("ItemID", "0");
+                        var itemMatch = Regex.Match(itemValue, @"^(\d+)");
+                        itemId = itemMatch.Success ? itemMatch.Groups[1].Value : "0";
+                        
+                        var qtyValue = packetData.GetValueOrDefault("Quantity", "0");
+                        var qtyMatch = Regex.Match(qtyValue, @"^(\d+)");
+                        quantity = qtyMatch.Success ? qtyMatch.Groups[1].Value : "0";
+                    }
+                    
+                    treasures.Add(new FirstCraftTreasure
+                    {
+                        OperationID = operationId,
+                        Type = type,
+                        ItemID = itemId,
+                        Quantity = quantity,
+                        SourcePacket = packetData.GetValueOrDefault("Packet", ""),
+                        Timestamp = packetData.GetValueOrDefault("Timestamp", ""),
+                        SpellID = packetData.GetValueOrDefault("SpellID", "0")
+                    });
+                }
+            }
+        }
+        
+        return treasures;
     }
 }
