@@ -1,3 +1,4 @@
+using System;
 using WowPacketParser.Misc;
 using WowPacketParser.SQL;
 
