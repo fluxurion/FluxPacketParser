@@ -176,6 +176,7 @@ namespace WowPacketParser.Store
         public static readonly DataBag<ProspectingLootTemplate> ProspectingLootTemplates = new DataBag<ProspectingLootTemplate>(new List<SQLOutput> { SQLOutput.prospecting_loot_template });
         public static readonly DataBag<MillingLootTemplate> MillingLootTemplates = new DataBag<MillingLootTemplate>(new List<SQLOutput> { SQLOutput.milling_loot_template });
         public static readonly DataBag<SpellLootTemplate> SpellLootTemplates = new DataBag<SpellLootTemplate>(new List<SQLOutput> { SQLOutput.spell_loot_template });
+        public static readonly DataBag<TreasureLootTemplate> TreasureLootTemplates = new DataBag<TreasureLootTemplate>(new List<SQLOutput> { SQLOutput.treasure_loot_template });
         public static readonly DataBag<PerksProgramVendorData> PerksProgramVendorDatas = new DataBag<PerksProgramVendorData>(new List<SQLOutput> { SQLOutput.perks_program_vendor_data });
 
         //Player Choice
@@ -5289,6 +5290,7 @@ namespace WowPacketParser.Store
             ProspectingLootTemplates.Clear();
             MillingLootTemplates.Clear();
             SpellLootTemplates.Clear();
+            TreasureLootTemplates.Clear();
         }
     }
 }

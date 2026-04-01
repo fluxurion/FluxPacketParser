@@ -91,5 +91,19 @@ namespace WowPacketParser.SQL.Builders
 
             return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.SpellLootTemplates.OrderBy(x => x.Item1.Entry).ThenBy(x => x.Item1.Item).ToArray() : Storage.SpellLootTemplates.ToArray(), templateDb, x => string.Empty);
         }
+
+        [BuilderMethod]
+        public static string TreasureLootTemplateData()
+        {
+            if (Storage.TreasureLootTemplates.IsEmpty())
+                return string.Empty;
+
+            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.treasure_loot_template))
+                return string.Empty;
+
+            var templateDb = SQLDatabase.Get(Storage.TreasureLootTemplates);
+
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.TreasureLootTemplates.OrderBy(x => x.Item1.TreasureID).ThenBy(x => x.Item1.Item).ToArray() : Storage.TreasureLootTemplates.ToArray(), templateDb, x => string.Empty);
+        }
     }
 }

@@ -1073,7 +1073,6 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            progressForm.Close();
             MessageBox.Show($"Error extracting treasures: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -1091,7 +1090,7 @@ public partial class MainForm : Form
         // Track spell casts to link to First Craft treasures
         string? lastPlayerSpell = null;
         int spellSearchStartIdx = 0;
-        
+
         for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
         {
             var line = lines[lineIdx];
@@ -1136,6 +1135,19 @@ public partial class MainForm : Form
                 {
                     lastPlayerSpell = spellId;
                 }
+                continue;
+            }
+
+            // Detect SMSG_CRAFT_ENCHANT_RESULT for CraftingDataID
+            if (line.Contains("SMSG_CRAFT_ENCHANT_RESULT"))
+            {
+                currentPacket = line;
+                currentPacketName = "SMSG_CRAFT_ENCHANT_RESULT";
+                
+                // Extract timestamp
+                var timeMatch = Regex.Match(line, @"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d+)");
+                if (timeMatch.Success)
+                    timestamp = timeMatch.Groups[1].Value;
                 continue;
             }
             

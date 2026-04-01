@@ -37,6 +37,7 @@ namespace WowPacketParser.DBC
         internal static Storage<PhaseXPhaseGroupEntry> PhaseXPhaseGroup { get; set; }
         internal static Storage<SpellEffectEntry> SpellEffect { get; set; }
         internal static Storage<SpellNameEntry> SpellName { get; set; }
+        public static Storage<Structures.TheWarWithin.CraftingDataEntry> CraftingData { get; set; }
 
         private static string GetDBCPath()
         {
@@ -249,5 +250,18 @@ namespace WowPacketParser.DBC
         public static readonly Dictionary<int, List<ushort>> PhasesByGroup = new Dictionary<int, List<ushort>>();
         private static readonly Dictionary<ushort, List<int>> PhaseGroupsByPhase = new Dictionary<ushort, List<int>>();
         public static readonly Dictionary<int, HashSet<int>> BroadcastTextDurations = new Dictionary<int, HashSet<int>>();
+
+        /// <summary>
+        /// Gets FirstCraftTreasureID from CraftingData DB2 by CraftingDataID.
+        /// Returns 0 if not found.
+        /// </summary>
+        public static uint GetFirstCraftTreasureID(int craftingDataId)
+        {
+            if (craftingDataId > 0 && CraftingData != null && CraftingData.TryGetValue(craftingDataId, out var craftingData))
+            {
+                return (uint)craftingData.FirstCraftTreasureID;
+            }
+            return 0;
+        }
     }
 }

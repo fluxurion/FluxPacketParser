@@ -62,6 +62,7 @@
         prospecting_loot_template,
         milling_loot_template,
         spell_loot_template,
+        treasure_loot_template,
         playerchoice,
         playerchoice_locale,
         playercreateinfo,

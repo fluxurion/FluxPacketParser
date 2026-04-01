@@ -237,4 +237,37 @@ namespace WowPacketParser.Store.Objects
 
         public TimeSpan? TimeSpan;
     }
+
+    [DBTableName("treasure_loot_template")]
+    public class TreasureLootTemplate : IDataModel
+    {
+        [DBFieldName("TreasureID", true)]
+        public uint TreasureID;
+
+        [DBFieldName("Item")]
+        public uint Item;
+
+        [DBFieldName("Currency")]
+        public uint Currency;
+
+        [DBFieldName("Chance")]
+        public float Chance;
+
+        [DBFieldName("GroupID")]
+        public uint GroupID;
+
+        [DBFieldName("MinCount")]
+        public uint MinCount;
+
+        [DBFieldName("MaxCount")]
+        public uint MaxCount;
+
+        [DBFieldName("Comment")]
+        public string Comment;
+
+        [DBFieldName("VerifiedBuild")]
+        public int VerifiedBuild = ClientVersion.BuildInt;
+
+        public TimeSpan? TimeSpan;
+    }
 }
