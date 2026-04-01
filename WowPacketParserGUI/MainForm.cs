@@ -1089,7 +1089,7 @@ public partial class MainForm : Form
         var packetData = new Dictionary<string, string>();
         
         // Track spell casts to link to First Craft treasures
-        string? lastSpellCast = null;
+        string? lastPlayerSpell = null;
         int spellSearchStartIdx = 0;
         
         for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
@@ -1099,25 +1099,42 @@ public partial class MainForm : Form
             // Detect spell cast packets (SMSG_SPELL_GO indicates a spell was cast)
             if (line.Contains("SMSG_SPELL_GO") || line.Contains("SMSG_SPELL_START"))
             {
-                // Reset last spell when we see a new spell cast
-                lastSpellCast = null;
                 spellSearchStartIdx = lineIdx + 1;
-                // Extract spell ID from subsequent lines (limit search to next 30 lines)
+                bool isPlayerCaster = false;
+                string? spellId = null;
+                
+                // Scan next 30 lines for spell info and caster
                 for (int i = spellSearchStartIdx; i < Math.Min(spellSearchStartIdx + 30, lines.Length); i++)
                 {
                     var spellLine = lines[i];
+                    
+                    // Check for player caster
+                    if (spellLine.Contains("CasterGUID:") || spellLine.Contains("CasterUnit:"))
+                    {
+                        if (spellLine.Contains("Player/"))
+                            isPlayerCaster = true;
+                    }
+                    
+                    // Extract spell ID
                     if (spellLine.Contains("SpellID:"))
                     {
                         var spellMatch = Regex.Match(spellLine, @"SpellID:\s+(\d+)");
                         if (spellMatch.Success)
                         {
-                            lastSpellCast = spellMatch.Groups[1].Value;
+                            spellId = spellMatch.Groups[1].Value;
                         }
                         break;
                     }
+                    
                     // Stop if we hit another packet header
                     if (spellLine.Contains("ServerToClient:") || spellLine.Contains("ClientToServer:"))
                         break;
+                }
+                
+                // Only update lastPlayerSpell if caster is a player
+                if (isPlayerCaster && spellId != null)
+                {
+                    lastPlayerSpell = spellId;
                 }
                 continue;
             }
@@ -1136,7 +1153,7 @@ public partial class MainForm : Form
                 packetData.Clear();
                 packetData["Packet"] = currentPacketName;
                 packetData["Timestamp"] = timestamp ?? "";
-                packetData["SpellID"] = lastSpellCast ?? "0";
+                packetData["SpellID"] = lastPlayerSpell ?? "0";
                 continue;
             }
             
@@ -1184,9 +1201,13 @@ public partial class MainForm : Form
                     }
                     else
                     {
-                        // For SMSG_ITEM_PUSH_RESULT - ItemID field contains ItemID
+                        // For SMSG_ITEM_PUSH_RESULT - try multiple field names for ItemID
                         type = "Item";
                         var itemValue = packetData.GetValueOrDefault("ItemID", "0");
+                        if (itemValue == "0" || itemValue == "")
+                            itemValue = packetData.GetValueOrDefault("Item ID", "0");
+                        if (itemValue == "0" || itemValue == "")
+                            itemValue = packetData.GetValueOrDefault("Item", "0");
                         var itemMatch = Regex.Match(itemValue, @"^(\d+)");
                         itemId = itemMatch.Success ? itemMatch.Groups[1].Value : "0";
                         
@@ -1203,7 +1224,7 @@ public partial class MainForm : Form
                         Quantity = quantity,
                         SourcePacket = packetData.GetValueOrDefault("Packet", ""),
                         Timestamp = packetData.GetValueOrDefault("Timestamp", ""),
-                        SpellID = packetData.GetValueOrDefault("SpellID", "0")
+                        SpellID = packetData.GetValueOrDefault("SpellID", "0"),
                     });
                 }
             }

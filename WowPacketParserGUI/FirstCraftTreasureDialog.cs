@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
@@ -86,6 +87,14 @@ public class FirstCraftTreasureDialog : Form
         });
         dataGridView.Columns.Add(new DataGridViewTextBoxColumn
         {
+            Name = "Time",
+            HeaderText = "Time",
+            DataPropertyName = "Time",
+            Width = 100,
+            FillWeight = 12
+        });
+        dataGridView.Columns.Add(new DataGridViewTextBoxColumn
+        {
             Name = "OperationID",
             HeaderText = "Operation ID",
             DataPropertyName = "OperationID",
@@ -130,10 +139,10 @@ public class FirstCraftTreasureDialog : Form
 
     private void InitializeTooltipWebView()
     {
-        // Create tooltip popup form
+        // Create tooltip popup form with fixed size
         tooltipForm = new Form
         {
-            Size = new Size(300, 80),
+            Size = new Size(320, 100),
             StartPosition = FormStartPosition.Manual,
             FormBorderStyle = FormBorderStyle.None,
             ShowInTaskbar = false,
@@ -271,13 +280,10 @@ public class FirstCraftTreasureDialog : Form
 
         tooltipForm.Location = new Point(tooltipX, tooltipY);
 
-        // Generate HTML with Wowhead tooltip
+        // Generate HTML with Wowhead tooltip - white text color, fixed size
         var html = GenerateTooltipHtml(type, id);
         tooltipWebView.NavigateToString(html);
         tooltipForm.Visible = true;
-
-        // Auto-resize after a short delay to fit the rendered tooltip
-        _ = AutoSizeTooltipAsync();
     }
 
     private async Task AutoSizeTooltipAsync()
@@ -341,13 +347,15 @@ public class FirstCraftTreasureDialog : Form
     {
         var wowheadLink = $"https://www.wowhead.com/{type}={id}";
 
-        // Minimal HTML that lets Wowhead tooltip take center stage
+        // HTML with white text color and fixed size
         var html = "<!DOCTYPE html>\n" +
             "<html>\n" +
             "<head>\n" +
             "    <style>\n" +
-            "        body { margin: 0; padding: 0; background: transparent; overflow: hidden; }\n" +
-            "        #tooltip-container { display: inline-block; }\n" +
+            "        body { margin: 0; padding: 8px; background: #1a1a1a; color: #ffffff; font-family: Arial, sans-serif; font-size: 12px; overflow: hidden; }\n" +
+            "        #tooltip-container { display: inline-block; color: #ffffff; }\n" +
+            "        a { color: #ffffff; text-decoration: none; }\n" +
+            "        .wowhead-tooltip { color: #ffffff; }\n" +
             "    </style>\n" +
             "    <script>\n" +
             "        const whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: true };\n" +
@@ -394,10 +402,25 @@ public class FirstCraftTreasureDialog : Form
                 ? $"ID: {item.ItemID}, Qty: {item.Quantity}"
                 : "None";
 
+            // Format time from timestamp (extract HH:MM)
+            var timeStr = group.FirstOrDefault()?.Timestamp ?? "";
+            if (timeStr.Length >= 19)
+            {
+                // Format: 03/29/2026 14:10:21.741 -> extract 14:10
+                var timeMatch = Regex.Match(timeStr, @"(\d{2}):(\d{2}):");
+                if (timeMatch.Success)
+                    timeStr = $"{timeMatch.Groups[1].Value}:{timeMatch.Groups[2].Value}";
+                else
+                    timeStr = "";
+            }
+            else
+                timeStr = "";
+
             dataGridView.Rows.Add(
                 spellId,
                 currencyInfo,
                 itemInfo,
+                timeStr,
                 operationId
             );
         }
@@ -450,16 +473,15 @@ public class FirstCraftTreasureDialog : Form
 
             sql += $"-- Spell ID: {spellId}\n";
             sql += $"-- Operation ID: {operationId}\n";
+            sql += "SET @Entry = 0; -- FirstCraftTreasureID. You have to find it by the spell's craftdata.\n";
 
             foreach (var treasure in group.OrderBy(t => t.Type))
             {
-                if (treasure.Type == "Currency")
+                if (treasure.Type == "Item" && treasure.ItemID != "0")
                 {
-                    sql += $"--   Currency: {treasure.ItemID}, Quantity: {treasure.Quantity}\n";
-                }
-                else
-                {
-                    sql += $"--   Item: {treasure.ItemID}, Quantity: {treasure.Quantity}\n";
+                    var minCount = treasure.Quantity;
+                    var maxCount = treasure.Quantity;
+                    sql += $"INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES (@Entry, {treasure.ItemID}, 0, 100, 0, 1, 1, {minCount}, {maxCount}, '');\n";
                 }
             }
             sql += "\n";
