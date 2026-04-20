@@ -1,4 +1,4 @@
-﻿using Google.Protobuf;
+using Google.Protobuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -576,7 +576,7 @@ namespace WowPacketParser.Loading
 
         private void WriteSQLs(Packets packets)
         {
-            var sqlFileName = string.IsNullOrWhiteSpace(Settings.SQLFileName) ? $"{Utilities.FormattedDateTimeForFiles()}_{Path.GetFileName(FileName)}.sql" : Settings.SQLFileName;
+            var sqlFileName = string.IsNullOrWhiteSpace(Settings.SQLFileName) ? Path.Combine(Path.GetDirectoryName(FileName) ?? string.Empty, $"{Utilities.FormattedDateTimeForFiles()}_{Path.GetFileName(FileName)}.sql") : Settings.SQLFileName;
 
             if (!string.IsNullOrWhiteSpace(Settings.SQLFileName))
                 return;

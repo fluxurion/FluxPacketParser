@@ -169,7 +169,14 @@ namespace WowPacketParser.Store
         public static readonly DataBag<BattlePayGroup> BattlePayGroups = new DataBag<BattlePayGroup>(new List<SQLOutput> { SQLOutput.battlepay_groups });
         public static readonly DataBag<BattlePayShop> BattlePayShopDatas = new DataBag<BattlePayShop>(new List<SQLOutput> { SQLOutput.battlepay_shop_datas });
 
-        // PerksProgram
+        // Crafting Loot Templates
+        public static readonly DataBag<ReferenceLootTemplate> ReferenceLootTemplates = new DataBag<ReferenceLootTemplate>(new List<SQLOutput> { SQLOutput.reference_loot_template });
+        public static readonly DataBag<ScrappingLootTemplate> ScrappingLootTemplates = new DataBag<ScrappingLootTemplate>(new List<SQLOutput> { SQLOutput.scrapping_loot_template });
+        public static readonly DataBag<ItemLootTemplate> ItemLootTemplates = new DataBag<ItemLootTemplate>(new List<SQLOutput> { SQLOutput.item_loot_template });
+        public static readonly DataBag<ProspectingLootTemplate> ProspectingLootTemplates = new DataBag<ProspectingLootTemplate>(new List<SQLOutput> { SQLOutput.prospecting_loot_template });
+        public static readonly DataBag<MillingLootTemplate> MillingLootTemplates = new DataBag<MillingLootTemplate>(new List<SQLOutput> { SQLOutput.milling_loot_template });
+        public static readonly DataBag<SpellLootTemplate> SpellLootTemplates = new DataBag<SpellLootTemplate>(new List<SQLOutput> { SQLOutput.spell_loot_template });
+        public static readonly DataBag<TreasureLootTemplate> TreasureLootTemplates = new DataBag<TreasureLootTemplate>(new List<SQLOutput> { SQLOutput.treasure_loot_template });
         public static readonly DataBag<PerksProgramVendorData> PerksProgramVendorDatas = new DataBag<PerksProgramVendorData>(new List<SQLOutput> { SQLOutput.perks_program_vendor_data });
 
         //Player Choice
@@ -5275,6 +5282,15 @@ namespace WowPacketParser.Store
             BattlePayProductDatas.Clear();
             BattlePayProductItems.Clear();
             BattlePayShopDatas.Clear();
+
+            // Crafting Loot Templates
+            ReferenceLootTemplates.Clear();
+            ScrappingLootTemplates.Clear();
+            ItemLootTemplates.Clear();
+            ProspectingLootTemplates.Clear();
+            MillingLootTemplates.Clear();
+            SpellLootTemplates.Clear();
+            TreasureLootTemplates.Clear();
         }
     }
 }

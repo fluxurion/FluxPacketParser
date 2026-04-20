@@ -1,6 +1,8 @@
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Store;
+using WowPacketParser.Store.Objects;
 
 namespace WowPacketParserModule.V12_0_0_65390.Parsers
 {
@@ -207,6 +209,155 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
 
             if (hasQuantity)
                 packet.ReadInt32("Quantity", indexes);
+        }
+
+        // Loot Template Parsing Methods for Crafting System
+        public static void StoreReferenceLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.ReferenceLootTemplates.Add(new ReferenceLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        public static void StoreScrappingLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.ScrappingLootTemplates.Add(new ScrappingLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        public static void StoreItemLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.ItemLootTemplates.Add(new ItemLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        public static void StoreProspectingLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.ProspectingLootTemplates.Add(new ProspectingLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        public static void StoreMillingLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.MillingLootTemplates.Add(new MillingLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        public static void StoreSpellLoot(uint entry, uint item, float chance, byte minCount, byte maxCount, string comment = "")
+        {
+            Storage.SpellLootTemplates.Add(new SpellLootTemplate
+            {
+                Entry = entry,
+                Item = item,
+                Reference = 0,
+                Chance = chance,
+                QuestRequired = false,
+                LootMode = 1,
+                GroupId = 0,
+                MinCount = minCount,
+                MaxCount = maxCount,
+                Comment = comment
+            });
+        }
+
+        // Helper method to parse loot from crafting packets
+        public static void ParseCraftingLoot(Packet packet, uint lootId, LootTemplateType lootType, params object[] indexes)
+        {
+            var itemCount = packet.ReadUInt32("LootItemCount", indexes);
+            
+            for (uint i = 0; i < itemCount; i++)
+            {
+                var itemId = packet.ReadUInt32<ItemId>("ItemID", indexes, i);
+                var chance = packet.ReadSingle("Chance", indexes, i);
+                var minCount = packet.ReadByte("MinCount", indexes, i);
+                var maxCount = packet.ReadByte("MaxCount", indexes, i);
+
+                switch (lootType)
+                {
+                    case LootTemplateType.Reference:
+                        StoreReferenceLoot(lootId, itemId, chance, minCount, maxCount, $"Crafting loot from packet");
+                        break;
+                    case LootTemplateType.Scrapping:
+                        StoreScrappingLoot(lootId, itemId, chance, minCount, maxCount, $"Salvaging loot from packet");
+                        break;
+                    case LootTemplateType.Item:
+                        StoreItemLoot(lootId, itemId, chance, minCount, maxCount, $"Crafting loot from packet");
+                        break;
+                    case LootTemplateType.Prospecting:
+                        StoreProspectingLoot(lootId, itemId, chance, minCount, maxCount, $"Prospecting loot from packet");
+                        break;
+                    case LootTemplateType.Milling:
+                        StoreMillingLoot(lootId, itemId, chance, minCount, maxCount, $"Milling loot from packet");
+                        break;
+                    case LootTemplateType.Spell:
+                        StoreSpellLoot(lootId, itemId, chance, minCount, maxCount, $"Spell loot from packet");
+                        break;
+                }
+            }
+        }
+
+        public enum LootTemplateType
+        {
+            Reference,
+            Scrapping,
+            Item,
+            Prospecting,
+            Milling,
+            Spell
         }
 
         public static void ReadJamItemEnchantments(Packet packet, params object[] indexes)

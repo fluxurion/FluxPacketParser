@@ -19,7 +19,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 packet.ReadSingle("QualityProgress", indexes);
 
             packet.ReadInt32("SkillLineAbilityID", indexes);
-            packet.ReadInt32("CraftingDataID", indexes);
+            var craftingDataId = packet.ReadInt32("CraftingDataID", indexes);
             packet.ReadInt32("Multicraft", indexes);
             packet.ReadInt32("SkillFromReagents", indexes);
             packet.ReadInt32("Skill", indexes);
@@ -27,7 +27,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadSingle("field_1C", indexes);
             packet.ReadUInt64("field_20", indexes);
             var resourcesReturnedCount = packet.ReadUInt32();
-            packet.ReadUInt32("OperationID", indexes);
+            var operationId = packet.ReadUInt32("OperationID", indexes);
             packet.ReadPackedGuid128("ItemGUID", indexes);
             packet.ReadInt32("Quantity", indexes);
             packet.ReadInt32("EnchantID", indexes);
@@ -43,6 +43,9 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
 
             Substructures.ItemHandler.ReadItemInstance(packet, "OldItem");
             Substructures.ItemHandler.ReadItemInstance(packet, "NewItem");
+
+            // Track OperationID -> CraftingDataID mapping for treasure lookup
+            MiscellaneousHandler.TrackCraftingOperation(operationId, craftingDataId);
         }
 
         public static void ReadCraftingOrderClientContext(Packet packet, params object[] indexes)
