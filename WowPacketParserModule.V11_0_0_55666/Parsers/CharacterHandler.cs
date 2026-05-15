@@ -30,7 +30,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             packet.ReadUInt32("DisplayID", idx);
             packet.ReadUInt32("DisplayEnchantID", idx);
             packet.ReadInt32("SecondaryItemModifiedAppearanceID", idx);
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_66741))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
                 packet.ReadByte("SheatheCategory", idx);
         }
 

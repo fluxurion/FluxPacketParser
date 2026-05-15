@@ -11,12 +11,11 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
     public class PlayerMirrorHouse : IPlayerMirrorHouse
     {
-        public WowGuid Guid { get; set; }
+        public WowGuid HouseGUID { get; set; }
         public WowGuid NeighborhoodGUID { get; set; }
         public uint Level { get; set; }
         public uint Favor { get; set; }
         public uint InitiativeFavor { get; set; }
-        public int InitiativeCycleID { get; set; }
         public int MapID { get; set; }
         public int PlotID { get; set; }
     }

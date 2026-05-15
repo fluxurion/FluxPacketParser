@@ -13,8 +13,8 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
     {
         public INeighborhoodCharter Charter { get; set; }
         public System.Nullable<byte> EditorMode { get; set; }
-        public WowGuid CurrentHouse { get; set; }
         public INeighborhoodOwnershipTransfer NeighborhoodOwnershipTransfer { get; set; }
+        public WowGuid CurrentHouse { get; set; }
         public DynamicUpdateField<WowGuid> Field_8 { get; } = new();
         public DynamicUpdateField<IPlayerMirrorHouse> Houses { get; } = new();
         public DynamicUpdateField<WowGuid> Field_88 { get; } = new();

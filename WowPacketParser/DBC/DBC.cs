@@ -1,4 +1,4 @@
-using DBFileReaderLib;
+using DBCD.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -97,7 +97,7 @@ namespace WowPacketParser.DBC
 
                 try
                 {
-                    var db2Reader = new DBReader($"{GetDBCPath(attr.FileName)}.db2");
+                    var db2Reader = new DBParser($"{GetDBCPath(attr.FileName)}.db2");
 
                     if (hotfixReader != null)
                         hotfixReader.ApplyHotfixes(instance, db2Reader);

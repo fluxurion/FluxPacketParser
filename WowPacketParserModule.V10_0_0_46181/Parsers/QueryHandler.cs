@@ -149,7 +149,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 quest.TimeAllowed = packet.ReadInt32("TimeAllowed");
 
             var objectiveCount = packet.ReadUInt32("ObjectiveCount");
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_66741))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
             {
                 quest.AllowableRacesWod = packet.ReadUInt32("RaceMask", 0);
                 quest.AllowableRacesWod |= (ulong)packet.ReadUInt32("RaceMask", 1) << 32;

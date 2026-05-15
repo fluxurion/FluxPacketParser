@@ -28,7 +28,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         {
             packet.ReadSByte("Slot", indexes);
             packet.ReadByte("SlotOption", indexes);
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_66741))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
                 packet.ReadByte("SheatheCategory", indexes);
             packet.ReadUInt32("ItemModifiedAppearanceID", indexes);
             packet.ReadByte("AppearanceDisplayType", indexes);

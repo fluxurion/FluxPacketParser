@@ -20,7 +20,7 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             if (ClientVersion.AddedInVersion(ClientType.TheWarWithin))
                 packet.ReadInt32("Counter");
 
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_66741))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
                 packet.ReadUInt64("InstanceID");
 
             packet.AddSniffData(StoreNameType.Map, (int)CoreParsers.MovementHandler.CurrentMapId, "NEW_WORLD");

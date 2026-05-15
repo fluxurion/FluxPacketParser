@@ -12,6 +12,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
     public class HousingPlayerHouseData : IHousingPlayerHouseData
     {
         public WowGuid BnetAccount { get; set; }
+        public WowGuid CosmeticOwner { get; set; }
         public System.Nullable<int> PlotIndex { get; set; }
         public System.Nullable<uint> Level { get; set; }
         public System.Nullable<ulong> Favor { get; set; }

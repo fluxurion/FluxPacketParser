@@ -8600,7 +8600,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_1_65818
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);
@@ -8615,7 +8615,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_1_65818
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);

@@ -8354,6 +8354,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
             var data = new HousingPlayerHouseData();
             packet.ResetBitReader();
             data.BnetAccount = packet.ReadPackedGuid128("BnetAccount", indexes);
+            data.CosmeticOwner = packet.ReadPackedGuid128("CosmeticOwner", indexes);
             data.PlotIndex = packet.ReadInt32("PlotIndex", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt64("Favor", indexes);
@@ -8370,7 +8371,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
             var data = new HousingPlayerHouseData();
             packet.ResetBitReader();
             var rawChangesMask = new int[1];
-            rawChangesMask[0] = (int)packet.ReadBits(10);
+            rawChangesMask[0] = (int)packet.ReadBits(11);
             var changesMask = new BitArray(rawChangesMask);
 
             packet.ResetBitReader();
@@ -8382,33 +8383,37 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
                 }
                 if (changesMask[2])
                 {
-                    data.PlotIndex = packet.ReadInt32("PlotIndex", indexes);
+                    data.CosmeticOwner = packet.ReadPackedGuid128("CosmeticOwner", indexes);
                 }
                 if (changesMask[3])
                 {
-                    data.Level = packet.ReadUInt32("Level", indexes);
+                    data.PlotIndex = packet.ReadInt32("PlotIndex", indexes);
                 }
                 if (changesMask[4])
                 {
-                    data.Favor = packet.ReadUInt64("Favor", indexes);
+                    data.Level = packet.ReadUInt32("Level", indexes);
                 }
                 if (changesMask[5])
                 {
-                    data.InteriorDecorPlacementBudget = packet.ReadUInt32("InteriorDecorPlacementBudget", indexes);
+                    data.Favor = packet.ReadUInt64("Favor", indexes);
                 }
                 if (changesMask[6])
                 {
-                    data.ExteriorDecorPlacementBudget = packet.ReadUInt32("ExteriorDecorPlacementBudget", indexes);
+                    data.InteriorDecorPlacementBudget = packet.ReadUInt32("InteriorDecorPlacementBudget", indexes);
                 }
                 if (changesMask[7])
                 {
-                    data.ExteriorFixtureBudget = packet.ReadUInt32("ExteriorFixtureBudget", indexes);
+                    data.ExteriorDecorPlacementBudget = packet.ReadUInt32("ExteriorDecorPlacementBudget", indexes);
                 }
                 if (changesMask[8])
                 {
-                    data.RoomPlacementBudget = packet.ReadUInt32("RoomPlacementBudget", indexes);
+                    data.ExteriorFixtureBudget = packet.ReadUInt32("ExteriorFixtureBudget", indexes);
                 }
                 if (changesMask[9])
+                {
+                    data.RoomPlacementBudget = packet.ReadUInt32("RoomPlacementBudget", indexes);
+                }
+                if (changesMask[10])
                 {
                     data.EntityGUID = packet.ReadPackedGuid128("EntityGUID", indexes);
                 }
@@ -8644,12 +8649,11 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);
             data.InitiativeFavor = packet.ReadUInt32("InitiativeFavor", indexes);
-            data.InitiativeCycleID = packet.ReadInt32("InitiativeCycleID", indexes);
             data.MapID = packet.ReadInt32("MapID", indexes);
             data.PlotID = packet.ReadInt32("PlotID", indexes);
             return data;
@@ -8659,12 +8663,11 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);
             data.InitiativeFavor = packet.ReadUInt32("InitiativeFavor", indexes);
-            data.InitiativeCycleID = packet.ReadInt32("InitiativeCycleID", indexes);
             data.MapID = packet.ReadInt32("MapID", indexes);
             data.PlotID = packet.ReadInt32("PlotID", indexes);
             return data;
@@ -8876,7 +8879,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
                 {
                     data.EditorMode = packet.ReadByte("EditorMode", indexes);
                 }
-                if (changesMask[8])
+                if (changesMask[9])
                 {
                     data.CurrentHouse = packet.ReadPackedGuid128("CurrentHouse", indexes);
                 }
@@ -8884,7 +8887,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_5_66741
                 {
                     data.Charter = ReadUpdateNeighborhoodCharter(packet, indexes, "Charter");
                 }
-                if (changesMask[9])
+                if (changesMask[8])
                 {
                     data.NeighborhoodOwnershipTransfer = ReadUpdateNeighborhoodOwnershipTransfer(packet, indexes, "NeighborhoodOwnershipTransfer");
                 }

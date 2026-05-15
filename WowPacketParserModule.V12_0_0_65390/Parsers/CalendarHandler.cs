@@ -81,7 +81,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadWoWString("Description", descriptionLen, index);
         }
 
-        [Parser(Opcode.CMSG_CALENDAR_ADD_EVENT, ClientVersionBuild.V12_0_5_66741)]
+        [Parser(Opcode.CMSG_CALENDAR_ADD_EVENT, ClientVersionBuild.V12_0_5_67088)]
         public static void HandleUserClientCalendarAddEvent(Packet packet)
         {
             ReadCalendarEventInfo(packet);

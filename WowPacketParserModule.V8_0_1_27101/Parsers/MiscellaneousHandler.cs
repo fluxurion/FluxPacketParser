@@ -384,7 +384,7 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
 
             packet.ReadInt32("MinLevel");
             packet.ReadInt32("MaxLevel");
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_66741))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
             {
                 for (var i = 0; i < 2; ++i)
                     packet.ReadInt32("RaceFilter", i);
