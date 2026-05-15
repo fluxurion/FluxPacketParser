@@ -6,6 +6,7 @@ Thumbs.db
 .vs/*
 *.suo
 *.cache
+*.lscache
 [Bb]in
 [Dd]ebug*/
 *.lib
