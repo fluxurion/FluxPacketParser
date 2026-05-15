@@ -151,14 +151,14 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void ReadCraftingOrderRecraftInfo(Packet packet, params object[] indexes)
         {
             // First optional string pointer + size (encoded as byte + 2 bits for value+1)
-            var val1Byte = packet.ReadByte();
+                        var val1Byte = packet.ReadByte();
             var val1Bits = packet.ReadBits(2);
-            var recraftItemCount = ((val1Byte << 2) | val1Bits) - 1; // -1 because server sends value+1
+            var recraftItemCount = (int)(((uint)val1Byte << 2) | val1Bits) - 1; // -1 because server sends value+1
             
             // Second optional string pointer + size (encoded as byte + 2 bits for value+1)
             var val2Byte = packet.ReadByte();
             var val2Bits = packet.ReadBits(2);
-            var recraftItemSlotIndex = ((val2Byte << 2) | val2Bits) - 1; // -1 because server sends value+1
+            var recraftItemSlotIndex = (int)(((uint)val2Byte << 2) | val2Bits) - 1; // -1 because server sends value+1
             
             packet.AddValue("RecraftItemCount", recraftItemCount, indexes);
             packet.AddValue("RecraftItemSlotIndex", recraftItemSlotIndex, indexes);

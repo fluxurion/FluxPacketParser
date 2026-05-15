@@ -251,8 +251,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                     packet.ReadTime64("AvailableUntil", index);
                 if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V11_1_0_59347))
                     packet.ReadInt32("WarbandSceneID", index);
-                var _Disabled = false;
-                // Bits only exist in pre-12.0
+                                // Bits only exist in pre-12.0
                 packet.ReadByte("Flags", index);
                 // DB Storage Condition for Dragonflight (10.x)
                 if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V10_0_0_46181) &&
@@ -268,7 +267,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                         TransmogIllusionID = _TransmogIllusionID,
                         ToyID = _ToyID,
                         Price = _Price,
-                        //Disabled = _Disabled
                     };
                     Storage.PerksProgramVendorDatas.Add(perksvendordata, packet.TimeSpan);
                 }
