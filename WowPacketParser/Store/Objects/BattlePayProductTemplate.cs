@@ -116,16 +116,16 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("Unknown1")]
         public int Unknown1;
-        
+
         [DBFieldName("Unknown2")]
         public int Unknown2;
-        
+
         [DBFieldName("Unknown3")]
         public int Unknown3;
-        
+
         [DBFieldName("Unknown4")]
         public int Unknown4;
-        
+
         [DBFieldName("Unknown5")]
         public int Unknown5;
 
@@ -282,22 +282,22 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Entry", true)]
         public uint Entry;
 
-        [DBFieldName("ShopEntryID")]
+        [DBFieldName("ShopFlags")]
         public uint ShopEntryID;
 
         [DBFieldName("GroupID")]
         public uint GroupID;
 
-        [DBFieldName("ShopListingID")]
+        [DBFieldName("ProductID")]
         public uint ShopListingID;
 
         [DBFieldName("Ordering")]
         public uint Ordering;
 
-        [DBFieldName("VasServiceType")]
+        [DBFieldName("ShopListingID")]
         public uint VasServiceType;
 
-        [DBFieldName("StoreDeliveryType")]
+        [DBFieldName("Field20")]
         public byte StoreDeliveryType;
 
         [DBFieldName("HasBattlePayDisplayInfo")]
