@@ -19,22 +19,9 @@ namespace WowPacketParser.SQL.Builders
 
             var templateDb = SQLDatabase.Get(Storage.BattlePayDisplayInfos);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfos.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayDisplayInfos.ToArray(), templateDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfos.OrderBy(x => x.Item1.SourceType).ThenBy(x => x.Item1.SourceID).ToArray() : Storage.BattlePayDisplayInfos.ToArray(), templateDb, x => string.Empty);
         }
 
-        [BuilderMethod]
-        public static string BattlePayDisplayInfoVisualData()
-        {
-            if (Storage.BattlePayDisplayInfoVisuals.IsEmpty())
-                return string.Empty;
-
-            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.battlepay_display_info_visuals))
-                return string.Empty;
-
-            var templateDb = SQLDatabase.Get(Storage.BattlePayDisplayInfoVisuals);
-
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayDisplayInfoVisuals.OrderBy(x => x.Item1.DisplayInfoEntry).ThenBy(x => x.Item1.VisualIndex).ToArray() : Storage.BattlePayDisplayInfoVisuals.ToArray(), templateDb, x => string.Empty);
-        }
         [BuilderMethod]
         public static string BattlePayProductInfoData()
         {
@@ -48,6 +35,7 @@ namespace WowPacketParser.SQL.Builders
 
             return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayProductInfos.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayProductInfos.ToArray(), templateDb, x => string.Empty);
         }
+
         [BuilderMethod]
         public static string BattlePayProductData()
         {
@@ -62,19 +50,6 @@ namespace WowPacketParser.SQL.Builders
             return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayProductDatas.OrderBy(x => x.Item1.Entry).ToArray() : Storage.BattlePayProductDatas.ToArray(), templateDb, x => string.Empty);
         }
 
-        [BuilderMethod]
-        public static string BattlePayProductItemData()
-        {
-            if (Storage.BattlePayProductItems.IsEmpty())
-                return string.Empty;
-
-            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.battlepay_product_items))
-                return string.Empty;
-
-            var templateDb = SQLDatabase.Get(Storage.BattlePayProductItems);
-
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.BattlePayProductItems.OrderBy(x => x.Item1.ProductEntry).ThenBy(x => x.Item1.ItemOrder).ToArray() : Storage.BattlePayProductItems.ToArray(), templateDb, x => string.Empty);
-        }
         [BuilderMethod]
         public static string BattlePayShopData()
         {

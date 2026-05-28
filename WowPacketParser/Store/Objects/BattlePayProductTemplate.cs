@@ -7,17 +7,11 @@ namespace WowPacketParser.Store.Objects
     [DBTableName("battlepay_display_infos")]
     public sealed record BattlePayDisplayInfo : IDataModel
     {
-        [DBFieldName("Entry", true)]
-        public uint Entry;
+        [DBFieldName("SourceType", true)]
+        public byte SourceType;
 
-        [DBFieldName("ProductInfoID", true)]
-        public uint ProductInfoID;
-
-        [DBFieldName("ProductDataID", true)]
-        public uint ProductDataID;
-
-        [DBFieldName("ShopDataID", true)]
-        public uint ShopDataID;
+        [DBFieldName("SourceID", true)]
+        public uint SourceID;
 
         [DBFieldName("HasIconFileDataID")]
         public int HasIconFileDataID;
@@ -102,36 +96,14 @@ namespace WowPacketParser.Store.Objects
 
     }
 
-    [DBTableName("battlepay_display_info_visuals")]
-    public sealed record BattlePayDisplayInfoVisual : IDataModel
-    {
-        [DBFieldName("DisplayInfoEntry", true)]
-        public uint DisplayInfoEntry;
-
-        [DBFieldName("VisualIndex", true)]
-        public uint VisualIndex;
-
-        [DBFieldName("CreatureDisplayID")]
-        public uint CreatureDisplayID;
-
-        [DBFieldName("PreviewUIModelSceneID")]
-        public uint PreviewUIModelSceneID;
-
-        [DBFieldName("TransmogSetID")]
-        public uint TransmogSetID;
-
-        [DBFieldName("VisualName")]
-        public string VisualName;
-    }
-
     [DBTableName("battlepay_product_infos")]
     public sealed record BattlePayProductInfo : IDataModel
     {
         [DBFieldName("Entry", true)]
         public uint Entry;
 
-        [DBFieldName("ProductInfoID")]
-        public uint ProductInfoID;
+        [DBFieldName("ShopListingID")]
+        public uint ShopListingID;
 
         [DBFieldName("NormalPrice")]
         public long NormalPrice;
@@ -157,11 +129,14 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Unknown5")]
         public int Unknown5;
 
-        [DBFieldName("DeliverableProductIDExtra")]
-        public uint DeliverableProductIDExtra;
+        [DBFieldName("DeliverableIDExtra")]
+        public uint DeliverableIDExtra;
 
         [DBFieldName("Unk1027")]
         public uint Unk1027;
+
+        [DBFieldName("UnkUInt64")]
+        public ulong UnkUInt64;
 
         [DBFieldName("UnknownIfFlags1_1")]
         public int UnknownIfFlags1_1;
@@ -184,8 +159,11 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("HasVisualMetadata")]
         public int HasVisualMetadata;
 
-        [DBFieldName("DeliverableProductIDs")]
-        public string DeliverableProductIDs;
+        [DBFieldName("DeliverableIDs")]
+        public string DeliverableIDs;
+
+        [DBFieldName("DeliverableIDs2")]
+        public string DeliverableIDs2;
 
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;
@@ -206,8 +184,8 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Entry", true)]
         public uint Entry;
 
-        [DBFieldName("ProductID")]
-        public uint ProductID;
+        [DBFieldName("DeliverableID")]
+        public uint DeliverableID;
 
         [DBFieldName("Type")]
         public int Type;
@@ -262,46 +240,9 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;
-    }
 
-    [DBTableName("battlepay_product_items")]
-    public sealed record BattlePayProductItem : IDataModel
-    {
-        [DBFieldName("ProductEntry", true)]
-        public uint ProductEntry;
-
-        [DBFieldName("ItemOrder", true)]
-        public uint ItemOrder;
-
-        [DBFieldName("ID")]
-        public uint ID;
-
-        [DBFieldName("UnknownByte")]
-        public byte UnknownByte;
-
-        [DBFieldName("ItemID")]
-        public uint ItemID;
-
-        [DBFieldName("Quantity")]
-        public uint Quantity;
-
-        [DBFieldName("UnknownInt1")]
-        public uint UnknownInt1;
-
-        [DBFieldName("UnknownInt2")]
-        public uint UnknownInt2;
-
-        [DBFieldName("IsPet")]
-        public int IsPet;
-
-        [DBFieldName("HasPetResult")]
-        public int HasPetResult;
-
-        [DBFieldName("PetResultFlags")]
-        public uint PetResultFlags;
-
-        [DBFieldName("HasVisualMetadata")]
-        public int HasVisualMetadata;
+        [DBFieldName("Items")]
+        public string Items;
     }
 
     [DBTableName("battlepay_groups")]
@@ -341,14 +282,14 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("Entry", true)]
         public uint Entry;
 
-        [DBFieldName("EntryID")]
-        public uint EntryID;
+        [DBFieldName("ShopEntryID")]
+        public uint ShopEntryID;
 
         [DBFieldName("GroupID")]
         public uint GroupID;
 
-        [DBFieldName("ProductID")]
-        public uint ProductID;
+        [DBFieldName("ShopListingID")]
+        public uint ShopListingID;
 
         [DBFieldName("Ordering")]
         public uint Ordering;
