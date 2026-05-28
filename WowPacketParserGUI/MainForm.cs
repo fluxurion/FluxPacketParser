@@ -50,77 +50,77 @@ public partial class MainForm : Form
         StartPosition = FormStartPosition.CenterScreen;
 
         // File selection
-        var fileLabel = new Label 
-        { 
-            Text = "PKT File:", 
-            Location = new Point(10, 15), 
+        var fileLabel = new Label
+        {
+            Text = "PKT File:",
+            Location = new Point(10, 15),
             Size = new Size(60, 23),
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
-        
-        filePathTextBox = new TextBox 
-        { 
-            Location = new Point(75, 12), 
-            Size = new Size(500, 23), 
+
+        filePathTextBox = new TextBox
+        {
+            Location = new Point(75, 12),
+            Size = new Size(500, 23),
             ReadOnly = true,
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
-        
-        browseButton = new Button 
-        { 
-            Text = "Browse", 
-            Location = new Point(585, 11), 
+
+        browseButton = new Button
+        {
+            Text = "Browse",
+            Location = new Point(585, 11),
             Size = new Size(75, 25),
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         browseButton.Click += BrowseButton_Click;
 
         // Parse button
-        parseButton = new Button 
-        { 
-            Text = "Parse", 
-            Location = new Point(670, 11), 
-            Size = new Size(75, 25), 
+        parseButton = new Button
+        {
+            Text = "Parse",
+            Location = new Point(670, 11),
+            Size = new Size(75, 25),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         parseButton.Click += ParseButton_Click;
 
         // Cancel button
-        cancelButton = new Button 
-        { 
-            Text = "Cancel", 
-            Location = new Point(670, 11), 
-            Size = new Size(75, 25), 
-            Enabled = false, 
+        cancelButton = new Button
+        {
+            Text = "Cancel",
+            Location = new Point(670, 11),
+            Size = new Size(75, 25),
+            Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         cancelButton.Click += CancelButton_Click;
 
         // Open config button
-        openConfigButton = new Button 
-        { 
-            Text = "Config", 
-            Location = new Point(755, 11), 
+        openConfigButton = new Button
+        {
+            Text = "Config",
+            Location = new Point(755, 11),
             Size = new Size(70, 25),
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         openConfigButton.Click += OpenConfigButton_Click;
 
         // Packet selection
-        var packetLabel = new Label 
-        { 
-            Text = "Packet:", 
-            Location = new Point(10, 50), 
+        var packetLabel = new Label
+        {
+            Text = "Packet:",
+            Location = new Point(10, 50),
             Size = new Size(50, 23),
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
-        
-        searchTextBox = new TextBox 
-        { 
-            Location = new Point(65, 47), 
-            Size = new Size(200, 23), 
+
+        searchTextBox = new TextBox
+        {
+            Location = new Point(65, 47),
+            Size = new Size(200, 23),
             PlaceholderText = "Search packets...",
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
@@ -137,44 +137,44 @@ public partial class MainForm : Form
         packetComboBox.SelectedIndexChanged += PacketComboBox_SelectedIndexChanged;
 
         // Re-parse button
-        reparseButton = new Button 
-        { 
-            Text = "Re-parse", 
-            Location = new Point(585, 46), 
-            Size = new Size(75, 25), 
+        reparseButton = new Button
+        {
+            Text = "Re-parse",
+            Location = new Point(585, 46),
+            Size = new Size(75, 25),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         reparseButton.Click += ReparseButton_Click;
 
         // Copy button
-        copyButton = new Button 
-        { 
-            Text = "Copy", 
-            Location = new Point(670, 46), 
-            Size = new Size(75, 25), 
+        copyButton = new Button
+        {
+            Text = "Copy",
+            Location = new Point(670, 46),
+            Size = new Size(75, 25),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         copyButton.Click += CopyButton_Click;
 
         // Open in editor button
-        openEditorButton = new Button 
-        { 
-            Text = "Open", 
-            Location = new Point(755, 46), 
-            Size = new Size(70, 25), 
+        openEditorButton = new Button
+        {
+            Text = "Open",
+            Location = new Point(755, 46),
+            Size = new Size(70, 25),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         openEditorButton.Click += OpenEditorButton_Click;
 
         // First Craft Treasures button
-        firstCraftButton = new Button 
-        { 
-            Text = "First Craft", 
-            Location = new Point(835, 46), 
-            Size = new Size(80, 25), 
+        firstCraftButton = new Button
+        {
+            Text = "First Craft",
+            Location = new Point(835, 46),
+            Size = new Size(80, 25),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
@@ -248,10 +248,10 @@ public partial class MainForm : Form
         highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
 
         // Progress bar
-        progressBar = new ProgressBar 
-        { 
-            Location = new Point(410, 80), 
-            Size = new Size(260, 23), 
+        progressBar = new ProgressBar
+        {
+            Location = new Point(410, 80),
+            Size = new Size(260, 23),
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
@@ -294,25 +294,25 @@ public partial class MainForm : Form
     {
         // Update positions of buttons on the right side based on form width
         int rightMargin = this.ClientSize.Width - 10;
-        
+
         // Row 1 buttons
         openConfigButton.Left = rightMargin - openConfigButton.Width;
         parseButton.Left = openConfigButton.Left - parseButton.Width - 10;
         cancelButton.Left = parseButton.Left;
         browseButton.Left = parseButton.Left - browseButton.Width - 10;
-        
+
         // Update file path textbox width
         filePathTextBox.Width = browseButton.Left - filePathTextBox.Left - 10;
-        
+
         // Row 2 buttons
         firstCraftButton.Left = rightMargin - firstCraftButton.Width;
         openEditorButton.Left = firstCraftButton.Left - openEditorButton.Width - 10;
         copyButton.Left = openEditorButton.Left - copyButton.Width - 10;
         reparseButton.Left = copyButton.Left - reparseButton.Width - 10;
-        
+
         // Update packet combo box width
         packetComboBox.Width = reparseButton.Left - packetComboBox.Left - 10;
-        
+
         // Update output textbox size
         outputTextBox.Width = rightMargin - outputTextBox.Left;
         outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 10;
@@ -330,7 +330,7 @@ public partial class MainForm : Form
         {
             currentFilePath = openFileDialog.FileName;
             filePathTextBox.Text = currentFilePath;
-            
+
             // Check if parsed file already exists
             var parsedFile = Path.ChangeExtension(currentFilePath, null) + "_parsed.txt";
             if (File.Exists(parsedFile))
@@ -344,7 +344,7 @@ public partial class MainForm : Form
                     "Existing Parsed File Found",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
-                
+
                 if (result == DialogResult.Yes)
                 {
                     // Load existing parsed file
@@ -352,7 +352,7 @@ public partial class MainForm : Form
                     return;
                 }
             }
-            
+
             // Standard new file state
             parseButton.Enabled = true;
             reparseButton.Enabled = false;
@@ -371,11 +371,11 @@ public partial class MainForm : Form
             pageBeforeReparse = 0;
         }
     }
-    
+
     private void LoadExistingParsedFile(string parsedFile)
     {
         outputTextBox.Text = "Loading existing parsed file...\n";
-        
+
         Task.Run(async () =>
         {
             try
@@ -410,10 +410,10 @@ public partial class MainForm : Form
                     outputTextBox.Text = "Existing parsed file loaded. Select a packet to view.\n" +
                                         $"File date: {fileInfo.LastWriteTime}\n" +
                                         "Click 'Re-parse' to parse the PKT file again if needed.";
-                    
+
                     ExtractPackets(parsedContent);
                     UpdatePacketComboBox();
-                    
+
                     // Enable buttons - reparse is available since we have a PKT file selected
                     parseButton.Enabled = false; // Already loaded, use reparse instead
                     reparseButton.Enabled = true;
@@ -683,6 +683,7 @@ public partial class MainForm : Form
         progressLabel.Visible = true;
         progressLabel.Text = "0%";
         occurrenceLabel.Visible = false;
+        highlightTextBox.Visible = false;
         highlightTextBox.Clear();
         HidePagination();
         lastReportedProgress = -1;
@@ -1056,7 +1057,7 @@ public partial class MainForm : Form
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         };
         progressForm.Controls.Add(progressLabel);
-        
+
         // Show progress form non-blocking
         progressForm.Show(this);
         progressForm.Refresh();
@@ -1065,9 +1066,9 @@ public partial class MainForm : Form
         {
             // Run extraction on background thread
             var treasures = await Task.Run(() => ExtractFirstCraftTreasures(parsedContent));
-            
+
             progressForm.Close();
-            
+
             using var dialog = new FirstCraftTreasureDialog(treasures);
             dialog.ShowDialog(this);
         }
@@ -1081,12 +1082,12 @@ public partial class MainForm : Form
     {
         var treasures = new List<FirstCraftTreasure>();
         var lines = content.Split('\n');
-        
+
         string? currentPacket = null;
         string? currentPacketName = null;
         string? timestamp = null;
         var packetData = new Dictionary<string, string>();
-        
+
         // Track spell casts to link to First Craft treasures
         string? lastPlayerSpell = null;
         int spellSearchStartIdx = 0;
@@ -1094,26 +1095,26 @@ public partial class MainForm : Form
         for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
         {
             var line = lines[lineIdx];
-            
+
             // Detect spell cast packets (SMSG_SPELL_GO indicates a spell was cast)
             if (line.Contains("SMSG_SPELL_GO") || line.Contains("SMSG_SPELL_START"))
             {
                 spellSearchStartIdx = lineIdx + 1;
                 bool isPlayerCaster = false;
                 string? spellId = null;
-                
+
                 // Scan next 30 lines for spell info and caster
                 for (int i = spellSearchStartIdx; i < Math.Min(spellSearchStartIdx + 30, lines.Length); i++)
                 {
                     var spellLine = lines[i];
-                    
+
                     // Check for player caster
                     if (spellLine.Contains("CasterGUID:") || spellLine.Contains("CasterUnit:"))
                     {
                         if (spellLine.Contains("Player/"))
                             isPlayerCaster = true;
                     }
-                    
+
                     // Extract spell ID
                     if (spellLine.Contains("SpellID:"))
                     {
@@ -1124,12 +1125,12 @@ public partial class MainForm : Form
                         }
                         break;
                     }
-                    
+
                     // Stop if we hit another packet header
                     if (spellLine.Contains("ServerToClient:") || spellLine.Contains("ClientToServer:"))
                         break;
                 }
-                
+
                 // Only update lastPlayerSpell if caster is a player
                 if (isPlayerCaster && spellId != null)
                 {
@@ -1143,34 +1144,34 @@ public partial class MainForm : Form
             {
                 currentPacket = line;
                 currentPacketName = "SMSG_CRAFT_ENCHANT_RESULT";
-                
+
                 // Extract timestamp
                 var timeMatch = Regex.Match(line, @"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d+)");
                 if (timeMatch.Success)
                     timestamp = timeMatch.Groups[1].Value;
                 continue;
             }
-            
+
             // Detect packet header for First Craft related packets
             if (line.Contains("SMSG_ITEM_PUSH_RESULT") || line.Contains("SMSG_SET_CURRENCY"))
             {
                 currentPacket = line;
                 currentPacketName = line.Contains("SMSG_ITEM_PUSH_RESULT") ? "SMSG_ITEM_PUSH_RESULT" : "SMSG_SET_CURRENCY";
-                
+
                 // Extract timestamp
                 var timeMatch = Regex.Match(line, @"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d+)");
                 if (timeMatch.Success)
                     timestamp = timeMatch.Groups[1].Value;
-                
+
                 packetData.Clear();
                 packetData["Packet"] = currentPacketName;
                 packetData["Timestamp"] = timestamp ?? "";
                 packetData["SpellID"] = lastPlayerSpell ?? "0";
                 continue;
             }
-            
+
             if (currentPacket == null) continue;
-            
+
             // Parse key-value pairs
             if (line.Contains(":"))
             {
@@ -1182,7 +1183,7 @@ public partial class MainForm : Form
                     packetData[key] = value;
                 }
             }
-            
+
             // Check for FirstCraftOperationID - this is the trigger
             if (line.Contains("FirstCraftOperationID:"))
             {
@@ -1190,12 +1191,12 @@ public partial class MainForm : Form
                 if (opMatch.Success)
                 {
                     var operationId = opMatch.Groups[1].Value;
-                    
+
                     // Determine type based on packet name, NOT field presence
                     string type;
                     string itemId;
                     string quantity;
-                    
+
                     if (currentPacketName == "SMSG_SET_CURRENCY")
                     {
                         // For SMSG_SET_CURRENCY - Type field contains CurrencyID
@@ -1203,7 +1204,7 @@ public partial class MainForm : Form
                         var typeValue = packetData.GetValueOrDefault("Type", "0");
                         var typeMatch = Regex.Match(typeValue, @"^(\d+)");
                         itemId = typeMatch.Success ? typeMatch.Groups[1].Value : "0";
-                        
+
                         // Check multiple possible quantity fields
                         var qtyValue = packetData.GetValueOrDefault("Quantity", "0");
                         if (qtyValue == "0" || qtyValue == "")
@@ -1222,12 +1223,12 @@ public partial class MainForm : Form
                             itemValue = packetData.GetValueOrDefault("Item", "0");
                         var itemMatch = Regex.Match(itemValue, @"^(\d+)");
                         itemId = itemMatch.Success ? itemMatch.Groups[1].Value : "0";
-                        
+
                         var qtyValue = packetData.GetValueOrDefault("Quantity", "0");
                         var qtyMatch = Regex.Match(qtyValue, @"^(\d+)");
                         quantity = qtyMatch.Success ? qtyMatch.Groups[1].Value : "0";
                     }
-                    
+
                     treasures.Add(new FirstCraftTreasure
                     {
                         OperationID = operationId,
@@ -1241,7 +1242,7 @@ public partial class MainForm : Form
                 }
             }
         }
-        
+
         return treasures;
     }
 }
