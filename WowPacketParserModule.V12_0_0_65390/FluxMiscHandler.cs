@@ -75,7 +75,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
 
             // JamBattlepayDisplayCard (sub_7FF659251BF0) if Flags3 bit6 set
             if ((flags3 & 0x40) != 0)
-                FluxBattlePayHandler.ReadVisualMetadata(packet, 0, 0, index);
+                _ = FluxBattlePayHandler.ReadVisualMetadata(packet, 0, 0, index);
         }
     }
 }
