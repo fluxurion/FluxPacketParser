@@ -16,7 +16,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         {
         }
 
-        internal static void ReadVisualMetadata(Packet packet, byte sourceType, uint sourceID, params object[] index)
+        internal static string ReadVisualMetadata(Packet packet, byte sourceType, uint sourceID, params object[] index)
         {
             packet.ResetBitReader();
             var hasIconFileDataID = packet.ReadBit("HasIconFileDataID", index);
@@ -121,6 +121,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 PreviewTitles = string.Join(",", visualNames)
             };
             Storage.BattlePayDisplayInfos.Add(displayInfo, packet.TimeSpan);
+
+            return title;
         }
 
         private static void ReadProductInfo(Packet packet, params object[] index)
@@ -149,8 +151,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var hasDisplayByte = packet.ReadByte("HasDisplayByte", index);
             var hasVisualMetadata = (hasDisplayByte >> 7) != 0;
 
+            var name = "";
             if (hasVisualMetadata)
-                ReadVisualMetadata(packet, 1, productid, index);
+                name = ReadVisualMetadata(packet, 1, productid, index);
 
             BattlePayProductInfo productInfo = new BattlePayProductInfo
             {
@@ -179,7 +182,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 DisplayFlag = 0,
                 HasUnknown1InDisplayInfo = 0,
                 HasBattlePayDisplayInfo = hasVisualMetadata ? 1 : 0,
-                ChoiceType = 0
+                ChoiceType = 0,
+                Name = name
             };
             Storage.BattlePayProductInfos.Add(productInfo, packet.TimeSpan);
         }
@@ -209,7 +213,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 petResultVariable = packet.ReadUInt32("PetResultVariable", index);
 
             if (hasDisplayInfo)
-                ReadVisualMetadata(packet, 4, id, index);
+                _ = ReadVisualMetadata(packet, 4, id, index);
 
             return string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}",
                 id, unknownByte, itemID, quantity, unknownInt1, unknownInt2,
@@ -253,7 +257,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var name = packet.ReadWoWString("Name", nameLen, index);
 
             if (hasDisplayInfo)
-                ReadVisualMetadata(packet, 2, productid, index);
+                _ = ReadVisualMetadata(packet, 2, productid, index);
 
             BattlePayProduct product = new BattlePayProduct
             {
@@ -328,8 +332,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var hasDisplayCard = (flagByte & 0x80) != 0;
             packet.AddValue("HasDisplayCard", hasDisplayCard, index);
 
+            var name = "";
             if (hasDisplayCard)
-                ReadVisualMetadata(packet, 3, shopFlags, index);
+                name = ReadVisualMetadata(packet, 3, shopFlags, index);
 
             BattlePayShop shop = new BattlePayShop
             {
@@ -342,7 +347,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 StoreDeliveryType = field20,
                 HasBattlePayDisplayInfo = hasDisplayCard ? 1 : 0,
                 Unknown = 0,
-                DisplayFlag = (uint)(flagByte & 0x7F)
+                DisplayFlag = (uint)(flagByte & 0x7F),
+                Name = name
             };
             Storage.BattlePayShopDatas.Add(shop, packet.TimeSpan);
         }
@@ -492,7 +498,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             if (hasVisualMetadata)
             {
                 // DisplayCard sub + DisplayCard deserializer (sub_7FF659252720)
-                ReadVisualMetadata(packet, 5, (uint)(index.Length > 0 ? (int)index[0] : 0), index);
+                _ = ReadVisualMetadata(packet, 5, (uint)(index.Length > 0 ? (int)index[0] : 0), index);
             }
 
             var hasFlag = packet.ReadByte("HasFlag", index);

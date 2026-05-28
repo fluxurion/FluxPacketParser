@@ -176,6 +176,9 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("ChoiceType")]
         public int ChoiceType;
+
+        [DBFieldName("Name")]
+        public string Name;
     }
 
     [DBTableName("battlepay_product_datas")]
@@ -308,5 +311,8 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("DisplayFlag")]
         public uint DisplayFlag;
+
+        [DBFieldName("Name")]
+        public string Name;
     }
 }

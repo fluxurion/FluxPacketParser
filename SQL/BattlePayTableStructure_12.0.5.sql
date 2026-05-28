@@ -82,6 +82,7 @@ CREATE TABLE `battlepay_product_infos` (
   `HasUnknown1InDisplayInfo` int(11) NOT NULL DEFAULT '0',
   `HasBattlePayDisplayInfo` int(11) NOT NULL DEFAULT '0',
   `ChoiceType` int(11) NOT NULL DEFAULT '0',
+  `Name` text COMMENT 'DisplayCard Title',
   PRIMARY KEY (`Entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -151,6 +152,7 @@ CREATE TABLE `battlepay_shop_datas` (
   `HasBattlePayDisplayInfo` int(11) NOT NULL DEFAULT '0',
   `Unknown` int(11) NOT NULL DEFAULT '0',
   `DisplayFlag` int(10) unsigned NOT NULL DEFAULT '0',
+  `Name` text COMMENT 'DisplayCard Title',
   PRIMARY KEY (`Entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
