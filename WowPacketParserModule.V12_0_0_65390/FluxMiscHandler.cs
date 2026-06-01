@@ -35,6 +35,47 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.AddValue("ShowContract", (value & 0x80) != 0);
         }
 
+        [Parser(Opcode.SMSG_GENERATE_SSO_TOKEN_RESPONSE)]
+        public static void HandleGenerateSsoTokenResponse(Packet packet)
+        {
+            packet.ReadUInt32("Field32");
+            packet.ReadUInt32("Field36");
+            packet.ReadTime64("TokenCreationTime");
+            packet.ReadTime64("TokenExpirationTime");
+            var stringLen = packet.ReadByte("StringLengthByte");
+            var actualLength = (int)(stringLen >> 1);
+            packet.ReadWoWString("TokenString", actualLength);
+        }
+
+        [Parser(Opcode.SMSG_GET_DECOR_REFUND_LIST_RESPONSE)]
+        public static void HandleGetDecorRefundListResponse(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadPackedGuid128("DecorGuid", i);
+                packet.ReadUInt32("Field40", i);
+                packet.ReadUInt64("Field48", i);
+                var refundItemCount = packet.ReadUInt32("RefundItemCount", i);
+                for (uint j = 0; j < refundItemCount; j++)
+                {
+                    packet.ReadPackedGuid128("ItemGuid", i, j);
+                }
+            }
+        }
+
+        [Parser(Opcode.SMSG_GET_ALL_LICENSED_DECOR_QUANTITIES_RESPONSE)]
+        public static void HandleGetAllLicensedDecorQuantitiesResponse(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadUInt32("DecorID", i);
+                packet.ReadUInt32("Quantity", i);
+                packet.ReadUInt32("Field8", i);
+            }
+        }
+
         [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS)]
         public static void HandleSyncWowEntitlements(Packet packet)
         {
