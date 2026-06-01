@@ -9,6 +9,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         [Parser(Opcode.SMSG_BATTLE_PAY_DISPLAY_CARD)]
         public static void HandleBattlePayDisplayCard(Packet packet)
         {
+            packet.ReadPackedGuid128("Guid");
             ReadDisplayCard(packet);
         }
 

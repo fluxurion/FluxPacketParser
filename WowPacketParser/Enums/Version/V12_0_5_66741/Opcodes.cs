@@ -1145,6 +1145,7 @@ namespace WowPacketParser.Enums.Version.V12_0_5_66741
             { Opcode.SMSG_BATTLE_PAY_ACK_FAILED, 0x420233 },
             { Opcode.SMSG_BATTLE_PAY_BATTLE_PET_DELIVERED, 0x420222 },
             { Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED, 0x420223 },
+            { Opcode.SMSG_BATTLE_PAY_DISPLAY_CARD, 0x420224 },
             { Opcode.SMSG_BATTLE_PAY_CONFIRM_PURCHASE, 0x420232 },
             { Opcode.SMSG_BATTLE_PAY_DELIVERY_ENDED, 0x420220 },
             { Opcode.SMSG_BATTLE_PAY_DELIVERY_STARTED, 0x42021F },
