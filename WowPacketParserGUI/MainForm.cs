@@ -1,8 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Drawing;
 
 namespace WowPacketParserGUI;
+
+internal sealed class DarkComboBox : ComboBox { }
 
 public partial class MainForm : Form
 {
@@ -18,15 +22,18 @@ public partial class MainForm : Form
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
     private TextBox highlightTextBox = null!;
-    private ComboBox packetComboBox = null!;
+    private DarkComboBox packetComboBox = null!;
     private TextBox searchTextBox = null!;
     private RichTextBox outputTextBox = null!;
     private ProgressBar progressBar = null!;
     private Label progressLabel = null!;
     private Label occurrenceLabel = null!;
+    private Panel comboBorderPanel = null!;
+    private Panel filePathBorderPanel = null!;
     private Label pageLabel = null!;
     private List<string> allPackets = new();
     private Dictionary<string, List<List<string>>> packetLines = new();
+    private Dictionary<string, string> packetTimestamps = new();
     private string? currentFilePath;
     private string? parsedContent;
     private Process? currentProcess;
@@ -42,196 +49,228 @@ public partial class MainForm : Form
         InitializeComponent();
     }
 
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
     private void InitializeComponent()
     {
         Text = "WowPacketParser GUI";
-        Size = new Size(950, 600);
-        MinimumSize = new Size(950, 500);
+        Size = new Size(1120, 700);
+        MinimumSize = new Size(960, 520);
         StartPosition = FormStartPosition.CenterScreen;
+        Padding = new Padding(12, 10, 12, 10);
 
-        // File selection
+        // ── Row 1: File selection ──────────────────────────────────────────────
+        // Y=14 gives ~14px top padding
         var fileLabel = new Label
         {
             Text = "PKT File:",
-            Location = new Point(10, 15),
-            Size = new Size(60, 23),
+            Location = new Point(12, 17),
+            Size = new Size(62, 26),
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+
+        filePathBorderPanel = new Panel
+        {
+            Location = new Point(78, 13),
+            Size = new Size(500, 26),
+            BorderStyle = BorderStyle.None,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
 
         filePathTextBox = new TextBox
         {
-            Location = new Point(75, 12),
-            Size = new Size(500, 23),
+            Location = new Point(-1, -1),
             ReadOnly = true,
-            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            BorderStyle = BorderStyle.FixedSingle,
+            Font = new Font("Segoe UI", 9.5f)
         };
+        filePathBorderPanel.Controls.Add(filePathTextBox);
 
         browseButton = new Button
         {
             Text = "Browse",
-            Location = new Point(585, 11),
-            Size = new Size(75, 25),
+            Location = new Point(730, 14),
+            Size = new Size(82, 28),
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         browseButton.Click += BrowseButton_Click;
 
-        // Parse button
         parseButton = new Button
         {
             Text = "Parse",
-            Location = new Point(670, 11),
-            Size = new Size(75, 25),
+            Location = new Point(822, 14),
+            Size = new Size(82, 28),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         parseButton.Click += ParseButton_Click;
 
-        // Cancel button
         cancelButton = new Button
         {
             Text = "Cancel",
-            Location = new Point(670, 11),
-            Size = new Size(75, 25),
+            Location = new Point(822, 14),
+            Size = new Size(82, 28),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         cancelButton.Click += CancelButton_Click;
 
-        // Open config button
         openConfigButton = new Button
         {
             Text = "Config",
-            Location = new Point(755, 11),
-            Size = new Size(70, 25),
+            Location = new Point(914, 14),
+            Size = new Size(78, 28),
             Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         openConfigButton.Click += OpenConfigButton_Click;
 
-        // Packet selection
+        // ── Thin separator line ───────────────────────────────────────────────
+        var separator1 = new Panel
+        {
+            Location = new Point(12, 50),
+            Size = new Size(980, 1),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        // ── Row 2: Packet selection ───────────────────────────────────────────
         var packetLabel = new Label
         {
             Text = "Packet:",
-            Location = new Point(10, 50),
-            Size = new Size(50, 23),
+            Location = new Point(12, 62),
+            Size = new Size(56, 28),
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
         searchTextBox = new TextBox
         {
-            Location = new Point(65, 47),
-            Size = new Size(200, 23),
+            Location = new Point(72, 62),
+            Size = new Size(210, 28),
             PlaceholderText = "Search packets...",
+            Font = new Font("Segoe UI", 9.5f),
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         searchTextBox.TextChanged += SearchTextBox_TextChanged;
 
-        packetComboBox = new ComboBox
+        comboBorderPanel = new Panel
         {
-            Location = new Point(275, 47),
-            Size = new Size(300, 23),
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            Enabled = false,
+            Location = new Point(292, 61),
+            Size = new Size(700, 24),
+            BorderStyle = BorderStyle.None,
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
-        packetComboBox.SelectedIndexChanged += PacketComboBox_SelectedIndexChanged;
 
-        // Re-parse button
+        packetComboBox = new DarkComboBox
+        {
+            Location = new Point(-1, -1),
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Enabled = false,
+            Font = new Font("Segoe UI", 9.5f)
+        };
+        packetComboBox.SelectedIndexChanged += PacketComboBox_SelectedIndexChanged;
+        comboBorderPanel.Controls.Add(packetComboBox);
+
+        // ── Thin separator line ───────────────────────────────────────────────
+        var separator2 = new Panel
+        {
+            Location = new Point(12, 100),
+            Size = new Size(980, 1),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        // ── Row 3: Action buttons ─────────────────────────────────────────────
         reparseButton = new Button
         {
             Text = "Re-parse",
-            Location = new Point(585, 46),
-            Size = new Size(75, 25),
+            Location = new Point(12, 112),
+            Size = new Size(88, 28),
             Enabled = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         reparseButton.Click += ReparseButton_Click;
 
-        // Copy button
         copyButton = new Button
         {
             Text = "Copy",
-            Location = new Point(670, 46),
-            Size = new Size(75, 25),
+            Location = new Point(108, 112),
+            Size = new Size(80, 28),
             Enabled = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         copyButton.Click += CopyButton_Click;
 
-        // Open in editor button
         openEditorButton = new Button
         {
             Text = "Open",
-            Location = new Point(755, 46),
-            Size = new Size(70, 25),
+            Location = new Point(196, 112),
+            Size = new Size(80, 28),
             Enabled = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         openEditorButton.Click += OpenEditorButton_Click;
 
-        // First Craft Treasures button
         firstCraftButton = new Button
         {
             Text = "First Craft",
-            Location = new Point(835, 46),
-            Size = new Size(80, 25),
+            Location = new Point(284, 112),
+            Size = new Size(96, 28),
             Enabled = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         firstCraftButton.Click += FirstCraftButton_Click;
 
-        // Occurrence label
+        // ── Row 4: Occurrence / pagination / highlight / progress ─────────────
         occurrenceLabel = new Label
         {
-            Location = new Point(10, 80),
-            Size = new Size(150, 23),
+            Location = new Point(12, 151),
+            Size = new Size(160, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        // Previous page button
         prevPageButton = new Button
         {
             Text = "◀ Prev",
-            Location = new Point(170, 79),
-            Size = new Size(70, 25),
+            Location = new Point(180, 150),
+            Size = new Size(78, 26),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         prevPageButton.Click += PrevPageButton_Click;
 
-        // Page label
         pageLabel = new Label
         {
-            Location = new Point(245, 80),
-            Size = new Size(80, 23),
+            Location = new Point(264, 151),
+            Size = new Size(80, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        // Next page button
         nextPageButton = new Button
         {
             Text = "Next ▶",
-            Location = new Point(330, 79),
-            Size = new Size(70, 25),
+            Location = new Point(350, 150),
+            Size = new Size(78, 26),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         nextPageButton.Click += NextPageButton_Click;
 
-        // Highlight text label and input
         var highlightLabel = new Label
         {
             Text = "Highlight:",
-            Location = new Point(410, 80),
-            Size = new Size(60, 23),
+            Location = new Point(440, 151),
+            Size = new Size(64, 24),
             TextAlign = System.Drawing.ContentAlignment.MiddleRight,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -239,83 +278,208 @@ public partial class MainForm : Form
 
         highlightTextBox = new TextBox
         {
-            Location = new Point(475, 79),
-            Size = new Size(150, 23),
+            Location = new Point(510, 150),
+            Size = new Size(180, 26),
             PlaceholderText = "Text to highlight...",
+            Font = new Font("Segoe UI", 9.5f),
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
 
-        // Progress bar
         progressBar = new ProgressBar
         {
-            Location = new Point(410, 80),
-            Size = new Size(260, 23),
+            Location = new Point(440, 151),
+            Size = new Size(300, 24),
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        // Progress label
         progressLabel = new Label
         {
-            Location = new Point(680, 80),
-            Size = new Size(80, 23),
+            Location = new Point(748, 151),
+            Size = new Size(50, 24),
             Text = "0%",
-            TextAlign = System.Drawing.ContentAlignment.MiddleRight,
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        // Output - This is the most important for resizing
+        // ── Thin separator line ───────────────────────────────────────────────
+        var separator3 = new Panel
+        {
+            Location = new Point(12, 184),
+            Size = new Size(980, 1),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        // ── Output area ───────────────────────────────────────────────────────
         outputTextBox = new RichTextBox
         {
-            Location = new Point(10, 110),
-            Size = new Size(890, 440),
+            Location = new Point(12, 192),
+            Size = new Size(980, 440),
             ReadOnly = true,
-            Font = new Font("Consolas", 9),
+            Font = new Font("Consolas", 9.5f),
             ScrollBars = RichTextBoxScrollBars.Both,
+            BorderStyle = BorderStyle.None,
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
         };
 
         Controls.AddRange(new Control[] {
-            fileLabel, filePathTextBox, browseButton, parseButton, cancelButton, openConfigButton,
-            packetLabel, searchTextBox, packetComboBox, reparseButton, copyButton, openEditorButton, firstCraftButton,
+            fileLabel, filePathBorderPanel, browseButton, parseButton, cancelButton, openConfigButton,
+            separator1,
+            packetLabel, searchTextBox, comboBorderPanel,
+            separator2,
+            reparseButton, copyButton, openEditorButton, firstCraftButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             highlightLabel, highlightTextBox,
-            progressBar, progressLabel, outputTextBox
+            progressBar, progressLabel,
+            separator3,
+            outputTextBox
         });
 
-        // Handle form resize to update button positions dynamically
+        this.Load += (s, e) =>
+        {
+            var useDark = 1;
+            DwmSetWindowAttribute(this.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDark, sizeof(int));
+            MainForm_Resize(null, EventArgs.Empty);
+        };
+
+        ApplyDarkTheme();
+
         this.Resize += MainForm_Resize;
+    }
+
+    private void ApplyDarkTheme()
+    {
+        var bgDark    = Color.FromArgb(0x18, 0x18, 0x1A);
+        var bgPanel   = Color.FromArgb(0x22, 0x22, 0x25);
+        var bgControl = Color.FromArgb(0x2C, 0x2C, 0x30);
+        var bgButton  = Color.FromArgb(0x35, 0x35, 0x3A);
+        var bgButtonHover = Color.FromArgb(0x45, 0x45, 0x4C);
+        var fgText    = Color.FromArgb(0xE0, 0xE0, 0xE2);
+        var fgDim     = Color.FromArgb(0x90, 0x90, 0x98);
+        var borderColor   = Color.FromArgb(0x42, 0x42, 0x48);
+        var borderAccent  = Color.FromArgb(0x3A, 0x7F, 0xD4);
+        var separatorColor = Color.FromArgb(0x30, 0x30, 0x35);
+
+        BackColor = bgDark;
+        ForeColor = fgText;
+        Font = new Font("Segoe UI", 9.5f);
+
+        void StyleLabel(Label l)
+        {
+            l.ForeColor = fgText;
+            l.BackColor = Color.Transparent;
+            l.Font = new Font("Segoe UI", 9.5f);
+        }
+
+        void StyleButton(Button b)
+        {
+            b.FlatStyle = FlatStyle.Flat;
+            b.BackColor = bgButton;
+            b.ForeColor = fgText;
+            b.Font = new Font("Segoe UI", 9.5f);
+            b.FlatAppearance.BorderColor = borderColor;
+            b.FlatAppearance.BorderSize = 1;
+            b.FlatAppearance.MouseOverBackColor = bgButtonHover;
+            b.FlatAppearance.MouseDownBackColor = Color.FromArgb(0x28, 0x28, 0x2E);
+            b.Cursor = Cursors.Hand;
+        }
+
+        foreach (var c in Controls)
+        {
+            if (c is Label l) StyleLabel(l);
+            if (c is Panel p && p != filePathBorderPanel && p != comboBorderPanel)
+                p.BackColor = separatorColor;
+        }
+
+        // Border panels act as 1-px coloured border around inputs
+        filePathBorderPanel.BackColor = borderColor;
+        comboBorderPanel.BackColor = borderColor;
+
+        // TextBoxes
+        filePathTextBox.BackColor = bgControl;
+        filePathTextBox.ForeColor = fgText;
+        searchTextBox.BackColor = bgControl;
+        searchTextBox.ForeColor = fgText;
+        searchTextBox.BorderStyle = BorderStyle.FixedSingle;
+        highlightTextBox.BackColor = bgControl;
+        highlightTextBox.ForeColor = fgText;
+        highlightTextBox.BorderStyle = BorderStyle.FixedSingle;
+
+        // RichTextBox — slightly lighter background so it reads as a distinct surface
+        outputTextBox.BackColor = bgPanel;
+        outputTextBox.ForeColor = fgText;
+
+        // Buttons
+        StyleButton(browseButton);
+        StyleButton(parseButton);
+        StyleButton(cancelButton);
+        StyleButton(openConfigButton);
+        StyleButton(reparseButton);
+        StyleButton(copyButton);
+        StyleButton(openEditorButton);
+        StyleButton(firstCraftButton);
+        StyleButton(prevPageButton);
+        StyleButton(nextPageButton);
+
+        // Parse / Browse get a subtle blue accent border
+        parseButton.FlatAppearance.BorderColor = borderAccent;
+        browseButton.FlatAppearance.BorderColor = borderAccent;
+
+        // ComboBox — system border clipped by parent panel overflow
+        packetComboBox.BackColor = bgControl;
+        packetComboBox.ForeColor = fgText;
+        packetComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        packetComboBox.DrawItem += (sender, e) =>
+        {
+            if (e.Index < 0) return;
+            var isSelected = (e.State & DrawItemState.Selected) != 0;
+            var itemBg = isSelected ? Color.FromArgb(0x3A, 0x7F, 0xD4) : bgControl;
+            var itemFg = isSelected ? Color.White : fgText;
+            using (var bgBrush = new SolidBrush(itemBg))
+                e.Graphics.FillRectangle(bgBrush, e.Bounds);
+            var textRect = new Rectangle(e.Bounds.X + 4, e.Bounds.Y, e.Bounds.Width - 4, e.Bounds.Height);
+            using (var fgBrush = new SolidBrush(itemFg))
+                e.Graphics.DrawString(packetComboBox.Items[e.Index]?.ToString(), e.Font ?? Font, fgBrush, textRect,
+                    StringFormat.GenericDefault);
+        };
+
+        // ProgressBar
+        progressBar.BackColor = bgControl;
+        progressBar.ForeColor = borderAccent;
+
+        // Occurrence / page labels
+        occurrenceLabel.ForeColor = fgDim;
+        pageLabel.ForeColor = fgDim;
     }
 
     private void MainForm_Resize(object? sender, EventArgs e)
     {
-        // Update positions of buttons on the right side based on form width
-        int rightMargin = this.ClientSize.Width - 10;
+        int rightMargin = this.ClientSize.Width - 12;
 
-        // Row 1 buttons
+        // Row 1 buttons (right-anchored)
         openConfigButton.Left = rightMargin - openConfigButton.Width;
-        parseButton.Left = openConfigButton.Left - parseButton.Width - 10;
+        parseButton.Left = openConfigButton.Left - parseButton.Width - 8;
         cancelButton.Left = parseButton.Left;
-        browseButton.Left = parseButton.Left - browseButton.Width - 10;
+        browseButton.Left = parseButton.Left - browseButton.Width - 8;
 
-        // Update file path textbox width
-        filePathTextBox.Width = browseButton.Left - filePathTextBox.Left - 10;
+        filePathBorderPanel.Width = browseButton.Left - filePathBorderPanel.Left - 8;
+        // TextBox overflows 1px on each side so its system border is hidden behind panel edges
+        filePathTextBox.Width = filePathBorderPanel.Width + 2;
 
-        // Row 2 buttons
-        firstCraftButton.Left = rightMargin - firstCraftButton.Width;
-        openEditorButton.Left = firstCraftButton.Left - openEditorButton.Width - 10;
-        copyButton.Left = openEditorButton.Left - copyButton.Width - 10;
-        reparseButton.Left = copyButton.Left - reparseButton.Width - 10;
+        // Separators span full width
+        foreach (var c in Controls)
+            if (c is Panel p && p != filePathBorderPanel && p != comboBorderPanel)
+                p.Width = rightMargin - p.Left;
 
-        // Update packet combo box width
-        packetComboBox.Width = reparseButton.Left - packetComboBox.Left - 10;
+        // Row 2: combo box spans to right margin; overflows 1px on each side to hide system border
+        comboBorderPanel.Width = rightMargin - comboBorderPanel.Left;
+        packetComboBox.Width = comboBorderPanel.Width + 2;
 
-        // Update output textbox size
         outputTextBox.Width = rightMargin - outputTextBox.Left;
-        outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 10;
+        outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 12;
     }
 
     private void BrowseButton_Click(object? sender, EventArgs e)
@@ -577,8 +741,8 @@ public partial class MainForm : Form
             // Clear previous highlights
             outputTextBox.SelectionStart = 0;
             outputTextBox.SelectionLength = outputTextBox.Text.Length;
-            outputTextBox.SelectionColor = Color.Black;
-            outputTextBox.SelectionBackColor = Color.White;
+            outputTextBox.SelectionColor = Color.FromArgb(0xE0, 0xE0, 0xE2);
+            outputTextBox.SelectionBackColor = Color.FromArgb(0x22, 0x22, 0x25);
 
             if (string.IsNullOrWhiteSpace(searchText))
             {
@@ -594,8 +758,8 @@ public partial class MainForm : Form
                 if (index < 0) break;
 
                 outputTextBox.Select(index, searchText.Length);
-                outputTextBox.SelectionBackColor = Color.Yellow;
-                outputTextBox.SelectionColor = Color.Black;
+                outputTextBox.SelectionBackColor = Color.FromArgb(0xE5, 0xC0, 0x07);
+                outputTextBox.SelectionColor = Color.FromArgb(0x18, 0x18, 0x1A);
 
                 startIndex = index + searchText.Length;
             }
@@ -640,10 +804,18 @@ public partial class MainForm : Form
         pageLabel.Text = $"{currentPage + 1} / {totalPages}";
     }
 
+    private string ExtractPacketName(string displayText)
+    {
+        var match = Regex.Match(displayText, @"^\d{2}:\d{2}:\d{2}\.\d{3}\s+");
+        return match.Success ? displayText.Substring(match.Length) : displayText;
+    }
+
     private void DisplayCurrentPage()
     {
-        var selectedPacket = packetComboBox.SelectedItem?.ToString();
-        if (selectedPacket == null || !packetLines.ContainsKey(selectedPacket))
+        var displayText = packetComboBox.SelectedItem?.ToString();
+        if (displayText == null) return;
+        var selectedPacket = ExtractPacketName(displayText);
+        if (!packetLines.ContainsKey(selectedPacket))
             return;
 
         var occurrences = packetLines[selectedPacket];
@@ -823,7 +995,8 @@ public partial class MainForm : Form
                                 {
                                     packetComboBox.SelectedIndex = index;
 
-                                    var occurrences = packetLines[selectedPacketBeforeReparse];
+                                    var packetName = ExtractPacketName(selectedPacketBeforeReparse);
+                                    var occurrences = packetLines[packetName];
                                     totalPages = occurrences.Count;
 
                                     currentPage = Math.Min(pageBeforeReparse, totalPages - 1);
@@ -879,8 +1052,10 @@ public partial class MainForm : Form
     {
         allPackets.Clear();
         packetLines.Clear();
+        packetTimestamps.Clear();
         var lines = output.Split('\n');
         var packetRegex = new Regex(@"(ServerToClient|ClientToServer):\s+(\w+)\s+\(0x[0-9A-F]+\)");
+        var timeRegex = new Regex(@"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})");
 
         string? currentPacket = null;
         var currentPacketLines = new List<string>();
@@ -901,7 +1076,12 @@ public partial class MainForm : Form
 
                 currentPacket = $"{match.Groups[1].Value}: {match.Groups[2].Value}";
                 if (!allPackets.Contains(currentPacket))
+                {
                     allPackets.Add(currentPacket);
+                    var timeMatch = timeRegex.Match(line);
+                    if (timeMatch.Success)
+                        packetTimestamps[currentPacket] = timeMatch.Groups[1].Value;
+                }
 
                 currentPacketLines.Clear();
                 currentPacketLines.Add(line);
@@ -921,7 +1101,12 @@ public partial class MainForm : Form
             packetLines[currentPacket].Add(new List<string>(currentPacketLines));
         }
 
-        allPackets.Sort();
+        allPackets.Sort((a, b) =>
+        {
+            var ta = packetTimestamps.GetValueOrDefault(a, "");
+            var tb = packetTimestamps.GetValueOrDefault(b, "");
+            return string.Compare(ta, tb, StringComparison.Ordinal);
+        });
     }
 
     private void UpdatePacketComboBox()
@@ -938,7 +1123,21 @@ public partial class MainForm : Form
                 : allPackets.Where(p => p.ToLower().Contains(searchTerm) ||
                                        p.Split(':')[1].Trim().ToLower().Contains(searchTerm)).ToList();
 
-            packetComboBox.Items.AddRange(filteredPackets.ToArray());
+            foreach (var packet in filteredPackets)
+            {
+                string displayText;
+                if (packetTimestamps.TryGetValue(packet, out var timestamp) && timestamp.Length >= 19)
+                {
+                    var timePart = timestamp.Substring(11, 12);
+                    displayText = $"{timePart} {packet}";
+                }
+                else
+                {
+                    displayText = packet;
+                }
+                packetComboBox.Items.Add(displayText);
+            }
+
             packetComboBox.Enabled = filteredPackets.Count > 0;
 
             if (!string.IsNullOrEmpty(previousSelection))
@@ -961,8 +1160,10 @@ public partial class MainForm : Form
     {
         if (packetComboBox.SelectedItem == null) return;
 
-        var selectedPacket = packetComboBox.SelectedItem.ToString();
-        if (selectedPacket != null && packetLines.ContainsKey(selectedPacket))
+        var displayText = packetComboBox.SelectedItem.ToString();
+        if (displayText == null) return;
+        var selectedPacket = ExtractPacketName(displayText);
+        if (packetLines.ContainsKey(selectedPacket))
         {
             var occurrences = packetLines[selectedPacket];
 
