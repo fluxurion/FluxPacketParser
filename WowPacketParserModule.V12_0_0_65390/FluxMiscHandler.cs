@@ -22,7 +22,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 var flags = packet.ReadByte("Flags", i);
                 packet.AddValue("TopBits", (flags >> 5), i);
                 packet.AddValue("IsRestricted", (flags & 0x10) != 0, i);
-                packet.AddValue("HasUnknownFlag", (flags & 0x08) != 0, i);
+                packet.AddValue("CatchUpAvailable", (flags & 0x08) != 0, i);
                 packet.ReadPackedGuid128("CharacterGUID", i);
                 packet.ReadUInt32("RestrictionID", i);
             }
