@@ -6,7 +6,64 @@ using System.Drawing;
 
 namespace WowPacketParserGUI;
 
-internal sealed class DarkComboBox : ComboBox { }
+internal sealed class DarkComboBox : ComboBox
+{
+    private const int WM_PAINT = 0xF;
+
+    public DarkComboBox()
+    {
+        DrawMode = DrawMode.OwnerDrawFixed;
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+
+        // Draw custom border
+        using var pen = new Pen(Color.FromArgb(0x42, 0x42, 0x48));
+        e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_PAINT && DropDownStyle == ComboBoxStyle.DropDownList)
+        {
+            base.WndProc(ref m);
+
+            // Redraw border after default paint
+            using var g = Graphics.FromHwnd(Handle);
+            using var pen = new Pen(Color.FromArgb(0x42, 0x42, 0x48));
+            g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+        }
+        else
+        {
+            base.WndProc(ref m);
+        }
+    }
+
+    protected override void OnDrawItem(DrawItemEventArgs e)
+    {
+        if (e.Index < 0) return;
+
+        var bgControl = Color.FromArgb(0x2C, 0x2C, 0x30);
+        var bgControlHover = Color.FromArgb(0x3A, 0x3A, 0x40);
+        var fgText = Color.FromArgb(0xE0, 0xE0, 0xE2);
+
+        var isSelected = (e.State & DrawItemState.Selected) != 0;
+        var itemBg = isSelected ? bgControlHover : bgControl;
+
+        using (var bgBrush = new SolidBrush(itemBg))
+            e.Graphics.FillRectangle(bgBrush, e.Bounds);
+
+        using (var fgBrush = new SolidBrush(fgText))
+        {
+            var text = Items[e.Index]?.ToString() ?? string.Empty;
+            e.Graphics.DrawString(text, e.Font ?? Font, fgBrush, e.Bounds.X + 4, e.Bounds.Y + 2);
+        }
+
+        e.DrawFocusRectangle();
+    }
+}
 
 public partial class MainForm : Form
 {
@@ -30,6 +87,8 @@ public partial class MainForm : Form
     private Label occurrenceLabel = null!;
     private Panel comboBorderPanel = null!;
     private Panel filePathBorderPanel = null!;
+    private Panel progressBarBorderPanel = null!;
+    private Panel highlightBorderPanel = null!;
     private Label pageLabel = null!;
     private List<string> allPackets = new();
     private Dictionary<string, List<List<string>>> packetLines = new();
@@ -223,11 +282,11 @@ public partial class MainForm : Form
         };
         firstCraftButton.Click += FirstCraftButton_Click;
 
-        // ── Row 4: Occurrence / pagination / highlight / progress ─────────────
+        // ── Row 3 extended: Pagination + Highlight (right side of buttons) ─────
         occurrenceLabel = new Label
         {
-            Location = new Point(12, 151),
-            Size = new Size(160, 24),
+            Location = new Point(392, 114),
+            Size = new Size(90, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
             Visible = false,
@@ -236,9 +295,9 @@ public partial class MainForm : Form
 
         prevPageButton = new Button
         {
-            Text = "◀ Prev",
-            Location = new Point(180, 150),
-            Size = new Size(78, 26),
+            Text = "◀",
+            Location = new Point(488, 112),
+            Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -247,8 +306,8 @@ public partial class MainForm : Form
 
         pageLabel = new Label
         {
-            Location = new Point(264, 151),
-            Size = new Size(80, 24),
+            Location = new Point(532, 114),
+            Size = new Size(60, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
             Visible = false,
@@ -257,43 +316,53 @@ public partial class MainForm : Form
 
         nextPageButton = new Button
         {
-            Text = "Next ▶",
-            Location = new Point(350, 150),
-            Size = new Size(78, 26),
+            Text = "▶",
+            Location = new Point(596, 112),
+            Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         nextPageButton.Click += NextPageButton_Click;
 
-        var highlightLabel = new Label
+        // Highlight textbox with blue border panel - spans remaining width
+        highlightBorderPanel = new Panel
         {
-            Text = "Highlight:",
-            Location = new Point(440, 151),
-            Size = new Size(64, 24),
-            TextAlign = System.Drawing.ContentAlignment.MiddleRight,
+            Location = new Point(644, 112),
+            Size = new Size(348, 28),
+            BorderStyle = BorderStyle.None,
             Visible = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Left
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
 
         highlightTextBox = new TextBox
         {
-            Location = new Point(510, 150),
-            Size = new Size(180, 26),
+            Location = new Point(-1, -1),
+            Size = new Size(350, 30),
             PlaceholderText = "Text to highlight...",
             Font = new Font("Segoe UI", 9.5f),
-            Visible = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Left
+            BorderStyle = BorderStyle.FixedSingle
         };
         highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
+        highlightBorderPanel.Controls.Add(highlightTextBox);
+
+        // Progress bar with border panel (shows outline even when empty)
+        progressBarBorderPanel = new Panel
+        {
+            Location = new Point(12, 151),
+            Size = new Size(980, 24),
+            BorderStyle = BorderStyle.None,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
 
         progressBar = new ProgressBar
         {
-            Location = new Point(440, 151),
-            Size = new Size(300, 24),
+            Location = new Point(-1, -1),
+            Size = new Size(982, 26),
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
+        progressBarBorderPanel.Controls.Add(progressBar);
 
         progressLabel = new Label
         {
@@ -332,8 +401,8 @@ public partial class MainForm : Form
             separator2,
             reparseButton, copyButton, openEditorButton, firstCraftButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
-            highlightLabel, highlightTextBox,
-            progressBar, progressLabel,
+            highlightBorderPanel,
+            progressBarBorderPanel, progressLabel,
             separator3,
             outputTextBox
         });
@@ -385,6 +454,21 @@ public partial class MainForm : Form
             b.FlatAppearance.MouseOverBackColor = bgButtonHover;
             b.FlatAppearance.MouseDownBackColor = Color.FromArgb(0x28, 0x28, 0x2E);
             b.Cursor = Cursors.Hand;
+
+            // Handle enabled/disabled state colors
+            b.EnabledChanged += (s, e) =>
+            {
+                if (b.Enabled)
+                {
+                    b.BackColor = bgButton;
+                    b.ForeColor = fgText;
+                }
+                else
+                {
+                    b.BackColor = Color.FromArgb(0x28, 0x28, 0x2E);
+                    b.ForeColor = fgDim;
+                }
+            };
         }
 
         foreach (var c in Controls)
@@ -398,15 +482,26 @@ public partial class MainForm : Form
         filePathBorderPanel.BackColor = borderColor;
         comboBorderPanel.BackColor = borderColor;
 
-        // TextBoxes
-        filePathTextBox.BackColor = bgControl;
-        filePathTextBox.ForeColor = fgText;
-        searchTextBox.BackColor = bgControl;
-        searchTextBox.ForeColor = fgText;
-        searchTextBox.BorderStyle = BorderStyle.FixedSingle;
-        highlightTextBox.BackColor = bgControl;
-        highlightTextBox.ForeColor = fgText;
-        highlightTextBox.BorderStyle = BorderStyle.FixedSingle;
+        // TextBoxes with placeholder color support
+        void StyleTextBox(TextBox tb)
+        {
+            tb.BackColor = bgControl;
+            tb.ForeColor = fgText;
+            tb.BorderStyle = BorderStyle.FixedSingle;
+            // Handle placeholder text color via tag
+            tb.Enter += (s, e) => tb.ForeColor = fgText;
+            tb.TextChanged += (s, e) =>
+            {
+                if (string.IsNullOrEmpty(tb.Text))
+                    tb.ForeColor = fgDim;
+                else
+                    tb.ForeColor = fgText;
+            };
+        }
+
+        StyleTextBox(filePathTextBox);
+        StyleTextBox(searchTextBox);
+        StyleTextBox(highlightTextBox);
 
         // RichTextBox — slightly lighter background so it reads as a distinct surface
         outputTextBox.BackColor = bgPanel;
@@ -428,26 +523,26 @@ public partial class MainForm : Form
         parseButton.FlatAppearance.BorderColor = borderAccent;
         browseButton.FlatAppearance.BorderColor = borderAccent;
 
-        // ComboBox — system border clipped by parent panel overflow
+        // Trigger EnabledChanged to set initial disabled button colors
+        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, cancelButton, prevPageButton, nextPageButton })
+        {
+            var savedEnabled = btn.Enabled;
+            btn.Enabled = !savedEnabled;
+            btn.Enabled = savedEnabled;
+        }
+
+        // ComboBox — dark theme styling
         packetComboBox.BackColor = bgControl;
         packetComboBox.ForeColor = fgText;
-        packetComboBox.DrawMode = DrawMode.OwnerDrawFixed;
-        packetComboBox.DrawItem += (sender, e) =>
-        {
-            if (e.Index < 0) return;
-            var isSelected = (e.State & DrawItemState.Selected) != 0;
-            var itemBg = isSelected ? Color.FromArgb(0x3A, 0x7F, 0xD4) : bgControl;
-            var itemFg = isSelected ? Color.White : fgText;
-            using (var bgBrush = new SolidBrush(itemBg))
-                e.Graphics.FillRectangle(bgBrush, e.Bounds);
-            var textRect = new Rectangle(e.Bounds.X + 4, e.Bounds.Y, e.Bounds.Width - 4, e.Bounds.Height);
-            using (var fgBrush = new SolidBrush(itemFg))
-                e.Graphics.DrawString(packetComboBox.Items[e.Index]?.ToString(), e.Font ?? Font, fgBrush, textRect,
-                    StringFormat.GenericDefault);
-        };
 
-        // ProgressBar
-        progressBar.BackColor = bgControl;
+        // Progress bar border color
+        progressBarBorderPanel.BackColor = borderColor;
+
+        // Highlight textbox - blue accent border
+        highlightBorderPanel.BackColor = borderAccent;
+
+        // ProgressBar - darker background for better contrast
+        progressBar.BackColor = bgDark;
         progressBar.ForeColor = borderAccent;
 
         // Occurrence / page labels
@@ -469,14 +564,23 @@ public partial class MainForm : Form
         // TextBox overflows 1px on each side so its system border is hidden behind panel edges
         filePathTextBox.Width = filePathBorderPanel.Width + 2;
 
-        // Separators span full width
+        // Separators span full width (exclude custom border panels)
         foreach (var c in Controls)
-            if (c is Panel p && p != filePathBorderPanel && p != comboBorderPanel)
+            if (c is Panel p && p != filePathBorderPanel && p != comboBorderPanel && p != progressBarBorderPanel && p != highlightBorderPanel)
                 p.Width = rightMargin - p.Left;
 
         // Row 2: combo box spans to right margin; overflows 1px on each side to hide system border
         comboBorderPanel.Width = rightMargin - comboBorderPanel.Left;
         packetComboBox.Width = comboBorderPanel.Width + 2;
+
+        // Progress bar spans full width with label on right
+        progressBarBorderPanel.Width = rightMargin - progressBarBorderPanel.Left;
+        progressBar.Width = progressBarBorderPanel.Width + 2;
+        progressLabel.Left = rightMargin - progressLabel.Width;
+
+        // Highlight textbox spans to right margin
+        highlightBorderPanel.Width = rightMargin - highlightBorderPanel.Left;
+        highlightTextBox.Width = highlightBorderPanel.Width + 2;
 
         outputTextBox.Width = rightMargin - outputTextBox.Left;
         outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 12;
