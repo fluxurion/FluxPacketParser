@@ -152,8 +152,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var flags3 = packet.ReadByte("Flags3", index);
 
             // Item loop: JamBattlePayDeliverableChoice (sub_7FF659253620)
-            // count = (flags3 >> 7) | (2 * flags2)
-            var itemCount = (uint)((flags3 >> 7) | (2 * (flags2 & 0x3F)));
+            // count = (flags3 >> 7) | (2 * (flags2 >> 2))
+            // flags2 is multiplied by 4 (v6 = 4 * v23), then shifted right by 2 (v6 >> 2)
+            var itemCount = (uint)((flags3 >> 7) | (2 * ((flags2 >> 2) & 0x3F)));
             for (uint j = 0; j < itemCount; j++)
             {
                 packet.ReadUInt32("DeliverableField0", index, j);
