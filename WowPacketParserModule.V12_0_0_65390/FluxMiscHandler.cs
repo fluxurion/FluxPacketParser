@@ -6,6 +6,27 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
 {
     public static class FluxMiscHandler
     {
+        [Parser(Opcode.SMSG_BATTLE_PAY_DISPLAY_CARD)]
+        public static void HandleBattlePayDisplayCard(Packet packet)
+        {
+            ReadDisplayCard(packet);
+        }
+
+        [Parser(Opcode.SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA)]
+        public static void HandleRegionwideCharacterRestrictionsData(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (uint i = 0; i < count; i++)
+            {
+                var flags = packet.ReadByte("Flags", i);
+                packet.AddValue("TopBits", (flags >> 5), i);
+                packet.AddValue("IsRestricted", (flags & 0x10) != 0, i);
+                packet.AddValue("HasUnknownFlag", (flags & 0x08) != 0, i);
+                packet.ReadPackedGuid128("CharacterGUID", i);
+                packet.ReadUInt32("RestrictionID", i);
+            }
+        }
+
         [Parser(Opcode.SMSG_SOCIAL_CONTRACT_REQUEST_RESPONSE)]
         public static void HandleSocialContractRequestResponse(Packet packet)
         {
