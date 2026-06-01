@@ -13,6 +13,17 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             ReadDisplayCard(packet);
         }
 
+        [Parser(Opcode.CMSG_GET_REGIONWIDE_CHARACTER_RESTRICTION_AND_MAIL_DATA)]
+        public static void HandleCmsgGetRegionwideCharacterRestrictionAndMailData(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadPackedGuid128("Guid1", i);
+                packet.ReadPackedGuid128("Guid2", i);
+            }
+        }
+
         [Parser(Opcode.SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA)]
         public static void HandleRegionwideCharacterRestrictionsData(Packet packet)
         {
@@ -73,6 +84,28 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 packet.ReadUInt32("DecorID", i);
                 packet.ReadUInt32("Quantity", i);
                 packet.ReadUInt32("Field8", i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_REGIONWIDE_CHARACTER_MAIL_DATA)]
+        public static void HandleRegionwideCharacterMailData(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (uint i = 0; i < count; i++)
+            {
+                var type = packet.ReadByte("Type", i); // upper 3 bits of first byte
+                packet.ReadPackedGuid128("Guid", i);
+
+                var mailSenderCount = packet.ReadUInt32("MailSenderCount", i);
+                for (uint j = 0; j < mailSenderCount; j++)
+                    packet.ReadUInt32("MailSenderType", i, j);
+
+                var mailEntryCount = packet.ReadUInt32("MailEntryCount", i);
+                for (uint j = 0; j < mailEntryCount; j++)
+                {
+                    packet.ReadPackedGuid128("MailGuid", i, j);
+                    packet.ReadWoWString("MailSubject", i, j); // null-terminated string read via GetReadPointer
+                }
             }
         }
 
