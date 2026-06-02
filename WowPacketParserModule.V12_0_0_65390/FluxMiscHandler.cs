@@ -89,18 +89,46 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var count = packet.ReadUInt32("Count");
             for (uint i = 0; i < count; i++)
             {
-                var type = packet.ReadByte("Type", i); // upper 3 bits of first byte
+                var typeByte = packet.ReadByte("Type", i);
+                packet.AddValue("TypeMask", (typeByte >> 5), i);
                 packet.ReadPackedGuid128("Guid", i);
 
+                var mailEntryCount = packet.ReadUInt32("MailEntryCount", i);
                 var mailSenderCount = packet.ReadUInt32("MailSenderCount", i);
                 for (uint j = 0; j < mailSenderCount; j++)
                     packet.ReadUInt32("MailSenderType", i, j);
 
-                var mailEntryCount = packet.ReadUInt32("MailEntryCount", i);
+                // Mail subjects: each preceded by a 6-bit compressed size (4 values per 3 bytes)
+                ulong accumulator = 0;
+                int bitsAvailable = 8;
                 for (uint j = 0; j < mailEntryCount; j++)
                 {
-                    packet.ReadPackedGuid128("MailGuid", i, j);
-                    packet.ReadWoWString("MailSubject", i, j); // null-terminated string read via GetReadPointer
+                    uint size;
+                    if (bitsAvailable > 2)
+                    {
+                        var b = packet.ReadByte();
+                        if (bitsAvailable == 8)
+                        {
+                            bitsAvailable = 6;
+                            size = (uint)(b >> 2);
+                            accumulator = (uint)(b << 6);
+                        }
+                        else
+                        {
+                            var carry = accumulator >> bitsAvailable;
+                            bitsAvailable -= 2;
+                            size = (uint)((carry << bitsAvailable) | ((uint)b >> (8 - bitsAvailable)));
+                            accumulator = (uint)(b << bitsAvailable);
+                        }
+                    }
+                    else
+                    {
+                        size = (uint)(accumulator >> 2);
+                        accumulator <<= 6;
+                        bitsAvailable += 6;
+                    }
+
+                    packet.ReadWoWString("MailSubject", (int)size, i, j);
                 }
             }
         }
