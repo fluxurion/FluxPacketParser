@@ -21,6 +21,41 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 packet.ReadPackedGuid128("CharacterGuid", i);
         }
 
+        [Parser(Opcode.SMSG_ACCOUNT_WARBAND_SCENE_UPDATE)]
+        public static void HandleAccountWarbandSceneUpdate(Packet packet)
+        {
+            var flagByte = packet.ReadByte("Flags");
+            packet.AddValue("HasData", (flagByte >> 7) != 0);
+
+            var uintCount = packet.ReadUInt32("FieldCount");
+            var boolCount1 = packet.ReadUInt32("BoolCount1");
+            var boolCount2 = packet.ReadUInt32("BoolCount2");
+
+            for (uint i = 0; i < uintCount; i++)
+                packet.ReadUInt32("FieldValue", i);
+
+            // Shared bitstream: MSB-first, count1 bits then count2 bits
+            var totalBits = boolCount1 + boolCount2;
+            ulong accumulator = 0;
+            int bitsAvailable = 8; // triggers first read
+            for (uint i = 0; i < totalBits; i++)
+            {
+                if (bitsAvailable == 8)
+                {
+                    accumulator = packet.ReadByte();
+                    bitsAvailable = 0;
+                }
+                var bit = (accumulator & 0x80) != 0;
+                accumulator <<= 1;
+                bitsAvailable++;
+
+                if (i < boolCount1)
+                    packet.AddValue("BoolValue1", bit, i);
+                else
+                    packet.AddValue("BoolValue2", bit, i - boolCount1);
+            }
+        }
+
         [Parser(Opcode.SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA)]
         public static void HandleRegionwideCharacterRestrictionsData(Packet packet)
         {
