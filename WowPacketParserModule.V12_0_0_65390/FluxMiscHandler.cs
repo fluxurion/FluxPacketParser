@@ -16,8 +16,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         [Parser(Opcode.CMSG_GET_REGIONWIDE_CHARACTER_RESTRICTION_AND_MAIL_DATA)]
         public static void HandleCmsgGetRegionwideCharacterRestrictionAndMailData(Packet packet)
         {
-            // Single byte flag/value
-            packet.ReadByte("UnknownByte");
+            var count = packet.ReadUInt32("CharacterCount");
+            for (uint i = 0; i < count; i++)
+                packet.ReadPackedGuid128("CharacterGuid", i);
         }
 
         [Parser(Opcode.SMSG_REGIONWIDE_CHARACTER_RESTRICTIONS_DATA)]
