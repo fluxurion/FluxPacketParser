@@ -76,6 +76,7 @@ public partial class MainForm : Form
     private Button openEditorButton = null!;
     private Button openConfigButton = null!;
     private Button firstCraftButton = null!;
+    private Button timeOrderButton = null!;
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
     private TextBox highlightTextBox = null!;
@@ -282,10 +283,20 @@ public partial class MainForm : Form
         };
         firstCraftButton.Click += FirstCraftButton_Click;
 
+        timeOrderButton = new Button
+        {
+            Text = "Time Order",
+            Location = new Point(388, 112),
+            Size = new Size(100, 28),
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        timeOrderButton.Click += TimeOrderButton_Click;
+
         // ── Row 3 extended: Pagination + Highlight (right side of buttons) ─────
         occurrenceLabel = new Label
         {
-            Location = new Point(392, 114),
+            Location = new Point(496, 114),
             Size = new Size(90, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
@@ -296,7 +307,7 @@ public partial class MainForm : Form
         prevPageButton = new Button
         {
             Text = "◀",
-            Location = new Point(488, 112),
+            Location = new Point(592, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
@@ -306,7 +317,7 @@ public partial class MainForm : Form
 
         pageLabel = new Label
         {
-            Location = new Point(532, 114),
+            Location = new Point(636, 114),
             Size = new Size(60, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
@@ -317,7 +328,7 @@ public partial class MainForm : Form
         nextPageButton = new Button
         {
             Text = "▶",
-            Location = new Point(596, 112),
+            Location = new Point(700, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
@@ -328,8 +339,8 @@ public partial class MainForm : Form
         // Highlight textbox with blue border panel - spans remaining width
         highlightBorderPanel = new Panel
         {
-            Location = new Point(644, 112),
-            Size = new Size(348, 28),
+            Location = new Point(748, 112),
+            Size = new Size(244, 28),
             BorderStyle = BorderStyle.None,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
@@ -399,7 +410,7 @@ public partial class MainForm : Form
             separator1,
             packetLabel, searchTextBox, comboBorderPanel,
             separator2,
-            reparseButton, copyButton, openEditorButton, firstCraftButton,
+            reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             highlightBorderPanel,
             progressBarBorderPanel, progressLabel,
@@ -421,15 +432,15 @@ public partial class MainForm : Form
 
     private void ApplyDarkTheme()
     {
-        var bgDark    = Color.FromArgb(0x18, 0x18, 0x1A);
-        var bgPanel   = Color.FromArgb(0x22, 0x22, 0x25);
+        var bgDark = Color.FromArgb(0x18, 0x18, 0x1A);
+        var bgPanel = Color.FromArgb(0x22, 0x22, 0x25);
         var bgControl = Color.FromArgb(0x2C, 0x2C, 0x30);
-        var bgButton  = Color.FromArgb(0x35, 0x35, 0x3A);
+        var bgButton = Color.FromArgb(0x35, 0x35, 0x3A);
         var bgButtonHover = Color.FromArgb(0x45, 0x45, 0x4C);
-        var fgText    = Color.FromArgb(0xE0, 0xE0, 0xE2);
-        var fgDim     = Color.FromArgb(0x90, 0x90, 0x98);
-        var borderColor   = Color.FromArgb(0x42, 0x42, 0x48);
-        var borderAccent  = Color.FromArgb(0x3A, 0x7F, 0xD4);
+        var fgText = Color.FromArgb(0xE0, 0xE0, 0xE2);
+        var fgDim = Color.FromArgb(0x90, 0x90, 0x98);
+        var borderColor = Color.FromArgb(0x42, 0x42, 0x48);
+        var borderAccent = Color.FromArgb(0x3A, 0x7F, 0xD4);
         var separatorColor = Color.FromArgb(0x30, 0x30, 0x35);
 
         BackColor = bgDark;
@@ -516,6 +527,7 @@ public partial class MainForm : Form
         StyleButton(copyButton);
         StyleButton(openEditorButton);
         StyleButton(firstCraftButton);
+        StyleButton(timeOrderButton);
         StyleButton(prevPageButton);
         StyleButton(nextPageButton);
 
@@ -524,7 +536,7 @@ public partial class MainForm : Form
         browseButton.FlatAppearance.BorderColor = borderAccent;
 
         // Trigger EnabledChanged to set initial disabled button colors
-        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, cancelButton, prevPageButton, nextPageButton })
+        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevPageButton, nextPageButton })
         {
             var savedEnabled = btn.Enabled;
             btn.Enabled = !savedEnabled;
@@ -627,6 +639,7 @@ public partial class MainForm : Form
             copyButton.Enabled = false;
             openEditorButton.Enabled = false;
             firstCraftButton.Enabled = false;
+            timeOrderButton.Enabled = false;
             outputTextBox.Clear();
             allPackets.Clear();
             packetComboBox.Items.Clear();
@@ -688,6 +701,7 @@ public partial class MainForm : Form
                     copyButton.Enabled = packetComboBox.Items.Count > 0;
                     openEditorButton.Enabled = true;
                     firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
+                    timeOrderButton.Enabled = packetComboBox.Items.Count > 0;
                     packetComboBox.Enabled = packetComboBox.Items.Count > 0;
                 });
             }
@@ -1129,6 +1143,7 @@ public partial class MainForm : Form
             copyButton.Enabled = packetComboBox.Items.Count > 0;
             openEditorButton.Enabled = packetComboBox.Items.Count > 0;
             firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
+            timeOrderButton.Enabled = packetComboBox.Items.Count > 0;
             cancelButton.Enabled = false;
             cancelButton.Visible = false;
             progressBar.Visible = false;
@@ -1333,6 +1348,53 @@ public partial class MainForm : Form
                 outputTextBox.ScrollToCaret();
             }));
         }
+    }
+
+    private void TimeOrderButton_Click(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(parsedContent))
+        {
+            MessageBox.Show("No parsed data available. Please parse a file first.", "No Data",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var entries = new List<PacketTimeEntry>();
+        var packetRegex = new Regex(
+            @"^(ServerToClient|ClientToServer):\s+(\w+)\s+\((0x[0-9A-F]+)\).*Time:\s+" +
+            @"(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3}).*Number:\s+(\d+)",
+            RegexOptions.Multiline);
+
+        foreach (Match m in packetRegex.Matches(parsedContent))
+        {
+            entries.Add(new PacketTimeEntry
+            {
+                Direction = m.Groups[1].Value,
+                Name = m.Groups[2].Value,
+                Opcode = m.Groups[3].Value,
+                Time = m.Groups[4].Value,
+                Number = m.Groups[5].Value
+            });
+        }
+
+        if (entries.Count == 0)
+        {
+            MessageBox.Show("No packets found in the parsed data.", "No Data",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // Already in time order since regex matches sequentially — but ensure ascending Number sort
+        entries.Sort((a, b) =>
+        {
+            var cmp = string.Compare(a.Time, b.Time, StringComparison.Ordinal);
+            if (cmp != 0) return cmp;
+            return int.TryParse(a.Number, out var na) && int.TryParse(b.Number, out var nb)
+                ? na.CompareTo(nb) : 0;
+        });
+
+        using var dialog = new PacketTimeOrderDialog(entries);
+        dialog.ShowDialog(this);
     }
 
     private async void FirstCraftButton_Click(object? sender, EventArgs e)
