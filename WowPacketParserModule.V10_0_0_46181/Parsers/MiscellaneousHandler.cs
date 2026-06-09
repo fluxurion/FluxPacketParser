@@ -361,6 +361,11 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 packet.ResetBitReader();
                 V6_0_2_19033.Parsers.MiscellaneousHandler.ReadCliEuropaTicketConfig(packet, "EuropaTicketSystemStatus");
             }
+
+            // NEW: Perks Program Monthly Reward (Trading Post)
+            var hasPerksProgramMonthlyReward = packet.ReadBit("HasPerksProgramMonthlyReward");
+            if (hasPerksProgramMonthlyReward)
+                ReadPerksProgramMonthlyReward(packet, "PerksProgramMonthlyReward");
         }
 
 
@@ -368,6 +373,34 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         public static void HandleFeatureSystemStatus2(Packet packet)
         {
             packet.ReadBit("TextToSpeechFeatureEnabled");
+        }
+
+        public static void ReadPerksProgramMonthlyReward(Packet packet, params object[] indexes)
+        {
+            packet.ResetBitReader();
+            packet.ReadBit("Enabled", indexes);
+            packet.ReadBit("Unknown1", indexes);
+            packet.ReadBit("Unknown2", indexes);
+            packet.ReadBit("Unknown3", indexes);
+            packet.ReadUInt32("Unknown4", indexes);
+            packet.ReadUInt32("Unknown5", indexes);
+            packet.ReadUInt32("Unknown6", indexes);
+            packet.ReadUInt32("Unknown7", indexes);
+        }
+
+        public static void ReadPerksProgramActivity(Packet packet, params object[] indexes)
+        {
+            packet.ReadInt32("ActivityID", indexes);
+            packet.ResetBitReader();
+            var strLen = packet.ReadBits(7);
+            packet.ReadWoWString("ActivityName", (int)strLen, indexes);
+        }
+
+        public static void ReadPerksProgramResult(Packet packet, params object[] indexes)
+        {
+            // This is a variable-length payload, reading as bytes for now
+            var len = packet.ReadUInt32("Length", indexes);
+            packet.ReadBytes("Data", (int)len, indexes);
         }
 
         public static void ReadDebugTimeInfo(Packet packet, params object[] indexes)
@@ -418,8 +451,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 packet.ReadBit("AccountLockedByExport");
             }
 
-            var realmHiddenAlertLen = packet.ReadBits("RealmHiddenAlertLength", 11);
-
             packet.ResetBitReader();
 
             if (europaTicket)
@@ -464,8 +495,7 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             if (launchEta)
                 packet.ReadInt32("LaunchETA");
 
-            if (realmHiddenAlertLen > 0)
-                packet.ReadWoWString("RealmHiddenAlert", (int)realmHiddenAlertLen - 1); // -1 for null terminator
+            packet.ReadCString("RealmHiddenAlert");
 
             for (int i = 0; i < liveRegionCharacterCopySourceRegionsCount; i++)
                 packet.ReadUInt32("LiveRegionCharacterCopySourceRegion", i);

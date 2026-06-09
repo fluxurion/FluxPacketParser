@@ -89,9 +89,9 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
 
         public static void ReadCliSavedThrottleObjectState(Packet packet, params object[] idx)
         {
-            packet.ReadByte("MaxTries", idx);
+            packet.ReadUInt32("MaxTries", idx);
             packet.ReadUInt32("PerMilliseconds", idx);
-            packet.ReadByte("TryCount", idx);
+            packet.ReadUInt32("TryCount", idx);
             packet.ReadUInt32("LastResetTimeBeforeNow", idx);
         }
 
@@ -103,7 +103,8 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
             packet.ReadBit("ComplaintsEnabled", idx);
             packet.ReadBit("SuggestionsEnabled", idx);
 
-            ReadCliSavedThrottleObjectState(packet, idx, "ThrottleState");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_7_48676))
+                ReadCliSavedThrottleObjectState(packet, idx, "ThrottleState");
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_7_64632))
                 ReadCliSavedThrottleObjectState(packet, idx, "ExpensiveThrottleState");
         }
