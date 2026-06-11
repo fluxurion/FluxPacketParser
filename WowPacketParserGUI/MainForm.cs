@@ -79,6 +79,8 @@ public partial class MainForm : Form
     private Button timeOrderButton = null!;
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
+    private Button prevHighlightButton = null!;
+    private Button nextHighlightButton = null!;
     private TextBox highlightTextBox = null!;
     private DarkComboBox packetComboBox = null!;
     private TextBox searchTextBox = null!;
@@ -103,6 +105,8 @@ public partial class MainForm : Form
     private int currentPage = 0;
     private int totalPages = 0;
     private int pageBeforeReparse = 0;
+    private List<int> highlightMatchPositions = new();
+    private int currentHighlightIndex = -1;
 
     public MainForm()
     {
@@ -293,10 +297,51 @@ public partial class MainForm : Form
         };
         timeOrderButton.Click += TimeOrderButton_Click;
 
-        // ── Row 3 extended: Pagination + Highlight (right side of buttons) ─────
+        // ── Row 3 extended: Highlight search (next to buttons) ─────────────────
+        prevHighlightButton = new Button
+        {
+            Text = "▲",
+            Location = new Point(496, 112),
+            Size = new Size(30, 28),
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        prevHighlightButton.Click += PrevHighlightButton_Click;
+
+        // Highlight textbox with blue border panel
+        highlightBorderPanel = new Panel
+        {
+            Location = new Point(530, 112),
+            Size = new Size(176, 28),
+            BorderStyle = BorderStyle.None,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+
+        highlightTextBox = new TextBox
+        {
+            Location = new Point(-1, -1),
+            Size = new Size(178, 30),
+            PlaceholderText = "Highlight text...",
+            Font = new Font("Segoe UI", 9.5f),
+            BorderStyle = BorderStyle.FixedSingle
+        };
+        highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
+        highlightBorderPanel.Controls.Add(highlightTextBox);
+
+        nextHighlightButton = new Button
+        {
+            Text = "▼",
+            Location = new Point(710, 112),
+            Size = new Size(30, 28),
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        nextHighlightButton.Click += NextHighlightButton_Click;
+
+        // ── Row 3 extended: Pagination ─────────────────────────────────────────
         occurrenceLabel = new Label
         {
-            Location = new Point(496, 114),
+            Location = new Point(752, 114),
             Size = new Size(90, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
@@ -307,7 +352,7 @@ public partial class MainForm : Form
         prevPageButton = new Button
         {
             Text = "◀",
-            Location = new Point(592, 112),
+            Location = new Point(848, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
@@ -317,7 +362,7 @@ public partial class MainForm : Form
 
         pageLabel = new Label
         {
-            Location = new Point(636, 114),
+            Location = new Point(892, 114),
             Size = new Size(60, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
@@ -328,34 +373,13 @@ public partial class MainForm : Form
         nextPageButton = new Button
         {
             Text = "▶",
-            Location = new Point(700, 112),
+            Location = new Point(956, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
         nextPageButton.Click += NextPageButton_Click;
-
-        // Highlight textbox with blue border panel - spans remaining width
-        highlightBorderPanel = new Panel
-        {
-            Location = new Point(748, 112),
-            Size = new Size(244, 28),
-            BorderStyle = BorderStyle.None,
-            Visible = false,
-            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
-        };
-
-        highlightTextBox = new TextBox
-        {
-            Location = new Point(-1, -1),
-            Size = new Size(350, 30),
-            PlaceholderText = "Text to highlight...",
-            Font = new Font("Segoe UI", 9.5f),
-            BorderStyle = BorderStyle.FixedSingle
-        };
-        highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
-        highlightBorderPanel.Controls.Add(highlightTextBox);
 
         // Progress bar with border panel (shows outline even when empty)
         progressBarBorderPanel = new Panel
@@ -411,8 +435,8 @@ public partial class MainForm : Form
             packetLabel, searchTextBox, comboBorderPanel,
             separator2,
             reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton,
+            prevHighlightButton, highlightBorderPanel, nextHighlightButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
-            highlightBorderPanel,
             progressBarBorderPanel, progressLabel,
             separator3,
             outputTextBox
@@ -528,6 +552,8 @@ public partial class MainForm : Form
         StyleButton(openEditorButton);
         StyleButton(firstCraftButton);
         StyleButton(timeOrderButton);
+        StyleButton(prevHighlightButton);
+        StyleButton(nextHighlightButton);
         StyleButton(prevPageButton);
         StyleButton(nextPageButton);
 
@@ -536,7 +562,7 @@ public partial class MainForm : Form
         browseButton.FlatAppearance.BorderColor = borderAccent;
 
         // Trigger EnabledChanged to set initial disabled button colors
-        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevPageButton, nextPageButton })
+        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
         {
             var savedEnabled = btn.Enabled;
             btn.Enabled = !savedEnabled;
@@ -590,10 +616,6 @@ public partial class MainForm : Form
         progressBar.Width = progressBarBorderPanel.Width + 2;
         progressLabel.Left = rightMargin - progressLabel.Width;
 
-        // Highlight textbox spans to right margin
-        highlightBorderPanel.Width = rightMargin - highlightBorderPanel.Left;
-        highlightTextBox.Width = highlightBorderPanel.Width + 2;
-
         outputTextBox.Width = rightMargin - outputTextBox.Left;
         outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 12;
     }
@@ -645,6 +667,9 @@ public partial class MainForm : Form
             packetComboBox.Items.Clear();
             packetComboBox.Enabled = false;
             occurrenceLabel.Visible = false;
+            highlightBorderPanel.Visible = false;
+            prevHighlightButton.Visible = false;
+            nextHighlightButton.Visible = false;
             highlightTextBox.Clear();
             HidePagination();
             isReparsing = false;
@@ -862,8 +887,13 @@ public partial class MainForm : Form
             outputTextBox.SelectionColor = Color.FromArgb(0xE0, 0xE0, 0xE2);
             outputTextBox.SelectionBackColor = Color.FromArgb(0x22, 0x22, 0x25);
 
+            highlightMatchPositions.Clear();
+            currentHighlightIndex = -1;
+
             if (string.IsNullOrWhiteSpace(searchText))
             {
+                prevHighlightButton.Enabled = false;
+                nextHighlightButton.Enabled = false;
                 outputTextBox.ResumeLayout();
                 return;
             }
@@ -875,6 +905,8 @@ public partial class MainForm : Form
                 int index = outputTextBox.Text.IndexOf(searchText, startIndex, StringComparison.OrdinalIgnoreCase);
                 if (index < 0) break;
 
+                highlightMatchPositions.Add(index);
+
                 outputTextBox.Select(index, searchText.Length);
                 outputTextBox.SelectionBackColor = Color.FromArgb(0xE5, 0xC0, 0x07);
                 outputTextBox.SelectionColor = Color.FromArgb(0x18, 0x18, 0x1A);
@@ -883,11 +915,42 @@ public partial class MainForm : Form
             }
 
             outputTextBox.DeselectAll();
+
+            prevHighlightButton.Enabled = highlightMatchPositions.Count > 0;
+            nextHighlightButton.Enabled = highlightMatchPositions.Count > 0;
         }
         finally
         {
             outputTextBox.ResumeLayout();
         }
+    }
+
+    private void NavigateHighlight(int direction)
+    {
+        if (highlightMatchPositions.Count == 0 || string.IsNullOrWhiteSpace(highlightTextBox.Text))
+            return;
+
+        currentHighlightIndex += direction;
+        if (currentHighlightIndex < 0)
+            currentHighlightIndex = highlightMatchPositions.Count - 1;
+        else if (currentHighlightIndex >= highlightMatchPositions.Count)
+            currentHighlightIndex = 0;
+
+        int pos = highlightMatchPositions[currentHighlightIndex];
+        int len = highlightTextBox.Text.Length;
+
+        outputTextBox.Select(pos, len);
+        outputTextBox.ScrollToCaret();
+    }
+
+    private void PrevHighlightButton_Click(object? sender, EventArgs e)
+    {
+        NavigateHighlight(-1);
+    }
+
+    private void NextHighlightButton_Click(object? sender, EventArgs e)
+    {
+        NavigateHighlight(1);
     }
 
     private void HidePagination()
@@ -908,14 +971,18 @@ public partial class MainForm : Form
             nextPageButton.Visible = false;
             nextPageButton.Enabled = false;
             pageLabel.Visible = false;
-            highlightTextBox.Visible = true;
+            highlightBorderPanel.Visible = true;
+            prevHighlightButton.Visible = true;
+            nextHighlightButton.Visible = true;
             return;
         }
 
         prevPageButton.Visible = true;
         nextPageButton.Visible = true;
         pageLabel.Visible = true;
-        highlightTextBox.Visible = true;
+        highlightBorderPanel.Visible = true;
+        prevHighlightButton.Visible = true;
+        nextHighlightButton.Visible = true;
 
         prevPageButton.Enabled = currentPage > 0;
         nextPageButton.Enabled = currentPage < totalPages - 1;
@@ -973,7 +1040,9 @@ public partial class MainForm : Form
         progressLabel.Visible = true;
         progressLabel.Text = "0%";
         occurrenceLabel.Visible = false;
-        highlightTextBox.Visible = false;
+        highlightBorderPanel.Visible = false;
+        prevHighlightButton.Visible = false;
+        nextHighlightButton.Visible = false;
         highlightTextBox.Clear();
         HidePagination();
         lastReportedProgress = -1;
@@ -1301,7 +1370,9 @@ public partial class MainForm : Form
 
             if (totalPages > 0)
             {
-                highlightTextBox.Visible = true;
+                highlightBorderPanel.Visible = true;
+                prevHighlightButton.Visible = true;
+                nextHighlightButton.Visible = true;
             }
 
             copyButton.Enabled = true;
