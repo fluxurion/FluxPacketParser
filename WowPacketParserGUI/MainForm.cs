@@ -71,7 +71,7 @@ public partial class MainForm : Form
     private Button browseButton = null!;
     private Button parseButton = null!;
     private Button cancelButton = null!;
-    private Button reparseButton = null!;
+    private Button exportButton = null!;
     private Button copyButton = null!;
     private Button openEditorButton = null!;
     private Button openConfigButton = null!;
@@ -247,15 +247,15 @@ public partial class MainForm : Form
         };
 
         // ── Row 3: Action buttons ─────────────────────────────────────────────
-        reparseButton = new Button
+        exportButton = new Button
         {
-            Text = "Re-parse",
+            Text = "Export",
             Location = new Point(12, 112),
             Size = new Size(88, 28),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
-        reparseButton.Click += ReparseButton_Click;
+        exportButton.Click += ExportButton_Click;
 
         copyButton = new Button
         {
@@ -434,7 +434,7 @@ public partial class MainForm : Form
             separator1,
             packetLabel, searchTextBox, comboBorderPanel,
             separator2,
-            reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton,
+            exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton,
             prevHighlightButton, highlightBorderPanel, nextHighlightButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             progressBarBorderPanel, progressLabel,
@@ -547,7 +547,7 @@ public partial class MainForm : Form
         StyleButton(parseButton);
         StyleButton(cancelButton);
         StyleButton(openConfigButton);
-        StyleButton(reparseButton);
+        StyleButton(exportButton);
         StyleButton(copyButton);
         StyleButton(openEditorButton);
         StyleButton(firstCraftButton);
@@ -562,7 +562,7 @@ public partial class MainForm : Form
         browseButton.FlatAppearance.BorderColor = borderAccent;
 
         // Trigger EnabledChanged to set initial disabled button colors
-        foreach (var btn in new[] { parseButton, reparseButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
+        foreach (var btn in new[] { parseButton, exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
         {
             var savedEnabled = btn.Enabled;
             btn.Enabled = !savedEnabled;
@@ -657,7 +657,7 @@ public partial class MainForm : Form
 
             // Standard new file state
             parseButton.Enabled = true;
-            reparseButton.Enabled = false;
+            exportButton.Enabled = false;
             copyButton.Enabled = false;
             openEditorButton.Enabled = false;
             firstCraftButton.Enabled = false;
@@ -714,15 +714,14 @@ public partial class MainForm : Form
                 this.Invoke(() =>
                 {
                     outputTextBox.Text = "Existing parsed file loaded. Select a packet to view.\n" +
-                                        $"File date: {fileInfo.LastWriteTime}\n" +
-                                        "Click 'Re-parse' to parse the PKT file again if needed.";
+                                        $"File date: {fileInfo.LastWriteTime}";
 
                     ExtractPackets(parsedContent);
                     UpdatePacketComboBox();
 
-                    // Enable buttons - reparse is available since we have a PKT file selected
-                    parseButton.Enabled = false; // Already loaded, use reparse instead
-                    reparseButton.Enabled = true;
+                    // Enable buttons
+                    parseButton.Enabled = false;
+                    exportButton.Enabled = packetComboBox.Items.Count > 0;
                     copyButton.Enabled = packetComboBox.Items.Count > 0;
                     openEditorButton.Enabled = true;
                     firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
@@ -844,12 +843,28 @@ public partial class MainForm : Form
         }
     }
 
-    private void ReparseButton_Click(object? sender, EventArgs e)
+    private void ExportButton_Click(object? sender, EventArgs e)
     {
-        selectedPacketBeforeReparse = packetComboBox.SelectedItem?.ToString();
-        pageBeforeReparse = currentPage;
-        isReparsing = true;
-        ParseButton_Click(sender, e);
+        var displayText = packetComboBox.SelectedItem?.ToString();
+        if (displayText == null) return;
+
+        var packetName = ExtractPacketName(displayText);
+        var safeName = string.Join("_", packetName.Split(Path.GetInvalidFileNameChars()));
+        var defaultName = totalPages > 1
+            ? $"{safeName}_page{currentPage + 1}of{totalPages}.txt"
+            : $"{safeName}.txt";
+
+        using var saveDialog = new SaveFileDialog
+        {
+            FileName = defaultName,
+            Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+            Title = "Export current packet view"
+        };
+
+        if (saveDialog.ShowDialog() == DialogResult.OK)
+        {
+            File.WriteAllText(saveDialog.FileName, outputTextBox.Text);
+        }
     }
 
     private void PrevPageButton_Click(object? sender, EventArgs e)
@@ -1030,7 +1045,7 @@ public partial class MainForm : Form
 
         parseButton.Enabled = false;
         parseButton.Visible = false;
-        reparseButton.Enabled = false;
+        exportButton.Enabled = false;
         copyButton.Enabled = false;
         openEditorButton.Enabled = false;
         cancelButton.Enabled = true;
@@ -1208,7 +1223,7 @@ public partial class MainForm : Form
         {
             parseButton.Enabled = true;
             parseButton.Visible = true;
-            reparseButton.Enabled = true;
+            exportButton.Enabled = packetComboBox.Items.Count > 0;
             copyButton.Enabled = packetComboBox.Items.Count > 0;
             openEditorButton.Enabled = packetComboBox.Items.Count > 0;
             firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
@@ -1377,6 +1392,7 @@ public partial class MainForm : Form
 
             copyButton.Enabled = true;
             openEditorButton.Enabled = true;
+            exportButton.Enabled = true;
         }
     }
 
