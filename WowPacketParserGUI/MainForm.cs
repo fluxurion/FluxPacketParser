@@ -77,6 +77,7 @@ public partial class MainForm : Form
     private Button openConfigButton = null!;
     private Button firstCraftButton = null!;
     private Button timeOrderButton = null!;
+    private Button questFlowButton = null!;
     private Button prevPageButton = null!;
     private Button nextPageButton = null!;
     private Button prevHighlightButton = null!;
@@ -120,8 +121,8 @@ public partial class MainForm : Form
     private void InitializeComponent()
     {
         Text = "WowPacketParser GUI";
-        Size = new Size(1120, 700);
-        MinimumSize = new Size(960, 520);
+        Size = new Size(1220, 700);
+        MinimumSize = new Size(1060, 520);
         StartPosition = FormStartPosition.CenterScreen;
         Padding = new Padding(12, 10, 12, 10);
 
@@ -297,11 +298,21 @@ public partial class MainForm : Form
         };
         timeOrderButton.Click += TimeOrderButton_Click;
 
+        questFlowButton = new Button
+        {
+            Text = "Quest Flow",
+            Location = new Point(496, 112),
+            Size = new Size(100, 28),
+            Enabled = false,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left
+        };
+        questFlowButton.Click += QuestFlowButton_Click;
+
         // ── Row 3 extended: Highlight search (next to buttons) ─────────────────
         prevHighlightButton = new Button
         {
             Text = "▲",
-            Location = new Point(496, 112),
+            Location = new Point(604, 112),
             Size = new Size(30, 28),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -311,7 +322,7 @@ public partial class MainForm : Form
         // Highlight textbox with blue border panel
         highlightBorderPanel = new Panel
         {
-            Location = new Point(530, 112),
+            Location = new Point(638, 112),
             Size = new Size(176, 28),
             BorderStyle = BorderStyle.None,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -331,7 +342,7 @@ public partial class MainForm : Form
         nextHighlightButton = new Button
         {
             Text = "▼",
-            Location = new Point(710, 112),
+            Location = new Point(818, 112),
             Size = new Size(30, 28),
             Enabled = false,
             Anchor = AnchorStyles.Top | AnchorStyles.Left
@@ -341,7 +352,7 @@ public partial class MainForm : Form
         // ── Row 3 extended: Pagination ─────────────────────────────────────────
         occurrenceLabel = new Label
         {
-            Location = new Point(752, 114),
+            Location = new Point(860, 114),
             Size = new Size(90, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
@@ -352,7 +363,7 @@ public partial class MainForm : Form
         prevPageButton = new Button
         {
             Text = "◀",
-            Location = new Point(848, 112),
+            Location = new Point(956, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
@@ -362,7 +373,7 @@ public partial class MainForm : Form
 
         pageLabel = new Label
         {
-            Location = new Point(892, 114),
+            Location = new Point(1000, 114),
             Size = new Size(60, 24),
             Text = "",
             TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
@@ -373,7 +384,7 @@ public partial class MainForm : Form
         nextPageButton = new Button
         {
             Text = "▶",
-            Location = new Point(956, 112),
+            Location = new Point(1064, 112),
             Size = new Size(40, 28),
             Enabled = false,
             Visible = false,
@@ -434,7 +445,7 @@ public partial class MainForm : Form
             separator1,
             packetLabel, searchTextBox, comboBorderPanel,
             separator2,
-            exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton,
+            exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, questFlowButton,
             prevHighlightButton, highlightBorderPanel, nextHighlightButton,
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             progressBarBorderPanel, progressLabel,
@@ -552,6 +563,7 @@ public partial class MainForm : Form
         StyleButton(openEditorButton);
         StyleButton(firstCraftButton);
         StyleButton(timeOrderButton);
+        StyleButton(questFlowButton);
         StyleButton(prevHighlightButton);
         StyleButton(nextHighlightButton);
         StyleButton(prevPageButton);
@@ -562,7 +574,7 @@ public partial class MainForm : Form
         browseButton.FlatAppearance.BorderColor = borderAccent;
 
         // Trigger EnabledChanged to set initial disabled button colors
-        foreach (var btn in new[] { parseButton, exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
+        foreach (var btn in new[] { parseButton, exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, questFlowButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
         {
             var savedEnabled = btn.Enabled;
             btn.Enabled = !savedEnabled;
@@ -662,6 +674,7 @@ public partial class MainForm : Form
             openEditorButton.Enabled = false;
             firstCraftButton.Enabled = false;
             timeOrderButton.Enabled = false;
+            questFlowButton.Enabled = false;
             outputTextBox.Clear();
             allPackets.Clear();
             packetComboBox.Items.Clear();
@@ -726,6 +739,7 @@ public partial class MainForm : Form
                     openEditorButton.Enabled = true;
                     firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
                     timeOrderButton.Enabled = packetComboBox.Items.Count > 0;
+                    questFlowButton.Enabled = packetComboBox.Items.Count > 0;
                     packetComboBox.Enabled = packetComboBox.Items.Count > 0;
                 });
             }
@@ -1228,6 +1242,7 @@ public partial class MainForm : Form
             openEditorButton.Enabled = packetComboBox.Items.Count > 0;
             firstCraftButton.Enabled = packetComboBox.Items.Count > 0;
             timeOrderButton.Enabled = packetComboBox.Items.Count > 0;
+            questFlowButton.Enabled = packetComboBox.Items.Count > 0;
             cancelButton.Enabled = false;
             cancelButton.Visible = false;
             progressBar.Visible = false;
@@ -1481,6 +1496,187 @@ public partial class MainForm : Form
         });
 
         using var dialog = new PacketTimeOrderDialog(entries);
+        dialog.ShowDialog(this);
+    }
+
+    private static string ShowInputDialog(string prompt, string title)
+    {
+        using var inputForm = new Form
+        {
+            Text = title,
+            Size = new Size(360, 160),
+            StartPosition = FormStartPosition.CenterParent,
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            MaximizeBox = false,
+            MinimizeBox = false
+        };
+
+        var promptLabel = new Label
+        {
+            Text = prompt,
+            Location = new Point(20, 20),
+            Size = new Size(310, 23),
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        var inputTextBox = new TextBox
+        {
+            Location = new Point(20, 50),
+            Size = new Size(310, 28),
+            Font = new Font("Segoe UI", 9.5f)
+        };
+
+        var okButton = new Button
+        {
+            Text = "OK",
+            Location = new Point(170, 88),
+            Size = new Size(75, 30),
+            DialogResult = DialogResult.OK
+        };
+
+        var cancelButton = new Button
+        {
+            Text = "Cancel",
+            Location = new Point(255, 88),
+            Size = new Size(75, 30),
+            DialogResult = DialogResult.Cancel
+        };
+
+        inputForm.Controls.AddRange(new Control[] { promptLabel, inputTextBox, okButton, cancelButton });
+        inputForm.AcceptButton = okButton;
+        inputForm.CancelButton = cancelButton;
+
+        return inputForm.ShowDialog() == DialogResult.OK ? inputTextBox.Text : "";
+    }
+
+    private void QuestFlowButton_Click(object? sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(parsedContent))
+        {
+            MessageBox.Show("No parsed data available. Please parse a file first.", "No Data",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var questIdStr = ShowInputDialog("Enter Quest ID:", "Quest Flow");
+        if (string.IsNullOrWhiteSpace(questIdStr))
+            return;
+
+        if (!uint.TryParse(questIdStr.Trim(), out uint questId))
+        {
+            MessageBox.Show("Invalid Quest ID. Please enter a numeric value.", "Invalid Input",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Parse all packets with their full content
+        var allEntries = new List<QuestFlowEntry>();
+        var headerRegex = new Regex(
+            @"^(ServerToClient|ClientToServer):\s+(\w+)\s+\((0x[0-9A-F]+)\).*Time:\s+" +
+            @"(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3}).*Number:\s+(\d+)",
+            RegexOptions.Multiline);
+
+        var lines = parsedContent.Split('\n');
+        string? currentDirection = null;
+        string? currentName = null;
+        string? currentOpcode = null;
+        string? currentTime = null;
+        string? currentNumber = null;
+        var currentLines = new List<string>();
+
+        void FlushEntry()
+        {
+            if (currentDirection != null && currentName != null)
+            {
+                allEntries.Add(new QuestFlowEntry
+                {
+                    Direction = currentDirection,
+                    Name = currentName,
+                    Opcode = currentOpcode ?? "",
+                    Time = currentTime ?? "",
+                    Number = currentNumber ?? "",
+                    FullContent = string.Join("\n", currentLines)
+                });
+            }
+            currentDirection = null;
+            currentName = null;
+            currentOpcode = null;
+            currentTime = null;
+            currentNumber = null;
+            currentLines.Clear();
+        }
+
+        foreach (var line in lines)
+        {
+            var match = headerRegex.Match(line);
+            if (match.Success)
+            {
+                FlushEntry();
+                currentDirection = match.Groups[1].Value;
+                currentName = match.Groups[2].Value;
+                currentOpcode = match.Groups[3].Value;
+                currentTime = match.Groups[4].Value;
+                currentNumber = match.Groups[5].Value;
+                currentLines.Add(line);
+            }
+            else if (currentDirection != null)
+            {
+                currentLines.Add(line);
+            }
+        }
+        FlushEntry();
+
+        if (allEntries.Count == 0)
+        {
+            MessageBox.Show("No packets found in the parsed data.", "No Data",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var questIdRegex = new Regex(@"Quest\s*ID:\s*(\d+)", RegexOptions.IgnoreCase);
+
+        // Find the ACCEPT packet with matching quest ID
+        int acceptIdx = -1;
+        for (int i = 0; i < allEntries.Count; i++)
+        {
+            if (allEntries[i].Name == "CMSG_QUEST_GIVER_ACCEPT_QUEST")
+            {
+                var qm = questIdRegex.Match(allEntries[i].FullContent);
+                if (qm.Success && uint.TryParse(qm.Groups[1].Value, out var qid) && qid == questId)
+                {
+                    acceptIdx = i;
+                    break;
+                }
+            }
+        }
+
+        if (acceptIdx < 0)
+        {
+            MessageBox.Show($"No CMSG_QUEST_GIVER_ACCEPT_QUEST found for Quest ID {questId}.", "Not Found",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // Find the COMPLETE packet with matching quest ID after the ACCEPT
+        int completeIdx = -1;
+        for (int i = acceptIdx + 1; i < allEntries.Count; i++)
+        {
+            if (allEntries[i].Name == "SMSG_QUEST_GIVER_QUEST_COMPLETE")
+            {
+                var qm = questIdRegex.Match(allEntries[i].FullContent);
+                if (qm.Success && uint.TryParse(qm.Groups[1].Value, out var qid) && qid == questId)
+                {
+                    completeIdx = i;
+                    break;
+                }
+            }
+        }
+
+        // Collect entries from ACCEPT to COMPLETE (or to end if COMPLETE not found)
+        int endIdx = completeIdx >= 0 ? completeIdx : allEntries.Count - 1;
+        var flowEntries = allEntries.GetRange(acceptIdx, endIdx - acceptIdx + 1);
+
+        using var dialog = new QuestFlowDialog(flowEntries, questId);
         dialog.ShowDialog(this);
     }
 
