@@ -145,6 +145,15 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             }
         }
 
+        [Parser(Opcode.SMSG_OPEN_SHIPMENT_NPC_RESULT)]
+        public static void HandleOpenShipmentNpcResult(Packet packet)
+        {
+            packet.ReadBit("Result");
+            packet.ResetBitReader();
+            packet.ReadPackedGuid("Npc");
+            packet.ReadUInt32("CharShipmentContainerID");
+        }
+
         [Parser(Opcode.SMSG_GARRISON_ADD_MISSION_RESULT)]
         public static void HandleGarrisonAddMissionResult(Packet packet)
         {
