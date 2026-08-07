@@ -422,31 +422,6 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadUInt64("ClientCurrentPriceFixedPoint");
         }
 
-        [Parser(Opcode.SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT)]
-        public static void HandleGetAccountCharacterListResult(Packet packet)
-        {
-            packet.ReadUInt32("Token");
-            packet.ResetBitReader();
-            var count = packet.ReadBits("AccountCharacterListEntryCount", 2);
-            packet.ResetBitReader();
-
-            packet.ReadBit("UnkBit");
-
-            for (uint i = 0; i < count; i++)
-            {
-                packet.ReadUInt32("AccountID", i);
-                packet.ReadUInt32("VirtualRealmAddress", i);
-                packet.ReadWoWString("RealmName", i);
-                packet.ReadPackedGuid128("CharacterGuid", i);
-                packet.ReadWoWString("Name", i);
-                packet.ReadByte("Race", i);
-                packet.ReadByte("Class", i);
-                packet.ReadByte("Sex", i);
-                packet.ReadByte("Level", i);
-                packet.ReadUInt32("LastPlayedTime", i);
-            }
-        }
-
         [Parser(Opcode.CMSG_BATTLE_PAY_START_VAS_PURCHASE)]
         public static void HandleStartVasPurchase(Packet packet)
         {

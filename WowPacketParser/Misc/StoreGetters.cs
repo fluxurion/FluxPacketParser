@@ -20,19 +20,19 @@ namespace WowPacketParser.Misc
                 switch (type)
                 {
                     case StoreNameType.Achievement:
-                        if (DBC.DBC.Achievement.TryGetValue(entry, out var achievement))
+                        if (DBC.DBC.Achievement != null && DBC.DBC.Achievement.TryGetValue(entry, out var achievement))
                             name = achievement.Title;
                         break;
                     case StoreNameType.Area:
-                        if (DBC.DBC.AreaTable.TryGetValue(entry, out var area))
+                        if (DBC.DBC.AreaTable != null && DBC.DBC.AreaTable.TryGetValue(entry, out var area))
                             name = area.AreaName;
                         break;
                     case StoreNameType.Unit:
-                        if (DBC.DBC.Creature.TryGetValue(entry, out var creature))
+                        if (DBC.DBC.Creature != null && DBC.DBC.Creature.TryGetValue(entry, out var creature))
                             name = creature.Name;
                         break;
                     case StoreNameType.CreatureFamily:
-                        if (DBC.DBC.CreatureFamily.TryGetValue(entry, out var creatureFamily))
+                        if (DBC.DBC.CreatureFamily != null && DBC.DBC.CreatureFamily.TryGetValue(entry, out var creatureFamily))
                             name = creatureFamily.Name;
                         break;
                     case StoreNameType.Criteria:
@@ -40,7 +40,7 @@ namespace WowPacketParser.Misc
                             name = criteriaName;
                         break;
                     case StoreNameType.Difficulty:
-                        if (DBC.DBC.Difficulty.TryGetValue(entry, out var difficulty))
+                        if (DBC.DBC.Difficulty != null && DBC.DBC.Difficulty.TryGetValue(entry, out var difficulty))
                             name = difficulty.Name;
                         break;
                     case StoreNameType.Faction:
@@ -48,15 +48,15 @@ namespace WowPacketParser.Misc
                             name = faction.Name;
                         break;
                     case StoreNameType.Item:
-                        if (DBC.DBC.ItemSparse.TryGetValue(entry, out var item))
+                        if (DBC.DBC.ItemSparse != null && DBC.DBC.ItemSparse.TryGetValue(entry, out var item))
                             name = item.Display;
                         break;
                     case StoreNameType.Map:
-                        if (DBC.DBC.Map.TryGetValue(entry, out var map))
+                        if (DBC.DBC.Map != null && DBC.DBC.Map.TryGetValue(entry, out var map))
                             name = map.MapName;
                         break;
                     case StoreNameType.Spell:
-                        if (DBC.DBC.SpellName.TryGetValue(entry, out var spell))
+                        if (DBC.DBC.SpellName != null && DBC.DBC.SpellName.TryGetValue(entry, out var spell))
                             name = spell.Name;
                         break;
                     case StoreNameType.Zone:
@@ -64,11 +64,11 @@ namespace WowPacketParser.Misc
                             name = zone;
                         break;
                     case StoreNameType.Phase:
-                        if (DBC.DBC.Phase.TryGetValue(entry, out var phase))
+                        if (DBC.DBC.Phase != null && DBC.DBC.Phase.TryGetValue(entry, out var phase))
                             name = ((DBCPhaseFlags)phase.Flags).ToString();
                         break;
                     case StoreNameType.QuestXQuestLine:
-                        if (DBC.DBC.QuestLineXQuest.TryGetValue(entry, out var questXQuestLine))
+                        if (DBC.DBC.QuestLineXQuest != null && DBC.DBC.QuestLineXQuest.TryGetValue(entry, out var questXQuestLine))
                             name = $"QuestID: {questXQuestLine.QuestID} QuestLineID: {questXQuestLine.QuestLineID}";
                         break;
                 }

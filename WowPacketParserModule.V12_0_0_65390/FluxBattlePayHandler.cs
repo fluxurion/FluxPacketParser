@@ -742,13 +742,6 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             }
         }
 
-        [Parser(Opcode.SMSG_SOCIAL_CONTRACT_REQUEST_RESPONSE)]
-        public static void HandleSocialContractRequestResponse(Packet packet)
-        {
-            var showContractByte = packet.ReadByte("Byte");
-            packet.AddValue("ShowContract", (showContractByte & 0x80) != 0);
-        }
-
         [Parser(Opcode.SMSG_ACCOUNT_STORE_FRONT_UPDATE)]
         public static void HandleAccountStoreFrontUpdate(Packet packet)
         {
