@@ -169,7 +169,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             }
         }
 
-        [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS)]
+        [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleSyncWowEntitlements(Packet packet)
         {
             var entitlementCount = packet.ReadUInt32("EntitlementCount");
@@ -187,6 +187,30 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
 
             for (uint i = 0; i < displayCardCount; i++)
                 ReadDisplayCard(packet, i);
+        }
+
+        // 12.1 layout (WowCommunityProject): entitlementCount x { u32 DeliverableID, i64 ExpireDate,
+        // i64 DisplayExpireDate, u32 UnitsRemaining, bit ManualReviewStatus }, then
+        // deliverableCount x JamBattlePayDeliverable (same struct as the distribution list embeds).
+        [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleSyncWowEntitlements121(Packet packet)
+        {
+            var entitlementCount = packet.ReadUInt32("EntitlementCount");
+            var deliverableCount = packet.ReadUInt32("DeliverableCount");
+
+            for (uint i = 0; i < entitlementCount; i++)
+            {
+                packet.ReadUInt32("DeliverableID", i);
+                packet.ReadInt64("ExpireDate", i);
+                packet.ReadInt64("DisplayExpireDate", i);
+                packet.ReadUInt32("UnitsRemaining", i);
+                packet.ResetBitReader();
+                packet.ReadBit("ManualReviewStatus", i);
+                packet.ResetBitReader();
+            }
+
+            for (uint i = 0; i < deliverableCount; i++)
+                FluxBattlePayHandler.ReadDeliverable121(packet, i);
         }
 
         // sub_7FF659252720 — DisplayCard

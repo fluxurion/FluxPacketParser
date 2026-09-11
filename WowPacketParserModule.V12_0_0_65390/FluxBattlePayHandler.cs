@@ -356,15 +356,15 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         private static void ReadPurchase(Packet packet, params object[] index)
         {
             packet.ReadUInt64("PurchaseID", index);
-            packet.ReadUInt32("Unk1", index);
-            packet.ReadUInt32("Unk2", index);
-            packet.ReadUInt32("Unk3", index);
-            packet.ReadUInt64("Unk4", index);
-            packet.ReadUInt64("Unk5", index);
-            packet.ReadUInt64("Unk6", index);
+            packet.ReadInt32("Status", index);
+            packet.ReadInt32("ResultCode", index);
+            packet.ReadUInt32("ProductID", index);
+            packet.ReadUInt64("BasePrice", index);
+            packet.ReadUInt64("UserPrice", index);
+            packet.ReadInt64("TimeCreated", index);
 
-            var nameLen = packet.ReadByte("NameLen", index);
-            packet.ReadWoWString("Name", nameLen, index);
+            var walletNameLen = packet.ReadByte("WalletNameLength", index);
+            packet.ReadWoWString("WalletName", walletNameLen, index);
         }
 
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE)]
@@ -377,7 +377,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 ReadPurchase(packet, i);
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_CONFIRM_PURCHASE)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_CONFIRM_PURCHASE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleConfirmPurchase(Packet packet)
         {
             packet.ReadUInt32("PurchaseID");
@@ -411,7 +411,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadBit("UnkBit");
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleConfirmPurchaseResponse(Packet packet)
         {
             packet.ResetBitReader();
@@ -446,7 +446,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             }
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_START_VAS_PURCHASE)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_START_VAS_PURCHASE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleStartVasPurchase(Packet packet)
         {
             packet.ReadUInt32("UnkInt");
@@ -471,7 +471,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             }
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_REQUEST_PRICE_INFO)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_REQUEST_PRICE_INFO, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleBattlePayRequestPriceInfo(Packet packet)
         {
             packet.ReadUInt32("UnkInt");
@@ -508,7 +508,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("uint32_4", index);
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleDistributionListResponse(Packet packet)
         {
             packet.ReadUInt32("Result");
@@ -523,7 +523,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 ReadDistributionObject(packet, i);
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleDistributionUpdate(Packet packet)
         {
             ReadDistributionObject(packet);
@@ -553,7 +553,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 ReadShop(packet, i);
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_START_PURCHASE)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_START_PURCHASE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleStartPurchase(Packet packet)
         {
             packet.ReadUInt32("CurrencyID");
@@ -569,7 +569,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadWoWString("PromotionCode", string3Len);
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_OPEN_CHECKOUT)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_OPEN_CHECKOUT, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleOpenCheckout(Packet packet)
         {
             packet.ReadUInt32("ProductID");
@@ -585,12 +585,12 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadWoWString("WalletName", walletNameLen);
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_VAS)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_VAS, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleDistributionAssignVas(Packet packet)
         {
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleStartPurchaseResponse(Packet packet)
         {
             packet.ReadUInt64("PurchaseID");
@@ -620,7 +620,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("ServerToken");
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_DELIVERY_ENDED)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_DELIVERY_ENDED, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleDeliveryEnded(Packet packet)
         {
             packet.ReadUInt64("DistributionID");
@@ -635,7 +635,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt64("DistributionID");
         }
 
-        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET)]
+        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleDistributionAssignToTarget(Packet packet)
         {
             packet.ReadUInt32("ProductID");
@@ -651,7 +651,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadPackedGuid128("CharGUID");
         }
 
-        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_COMPLETE)]
+        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_COMPLETE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleCharacterUpgradeComplete(Packet packet)
         {
             packet.ReadPackedGuid128("CharGUID");
@@ -697,7 +697,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("PromotionID");
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_START_DISTRIBUTION_ASSIGN_TO_TARGET_RESPONSE)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_START_DISTRIBUTION_ASSIGN_TO_TARGET_RESPONSE, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleBattlePayStartDistributionAssignToTargetResponse(Packet packet)
         {
             packet.ReadUInt64("DistributionID");
@@ -717,13 +717,13 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.AddValue("HasFlag_bit7", (flagByte & 0x80) != 0);
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_MOUNT_DELIVERED)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_MOUNT_DELIVERED, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleBattlePayMountDelivered(Packet packet)
         {
             Substructures.ItemHandler.ReadItemInstance(packet);
         }
 
-        [Parser(Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleBattlePayCollectionItemDelivered(Packet packet)
         {
             Substructures.ItemHandler.ReadItemInstance(packet);
@@ -776,6 +776,413 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             var byte1 = packet.ReadByte("Byte1");
             packet.AddValue("Byte1_bit7", (byte1 & 0x80) != 0);
             packet.AddValue("Byte1_bit6", (byte1 & 0x40) != 0);
+        }
+
+        // ---- 12.1 layouts (verified against WowCommunityProject packet definitions) ----
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_CONFIRM_PURCHASE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleConfirmPurchase121(Packet packet)
+        {
+            packet.ReadUInt64("PurchaseID");
+            packet.ReadUInt32("ServerToken");
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleConfirmPurchaseResponse121(Packet packet)
+        {
+            packet.ReadUInt32("ServerToken");
+            packet.ReadUInt64("ClientPriceFixedPoint");
+            packet.ResetBitReader();
+            packet.ReadBit("Confirmed");
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_START_VAS_PURCHASE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleStartVasPurchase121(Packet packet)
+        {
+            packet.ReadUInt32("SequenceId");
+            packet.ReadUInt32("ServiceType");
+            packet.ReadPackedGuid128("Guid1");
+            packet.ReadUInt32("Context");
+            packet.ReadUInt32("TargetRealmAddress");
+            packet.ReadPackedGuid128("Guid2");
+            packet.ReadPackedGuid128("Guid3");
+            packet.ReadPackedGuid128("Guid4");
+
+            packet.ResetBitReader();
+            var len1 = packet.ReadBits("String1Length", 6);
+            var len2 = packet.ReadBits("String2Length", 7);
+            var len3 = packet.ReadBits("String3Length", 7);
+            var len4 = packet.ReadBits("String4Length", 6);
+            var len5 = packet.ReadBits("String5Length", 12);
+            packet.ReadBit("IsValidationOnly");
+            packet.ResetBitReader();
+
+            packet.ReadWoWString("String1", len1);
+            packet.ReadWoWString("String2", len2);
+            packet.ReadWoWString("String3", len3);
+            packet.ReadWoWString("String4", len4);
+            packet.ReadWoWString("String5", len5);
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_REQUEST_PRICE_INFO, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleBattlePayRequestPriceInfo121(Packet packet)
+        {
+            packet.ReadUInt32("ProductID");
+        }
+
+        internal static void ReadDeliverable121(Packet packet, params object[] index)
+        {
+            var deliverableID = packet.ReadUInt32("DeliverableID", index);
+            packet.ReadUInt32("Type", index);
+            packet.ReadUInt32("ItemID", index);
+            packet.ReadUInt32("Quantity", index);
+            packet.ReadUInt32("MountSpellID", index);
+            packet.ReadUInt32("BattlePetCreatureID", index);
+            packet.ReadUInt32("BoostID", index);
+            packet.ReadUInt32("Flags", index);
+            packet.ReadUInt32("TransItemModifiedAppearanceID", index);
+            packet.ReadUInt32("TransmogSetID", index);
+            packet.ReadUInt32("CharTitleID", index);
+            packet.ReadUInt32("SpellItemEnchantmentID", index);
+            packet.ReadUInt32("WarbandSceneID", index);
+
+            var nameLen = packet.ReadByte("NameLength", index);
+
+            packet.ResetBitReader();
+            packet.ReadBit("AlreadyOwns", index);
+            packet.ReadBit("HasPetResult", index);
+            var choicesCount = packet.ReadBits("ChoicesCount", 7, index);
+            var hasDisplayInfo = packet.ReadBit("HasDisplayInfo", index);
+            packet.ReadBits("PetResult", 6, index);
+            packet.ResetBitReader();
+
+            packet.ReadWoWString("Name", nameLen, index);
+
+            for (uint i = 0; i < choicesCount; i++)
+            {
+                packet.ReadByte("ChoiceType", index, i);
+                packet.ReadUInt32("ChoiceID", index, i);
+            }
+
+            if (hasDisplayInfo)
+                _ = ReadVisualMetadata(packet, 6, deliverableID, index);
+        }
+
+        private static void ReadDistributionObject121(Packet packet, params object[] index)
+        {
+            packet.ReadUInt64("DistributionID", index);
+            packet.ReadUInt32("Status", index);
+            packet.ReadUInt32("DeliverableID", index);
+            packet.ReadPackedGuid128("LicenseGameAccountGUID", index);
+            packet.ReadPackedGuid128("TargetPlayer", index);
+            packet.ReadUInt32("TargetNativeRealm", index);
+            packet.ReadUInt32("TargetVirtualRealm", index);
+            packet.ReadUInt64("PurchaseID", index);
+            packet.ReadUInt32("ManualReview", index);
+
+            packet.ResetBitReader();
+            var hasDeliverable = packet.ReadBit("HasDeliverable", index);
+            packet.ReadBit("Revoked", index);
+            packet.ResetBitReader();
+
+            if (hasDeliverable)
+                ReadDeliverable121(packet, index);
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDistributionListResponse121(Packet packet)
+        {
+            packet.ReadUInt32("Result");
+            packet.ResetBitReader();
+            var count = packet.ReadBits("DistributionCount", 11);
+            packet.ResetBitReader();
+
+            for (uint i = 0; i < count; i++)
+                ReadDistributionObject121(packet, i);
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDistributionUpdate121(Packet packet)
+        {
+            ReadDistributionObject121(packet);
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_DELIVERY_ENDED, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDeliveryEnded121(Packet packet)
+        {
+            packet.ReadUInt64("PurchaseID");
+            var count = packet.ReadUInt32("ProductCount");
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadUInt32("ProductID", i);
+
+                var unlockFlags = packet.ReadByte("UnlockFlags", i);
+                var hasUnlockList = (unlockFlags & 0x80) != 0;
+                packet.AddValue("HasUnlockList", hasUnlockList, i);
+
+                var choiceCountByte = packet.ReadByte("ChoiceCountByte", i);
+                var choiceCount = choiceCountByte >> 1;
+                packet.AddValue("ChoiceCount", choiceCount, i);
+
+                for (int j = 0; j < choiceCount; j++)
+                {
+                    packet.ReadByte("ChoiceType", i, j);
+                    packet.ReadUInt32("ChoiceID", i, j);
+                }
+
+                if (hasUnlockList)
+                {
+                    packet.ReadByte("UnlockKind", i);
+                    var unlockCount = packet.ReadUInt32("UnlockCount", i);
+                    for (uint j = 0; j < unlockCount; j++)
+                        packet.ReadUInt32("UnlockID", i, j);
+                }
+            }
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_MOUNT_DELIVERED, ClientVersionBuild.V12_1_0_69214)]
+        [Parser(Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDeliveryNotification121(Packet packet)
+        {
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_START_PURCHASE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleStartPurchase121(Packet packet)
+        {
+            packet.ReadUInt32("ClientToken");
+            packet.ReadUInt32("ProductID");
+            packet.ReadUInt32("Unused");
+            packet.ResetBitReader();
+            packet.ReadBit("Flag");
+            packet.ResetBitReader();
+            packet.ReadToEnd();
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_OPEN_CHECKOUT, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleOpenCheckout121(Packet packet)
+        {
+            packet.ReadUInt32("ClientToken");
+            packet.ReadUInt32("ProductID");
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleStartPurchaseResponse121(Packet packet)
+        {
+            packet.ReadUInt32("ResultA");
+            packet.ReadUInt32("ResultB");
+            packet.ReadUInt64("PurchaseID");
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDistributionAssignToTarget121(Packet packet)
+        {
+            packet.ReadUInt32("ClientToken");
+            packet.ReadUInt64("DistributionID");
+            packet.ReadPackedGuid128("TargetCharacter");
+            packet.ReadUInt32("ProductChoice");
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_START_DISTRIBUTION_ASSIGN_TO_TARGET_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleBattlePayStartDistributionAssignToTargetResponse121(Packet packet)
+        {
+            packet.ReadUInt32("Result");
+            packet.ReadUInt32("Unknown");
+            packet.ReadUInt64("DistributionID");
+        }
+
+        [Parser(Opcode.CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_VAS, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleDistributionAssignVas121(Packet packet)
+        {
+            packet.ReadUInt32("Token");
+            packet.ReadToEnd();
+        }
+
+        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_COMPLETE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleCharacterUpgradeComplete121(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharacterGUID");
+        }
+
+        // ---- VAS / checkout packets recovered for 12.1 (WowCommunityProject) ----
+
+        [Parser(Opcode.SMSG_GET_VAS_ACCOUNT_CHARACTER_LIST_RESULT, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleGetVasAccountCharacterListResult(Packet packet)
+        {
+            packet.ReadUInt32("Token");
+            packet.ReadUInt32("Field2");
+            packet.ReadUInt32("Field3");
+            var count = packet.ReadUInt32("CharactersCount");
+
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadPackedGuid128("CharacterGUID", i);
+                packet.ReadPackedGuid128("AccountGUID", i);
+                packet.ReadUInt32("VirtualRealmAddress", i);
+                packet.ReadByte("Flags1", i);
+                packet.ReadByte("Flags2", i);
+                packet.ReadByte("Flags3", i);
+                packet.ReadByte("Flags4", i);
+                packet.ReadUInt64("HousingData", i);
+                packet.ReadUInt32("Field9", i);
+
+                packet.ResetBitReader();
+                var nameLen = packet.ReadBits("CharacterNameLength", 6, i);
+                var realmLen = packet.ReadBits("RealmNameLength", 9, i);
+                packet.ResetBitReader();
+                packet.ReadWoWString("CharacterName", nameLen, i);
+                packet.ReadWoWString("RealmName", realmLen, i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_GET_VAS_TRANSFER_TARGET_REALM_LIST_RESULT, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleGetVasTransferTargetRealmListResult(Packet packet)
+        {
+            packet.ReadUInt32("Token");
+            packet.ReadUInt32("Field2");
+            packet.ReadUInt32("Field3");
+            var count = packet.ReadUInt32("RealmCount");
+
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadUInt32("WowRealmAddress", i);
+                packet.ReadUInt32("RealmId", i);
+                packet.ReadUInt32("Flags", i);
+                packet.ReadUInt32("PopulationState", i);
+                packet.ReadUInt32("CategoryId", i);
+                packet.ReadUInt32("ConfigId", i);
+
+                packet.ResetBitReader();
+                var realmLen = packet.ReadBits("RealmNameLength", 9, i);
+                packet.ResetBitReader();
+                packet.ReadWoWString("RealmName", realmLen, i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_VAS_CHECK_TRANSFER_OK_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleVasCheckTransferOkResponse(Packet packet)
+        {
+            packet.ReadUInt32("Token");
+            packet.ReadUInt32("Field2");
+            packet.ReadPackedGuid128("CharacterGUID");
+            var count = packet.ReadUInt32("AccountCount");
+
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadPackedGuid128("AccountGUID", i);
+                packet.ResetBitReader();
+                var nameLen = packet.ReadBits("AccountNameLength", 11, i);
+                packet.ResetBitReader();
+                packet.ReadWoWString("AccountName", nameLen, i);
+            }
+        }
+
+        [Parser(Opcode.SMSG_VAS_GET_SERVICE_STATUS_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleVasGetServiceStatusResponse(Packet packet)
+        {
+            packet.ResetBitReader();
+            packet.ReadBits("ServiceStatus", 4);
+            packet.ReadBits("Unknown", 4);
+        }
+
+        [Parser(Opcode.SMSG_VAS_GET_QUEUE_MINUTES_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleVasGetQueueMinutesResponse(Packet packet)
+        {
+            packet.ReadUInt64("Handle");
+            packet.ReadUInt32("QueueMinutes");
+        }
+
+        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_MANUAL_UNREVOKE_RESULT, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleCharacterUpgradeManualUnrevokeResult(Packet packet)
+        {
+            packet.ReadUInt32("Result");
+        }
+
+        [Parser(Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_VAS_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleBattlePayDistributionAssignVasResponse(Packet packet)
+        {
+            packet.ReadUInt32("Field1");
+            packet.ReadUInt32("Field2");
+            packet.ReadUInt32("Result");
+        }
+
+        [Parser(Opcode.SMSG_CHARACTER_UPGRADE_ABORTED, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleCharacterUpgradeAborted(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharacterGUID");
+        }
+
+        [Parser(Opcode.CMSG_GET_VAS_ACCOUNT_CHARACTER_LIST, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleGetVasAccountCharacterList(Packet packet)
+        {
+            packet.ReadUInt32("Field1");
+            packet.ReadUInt32("Field2");
+        }
+
+        [Parser(Opcode.CMSG_GET_VAS_TRANSFER_TARGET_REALM_LIST, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleGetVasTransferTargetRealmList(Packet packet)
+        {
+            packet.ReadUInt32("Field1");
+            packet.ReadUInt32("Field2");
+        }
+
+        [Parser(Opcode.CMSG_VAS_GET_QUEUE_MINUTES, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleVasGetQueueMinutes(Packet packet)
+        {
+            packet.ReadUInt64("Handle");
+        }
+
+        [Parser(Opcode.CMSG_VAS_CHECK_TRANSFER_OK, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleVasCheckTransferOk(Packet packet)
+        {
+            packet.ReadUInt32("Field1");
+        }
+
+        [Parser(Opcode.CMSG_CHARACTER_CHECK_UPGRADE, ClientVersionBuild.V12_1_0_69214)]
+        [Parser(Opcode.CMSG_VAS_GET_SERVICE_STATUS, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleEmptyVasPackets121(Packet packet)
+        {
+        }
+
+        [Parser(Opcode.CMSG_CHARACTER_UPGRADE_MANUAL_UNREVOKE_REQUEST, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleCharacterUpgradeManualUnrevokeRequest(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharacterGUID");
+        }
+
+        [Parser(Opcode.CMSG_CHARACTER_UPGRADE_START, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleCharacterUpgradeStart(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharacterGUID");
+            packet.ReadUInt32("SpecializationID");
+        }
+
+        [Parser(Opcode.CMSG_GET_CLIENT_CHECKOUT_LICENSES, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleGetClientCheckoutLicenses(Packet packet)
+        {
+            packet.ReadToEnd();
+        }
+
+        [Parser(Opcode.CMSG_REFRESH_ENTITLEMENTS_ON_ORDER_COMPLETE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleRefreshEntitlementsOnOrderComplete(Packet packet)
+        {
+            packet.ResetBitReader();
+            var tokenLen = packet.ReadBits("OrderTokenLength", 24);
+            packet.ResetBitReader();
+            packet.ReadWoWString("OrderToken", tokenLen);
+        }
+
+        [Parser(Opcode.CMSG_BULK_PURCHASE, ClientVersionBuild.V12_1_0_69214)]
+        public static void HandleBulkPurchase(Packet packet)
+        {
+            var count = packet.ReadUInt32("PurchaseCount");
+            for (uint i = 0; i < count; i++)
+            {
+                packet.ReadUInt32("ProductID", i);
+                packet.ResetBitReader();
+                var extraLen = packet.ReadBits("ExtraLength", 7, i);
+                packet.ResetBitReader();
+                packet.ReadWoWString("Extra", extraLen, i);
+            }
         }
     }
 }
