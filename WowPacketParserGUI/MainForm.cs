@@ -653,42 +653,54 @@ public partial class MainForm : Form
                 var result = MessageBox.Show(
                     $"Found existing parsed file:\n{parsedFile}\n\n" +
                     $"Last modified: {fileInfo.LastWriteTime}\n\n" +
-                    "Click 'Yes' to load the existing parsed file.\n" +
-                    "Click 'No' to re-parse the PKT file.",
+                    "Do you want to re-parse the PKT file?\n\n" +
+                    "Click 'Yes' to re-parse the PKT file.\n" +
+                    "Click 'No' to load the existing parsed file.",
                     "Existing Parsed File Found",
                     MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2);
 
-                if (result == DialogResult.Yes)
+                if (result == DialogResult.No)
                 {
                     // Load existing parsed file
                     LoadExistingParsedFile(parsedFile);
                     return;
                 }
+
+                // Re-parse immediately
+                ResetNewFileState();
+                ParseButton_Click(sender, e);
+                return;
             }
 
             // Standard new file state
-            parseButton.Enabled = true;
-            exportButton.Enabled = false;
-            copyButton.Enabled = false;
-            openEditorButton.Enabled = false;
-            firstCraftButton.Enabled = false;
-            timeOrderButton.Enabled = false;
-            questFlowButton.Enabled = false;
-            outputTextBox.Clear();
-            allPackets.Clear();
-            packetComboBox.Items.Clear();
-            packetComboBox.Enabled = false;
-            occurrenceLabel.Visible = false;
-            highlightBorderPanel.Visible = false;
-            prevHighlightButton.Visible = false;
-            nextHighlightButton.Visible = false;
-            highlightTextBox.Clear();
-            HidePagination();
-            isReparsing = false;
-            currentPage = 0;
-            pageBeforeReparse = 0;
+            ResetNewFileState();
         }
+    }
+
+    private void ResetNewFileState()
+    {
+        parseButton.Enabled = true;
+        exportButton.Enabled = false;
+        copyButton.Enabled = false;
+        openEditorButton.Enabled = false;
+        firstCraftButton.Enabled = false;
+        timeOrderButton.Enabled = false;
+        questFlowButton.Enabled = false;
+        outputTextBox.Clear();
+        allPackets.Clear();
+        packetComboBox.Items.Clear();
+        packetComboBox.Enabled = false;
+        occurrenceLabel.Visible = false;
+        highlightBorderPanel.Visible = false;
+        prevHighlightButton.Visible = false;
+        nextHighlightButton.Visible = false;
+        highlightTextBox.Clear();
+        HidePagination();
+        isReparsing = false;
+        currentPage = 0;
+        pageBeforeReparse = 0;
     }
 
     private void LoadExistingParsedFile(string parsedFile)
