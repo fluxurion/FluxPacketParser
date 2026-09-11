@@ -421,7 +421,7 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt64("ClientCurrentPriceFixedPoint");
         }
 
-        [Parser(Opcode.SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT)]
+        [Parser(Opcode.SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, ClientVersionBuild.V12_0_0_65390, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleGetAccountCharacterListResult(Packet packet)
         {
             packet.ReadUInt32("Token");
