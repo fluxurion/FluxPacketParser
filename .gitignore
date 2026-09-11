@@ -28,3 +28,6 @@ cov-int
 # Rider
 .idea
 /.vscode
+
+# Devin CLI
+.devin/
