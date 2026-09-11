@@ -23,11 +23,15 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         [Parser(Opcode.SMSG_PERKS_PROGRAM_ACTIVITY_UPDATE)]
         public static void HandlePerksProgramActivityUpdate(Packet packet)
         {
-            var activityCount = packet.ReadUInt32("ActivityCount"); // 4
-            packet.ReadTime64("TimeUntilEnd");                     // 4
-            packet.ReadTime64("TimeUntilStart");                   // 4
+            var activityCount = packet.ReadUInt32("ActivityCount");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_0_49318))
+                packet.ReadTime64("RemainingTime");
 
-            // Total Header: 20 bytes
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_7_51187))
+                packet.ReadTime64("StartingTime");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_2_0_52038))
+                packet.ReadInt32("UiThemeID");
 
             for (var i = 0; i < activityCount; i++)
                 packet.ReadInt32("ActivityID", i);                 // 272 bytes (68 * 4)
