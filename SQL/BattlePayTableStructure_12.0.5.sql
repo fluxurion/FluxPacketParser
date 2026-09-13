@@ -137,7 +137,7 @@ CREATE TABLE `battlepay_groups` (
 
 --
 -- Table structure for table `battlepay_shop_datas`
--- IDA-verified field order: ShopFlags, Ordering, ProductID, GroupID, ShopListingID, Field20, Flag
+-- Wire order (byte-exact vs reference catalog writer): ShopFlags(EntryID), GroupID, ProductID, Ordering, ShopListingID(Flags), Field20(BannerType), Flag
 --
 
 DROP TABLE IF EXISTS `battlepay_shop_datas`;

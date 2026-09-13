@@ -321,10 +321,16 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
 
         private static void ReadShop(Packet packet, params object[] index)
         {
+            // Wire order verified byte-exact against the reference writer
+            // (BattlePayCatalogWriter.ReadEntry): EntryID, GroupID, ProductID,
+            // Ordering, Flags, BannerType. The old labels read the group id as
+            // "Ordering" and the ordering as "GroupID" — which produced
+            // battlepay_shop_datas rows whose GroupID column held ordering
+            // values pointing at groups that do not exist.
             var shopFlags = packet.ReadUInt32("ShopFlags", index);
-            var ordering = packet.ReadUInt32("Ordering", index);
-            var productid = packet.ReadUInt32("ProductID", index);
             var groupid = packet.ReadUInt32("GroupID", index);
+            var productid = packet.ReadUInt32("ProductID", index);
+            var ordering = packet.ReadUInt32("Ordering", index);
             var shopListingID = packet.ReadUInt32("ShopListingID", index);
             var field20 = packet.ReadByte("Field20", index);
 
