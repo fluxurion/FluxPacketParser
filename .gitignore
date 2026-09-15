@@ -31,3 +31,4 @@ cov-int
 
 # Devin CLI
 .devin/
+AGENTS.local.md
