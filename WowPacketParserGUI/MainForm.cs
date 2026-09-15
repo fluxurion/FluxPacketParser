@@ -20,7 +20,7 @@ internal sealed class DarkComboBox : ComboBox
         base.OnPaint(e);
 
         // Draw custom border
-        using var pen = new Pen(Color.FromArgb(0x42, 0x42, 0x48));
+        using var pen = new Pen(Color.FromArgb(0x33, 0x3D, 0x52));
         e.Graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
     }
 
@@ -32,7 +32,7 @@ internal sealed class DarkComboBox : ComboBox
 
             // Redraw border after default paint
             using var g = Graphics.FromHwnd(Handle);
-            using var pen = new Pen(Color.FromArgb(0x42, 0x42, 0x48));
+            using var pen = new Pen(Color.FromArgb(0x33, 0x3D, 0x52));
             g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
         }
         else
@@ -45,9 +45,9 @@ internal sealed class DarkComboBox : ComboBox
     {
         if (e.Index < 0) return;
 
-        var bgControl = Color.FromArgb(0x2C, 0x2C, 0x30);
-        var bgControlHover = Color.FromArgb(0x3A, 0x3A, 0x40);
-        var fgText = Color.FromArgb(0xE0, 0xE0, 0xE2);
+        var bgControl = Color.FromArgb(0x1B, 0x22, 0x30);
+        var bgControlHover = Color.FromArgb(0x2E, 0x3A, 0x52);
+        var fgText = Color.FromArgb(0xE8, 0xEA, 0xF0);
 
         var isSelected = (e.State & DrawItemState.Selected) != 0;
         var itemBg = isSelected ? bgControlHover : bgControl;
@@ -68,25 +68,25 @@ internal sealed class DarkComboBox : ComboBox
 public partial class MainForm : Form
 {
     private TextBox filePathTextBox = null!;
-    private Button browseButton = null!;
-    private Button parseButton = null!;
-    private Button cancelButton = null!;
-    private Button exportButton = null!;
-    private Button copyButton = null!;
-    private Button openEditorButton = null!;
-    private Button openConfigButton = null!;
-    private Button firstCraftButton = null!;
-    private Button timeOrderButton = null!;
-    private Button questFlowButton = null!;
-    private Button prevPageButton = null!;
-    private Button nextPageButton = null!;
-    private Button prevHighlightButton = null!;
-    private Button nextHighlightButton = null!;
+    private ModernButton browseButton = null!;
+    private ModernButton parseButton = null!;
+    private ModernButton cancelButton = null!;
+    private ModernButton exportButton = null!;
+    private ModernButton copyButton = null!;
+    private ModernButton openEditorButton = null!;
+    private ModernButton openConfigButton = null!;
+    private ModernButton firstCraftButton = null!;
+    private ModernButton timeOrderButton = null!;
+    private ModernButton questFlowButton = null!;
+    private ModernButton prevPageButton = null!;
+    private ModernButton nextPageButton = null!;
+    private ModernButton prevHighlightButton = null!;
+    private ModernButton nextHighlightButton = null!;
     private TextBox highlightTextBox = null!;
     private DarkComboBox packetComboBox = null!;
     private TextBox searchTextBox = null!;
     private RichTextBox outputTextBox = null!;
-    private ProgressBar progressBar = null!;
+    private ModernProgressBar progressBar = null!;
     private Label progressLabel = null!;
     private Label occurrenceLabel = null!;
     private Panel comboBorderPanel = null!;
@@ -94,6 +94,8 @@ public partial class MainForm : Form
     private Panel progressBarBorderPanel = null!;
     private Panel highlightBorderPanel = null!;
     private Label pageLabel = null!;
+    private Label keyHintLabel = null!;
+    private Panel separatorFooter = null!;
     private List<string> allPackets = new();
     private Dictionary<string, List<List<string>>> packetLines = new();
     private Dictionary<string, string> packetTimestamps = new();
@@ -125,6 +127,7 @@ public partial class MainForm : Form
         MinimumSize = new Size(1060, 520);
         StartPosition = FormStartPosition.CenterScreen;
         Padding = new Padding(12, 10, 12, 10);
+        DoubleBuffered = true;
 
         // ── Row 1: File selection ──────────────────────────────────────────────
         // Y=14 gives ~14px top padding
@@ -154,7 +157,7 @@ public partial class MainForm : Form
         };
         filePathBorderPanel.Controls.Add(filePathTextBox);
 
-        browseButton = new Button
+        browseButton = new ModernButton
         {
             Text = "Browse",
             Location = new Point(730, 14),
@@ -163,7 +166,7 @@ public partial class MainForm : Form
         };
         browseButton.Click += BrowseButton_Click;
 
-        parseButton = new Button
+        parseButton = new ModernButton
         {
             Text = "Parse",
             Location = new Point(822, 14),
@@ -173,7 +176,7 @@ public partial class MainForm : Form
         };
         parseButton.Click += ParseButton_Click;
 
-        cancelButton = new Button
+        cancelButton = new ModernButton
         {
             Text = "Cancel",
             Location = new Point(822, 14),
@@ -184,7 +187,7 @@ public partial class MainForm : Form
         };
         cancelButton.Click += CancelButton_Click;
 
-        openConfigButton = new Button
+        openConfigButton = new ModernButton
         {
             Text = "Config",
             Location = new Point(914, 14),
@@ -248,7 +251,7 @@ public partial class MainForm : Form
         };
 
         // ── Row 3: Action buttons ─────────────────────────────────────────────
-        exportButton = new Button
+        exportButton = new ModernButton
         {
             Text = "Export",
             Location = new Point(12, 112),
@@ -258,7 +261,7 @@ public partial class MainForm : Form
         };
         exportButton.Click += ExportButton_Click;
 
-        copyButton = new Button
+        copyButton = new ModernButton
         {
             Text = "Copy",
             Location = new Point(108, 112),
@@ -268,7 +271,7 @@ public partial class MainForm : Form
         };
         copyButton.Click += CopyButton_Click;
 
-        openEditorButton = new Button
+        openEditorButton = new ModernButton
         {
             Text = "Open",
             Location = new Point(196, 112),
@@ -278,7 +281,7 @@ public partial class MainForm : Form
         };
         openEditorButton.Click += OpenEditorButton_Click;
 
-        firstCraftButton = new Button
+        firstCraftButton = new ModernButton
         {
             Text = "First Craft",
             Location = new Point(284, 112),
@@ -288,7 +291,7 @@ public partial class MainForm : Form
         };
         firstCraftButton.Click += FirstCraftButton_Click;
 
-        timeOrderButton = new Button
+        timeOrderButton = new ModernButton
         {
             Text = "Time Order",
             Location = new Point(388, 112),
@@ -298,7 +301,7 @@ public partial class MainForm : Form
         };
         timeOrderButton.Click += TimeOrderButton_Click;
 
-        questFlowButton = new Button
+        questFlowButton = new ModernButton
         {
             Text = "Quest Flow",
             Location = new Point(496, 112),
@@ -309,7 +312,7 @@ public partial class MainForm : Form
         questFlowButton.Click += QuestFlowButton_Click;
 
         // ── Row 3 extended: Highlight search (next to buttons) ─────────────────
-        prevHighlightButton = new Button
+        prevHighlightButton = new ModernButton
         {
             Text = "▲",
             Location = new Point(604, 112),
@@ -339,7 +342,7 @@ public partial class MainForm : Form
         highlightTextBox.TextChanged += HighlightTextBox_TextChanged;
         highlightBorderPanel.Controls.Add(highlightTextBox);
 
-        nextHighlightButton = new Button
+        nextHighlightButton = new ModernButton
         {
             Text = "▼",
             Location = new Point(818, 112),
@@ -360,7 +363,7 @@ public partial class MainForm : Form
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        prevPageButton = new Button
+        prevPageButton = new ModernButton
         {
             Text = "◀",
             Location = new Point(956, 112),
@@ -381,7 +384,7 @@ public partial class MainForm : Form
             Anchor = AnchorStyles.Top | AnchorStyles.Left
         };
 
-        nextPageButton = new Button
+        nextPageButton = new ModernButton
         {
             Text = "▶",
             Location = new Point(1064, 112),
@@ -401,7 +404,7 @@ public partial class MainForm : Form
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
         };
 
-        progressBar = new ProgressBar
+        progressBar = new ModernProgressBar
         {
             Location = new Point(-1, -1),
             Size = new Size(982, 26),
@@ -432,12 +435,27 @@ public partial class MainForm : Form
         outputTextBox = new RichTextBox
         {
             Location = new Point(12, 192),
-            Size = new Size(980, 440),
+            Size = new Size(980, 405),
             ReadOnly = true,
-            Font = new Font("Consolas", 9.5f),
+            Font = GetMonoFont(9.5f),
             ScrollBars = RichTextBoxScrollBars.Both,
             BorderStyle = BorderStyle.None,
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        // ── Footer: separator + keyboard hints ───────────────────────────────
+        separatorFooter = new Panel
+        {
+            Location = new Point(12, 616),
+            Size = new Size(980, 1),
+            Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        keyHintLabel = new Label
+        {
+            Text = "↑ ↓ switch packet      ← → occurrences",
+            AutoSize = true,
+            Anchor = AnchorStyles.Bottom | AnchorStyles.Right
         };
 
         Controls.AddRange(new Control[] {
@@ -450,7 +468,8 @@ public partial class MainForm : Form
             occurrenceLabel, prevPageButton, pageLabel, nextPageButton,
             progressBarBorderPanel, progressLabel,
             separator3,
-            outputTextBox
+            outputTextBox,
+            separatorFooter, keyHintLabel
         });
 
         this.Load += (s, e) =>
@@ -467,16 +486,20 @@ public partial class MainForm : Form
 
     private void ApplyDarkTheme()
     {
-        var bgDark = Color.FromArgb(0x18, 0x18, 0x1A);
-        var bgPanel = Color.FromArgb(0x22, 0x22, 0x25);
-        var bgControl = Color.FromArgb(0x2C, 0x2C, 0x30);
-        var bgButton = Color.FromArgb(0x35, 0x35, 0x3A);
-        var bgButtonHover = Color.FromArgb(0x45, 0x45, 0x4C);
-        var fgText = Color.FromArgb(0xE0, 0xE0, 0xE2);
-        var fgDim = Color.FromArgb(0x90, 0x90, 0x98);
-        var borderColor = Color.FromArgb(0x42, 0x42, 0x48);
-        var borderAccent = Color.FromArgb(0x3A, 0x7F, 0xD4);
-        var separatorColor = Color.FromArgb(0x30, 0x30, 0x35);
+        var bgDark = Color.FromArgb(0x0E, 0x11, 0x17);
+        var bgPanel = Color.FromArgb(0x15, 0x1A, 0x23);
+        var bgControl = Color.FromArgb(0x1B, 0x22, 0x30);
+        var bgButton = Color.FromArgb(0x24, 0x2D, 0x3E);
+        var bgButtonHover = Color.FromArgb(0x31, 0x3D, 0x55);
+        var bgButtonPressed = Color.FromArgb(0x1B, 0x23, 0x32);
+        var bgButtonDisabled = Color.FromArgb(0x19, 0x1F, 0x2B);
+        var fgText = Color.FromArgb(0xE8, 0xEA, 0xF0);
+        var fgDim = Color.FromArgb(0x8B, 0x93, 0xA7);
+        var borderColor = Color.FromArgb(0x33, 0x3D, 0x52);
+        var accent = Color.FromArgb(0x4C, 0x8D, 0xFF);
+        var accentHover = Color.FromArgb(0x6B, 0xA4, 0xFF);
+        var accentPressed = Color.FromArgb(0x3A, 0x74, 0xD4);
+        var separatorColor = Color.FromArgb(0x26, 0x2E, 0x3E);
 
         BackColor = bgDark;
         ForeColor = fgText;
@@ -489,32 +512,21 @@ public partial class MainForm : Form
             l.Font = new Font("Segoe UI", 9.5f);
         }
 
-        void StyleButton(Button b)
+        void StyleButton(ModernButton b)
         {
-            b.FlatStyle = FlatStyle.Flat;
-            b.BackColor = bgButton;
-            b.ForeColor = fgText;
+            b.NormalBackColor = bgButton;
+            b.HoverBackColor = bgButtonHover;
+            b.PressedBackColor = bgButtonPressed;
+            b.DisabledBackColor = bgButtonDisabled;
+            b.NormalForeColor = fgText;
+            b.DisabledForeColor = fgDim;
+            b.BorderColor = borderColor;
+            b.AccentBackColor = accent;
+            b.AccentHoverBackColor = accentHover;
+            b.AccentPressedBackColor = accentPressed;
+            b.AccentForeColor = Color.White;
+            b.AccentBorderColor = accent;
             b.Font = new Font("Segoe UI", 9.5f);
-            b.FlatAppearance.BorderColor = borderColor;
-            b.FlatAppearance.BorderSize = 1;
-            b.FlatAppearance.MouseOverBackColor = bgButtonHover;
-            b.FlatAppearance.MouseDownBackColor = Color.FromArgb(0x28, 0x28, 0x2E);
-            b.Cursor = Cursors.Hand;
-
-            // Handle enabled/disabled state colors
-            b.EnabledChanged += (s, e) =>
-            {
-                if (b.Enabled)
-                {
-                    b.BackColor = bgButton;
-                    b.ForeColor = fgText;
-                }
-                else
-                {
-                    b.BackColor = Color.FromArgb(0x28, 0x28, 0x2E);
-                    b.ForeColor = fgDim;
-                }
-            };
         }
 
         foreach (var c in Controls)
@@ -569,17 +581,8 @@ public partial class MainForm : Form
         StyleButton(prevPageButton);
         StyleButton(nextPageButton);
 
-        // Parse / Browse get a subtle blue accent border
-        parseButton.FlatAppearance.BorderColor = borderAccent;
-        browseButton.FlatAppearance.BorderColor = borderAccent;
-
-        // Trigger EnabledChanged to set initial disabled button colors
-        foreach (var btn in new[] { parseButton, exportButton, copyButton, openEditorButton, firstCraftButton, timeOrderButton, questFlowButton, cancelButton, prevHighlightButton, nextHighlightButton, prevPageButton, nextPageButton })
-        {
-            var savedEnabled = btn.Enabled;
-            btn.Enabled = !savedEnabled;
-            btn.Enabled = savedEnabled;
-        }
+        // Parse is the primary action — filled accent button
+        parseButton.Accent = true;
 
         // ComboBox — dark theme styling
         packetComboBox.BackColor = bgControl;
@@ -588,16 +591,62 @@ public partial class MainForm : Form
         // Progress bar border color
         progressBarBorderPanel.BackColor = borderColor;
 
-        // Highlight textbox - blue accent border
-        highlightBorderPanel.BackColor = borderAccent;
+        // Highlight textbox - accent border
+        highlightBorderPanel.BackColor = accent;
 
-        // ProgressBar - darker background for better contrast
-        progressBar.BackColor = bgDark;
-        progressBar.ForeColor = borderAccent;
+        // ProgressBar colors
+        progressBar.FillColor = accent;
+        progressBar.TrackColor = bgControl;
 
         // Occurrence / page labels
         occurrenceLabel.ForeColor = fgDim;
         pageLabel.ForeColor = fgDim;
+
+        // Footer keyboard hint
+        keyHintLabel.ForeColor = fgDim;
+        keyHintLabel.Font = new Font("Segoe UI", 8.5f);
+    }
+
+    private static Font GetMonoFont(float size)
+    {
+        foreach (var name in new[] { "Cascadia Mono", "JetBrains Mono", "Consolas" })
+            if (FontFamily.Families.Any(f => f.Name == name))
+                return new Font(name, size);
+        return new Font(FontFamily.GenericMonospace, size);
+    }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        var editingText = ActiveControl is TextBox { ReadOnly: false };
+
+        switch (keyData)
+        {
+            case Keys.Left when !editingText:
+                if (prevPageButton.Visible && prevPageButton.Enabled)
+                {
+                    PrevPageButton_Click(null, EventArgs.Empty);
+                    return true;
+                }
+                break;
+            case Keys.Right when !editingText:
+                if (nextPageButton.Visible && nextPageButton.Enabled)
+                {
+                    NextPageButton_Click(null, EventArgs.Empty);
+                    return true;
+                }
+                break;
+            case Keys.Up:
+            case Keys.Down:
+                if (!packetComboBox.DroppedDown && packetComboBox.Enabled && packetComboBox.Items.Count > 0)
+                {
+                    var next = packetComboBox.SelectedIndex + (keyData == Keys.Up ? -1 : 1);
+                    packetComboBox.SelectedIndex = Math.Clamp(next, 0, packetComboBox.Items.Count - 1);
+                    return true;
+                }
+                break;
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
     }
 
     private void MainForm_Resize(object? sender, EventArgs e)
@@ -629,7 +678,12 @@ public partial class MainForm : Form
         progressLabel.Left = rightMargin - progressLabel.Width;
 
         outputTextBox.Width = rightMargin - outputTextBox.Left;
-        outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 12;
+        outputTextBox.Height = this.ClientSize.Height - outputTextBox.Top - 46;
+
+        // Footer: separator line + keyboard hint label
+        separatorFooter.Top = this.ClientSize.Height - 34;
+        keyHintLabel.Left = rightMargin - keyHintLabel.Width;
+        keyHintLabel.Top = this.ClientSize.Height - 26;
     }
 
     private void BrowseButton_Click(object? sender, EventArgs e)
@@ -925,8 +979,8 @@ public partial class MainForm : Form
             // Clear previous highlights
             outputTextBox.SelectionStart = 0;
             outputTextBox.SelectionLength = outputTextBox.Text.Length;
-            outputTextBox.SelectionColor = Color.FromArgb(0xE0, 0xE0, 0xE2);
-            outputTextBox.SelectionBackColor = Color.FromArgb(0x22, 0x22, 0x25);
+            outputTextBox.SelectionColor = Color.FromArgb(0xE8, 0xEA, 0xF0);
+            outputTextBox.SelectionBackColor = Color.FromArgb(0x15, 0x1A, 0x23);
 
             highlightMatchPositions.Clear();
             currentHighlightIndex = -1;
