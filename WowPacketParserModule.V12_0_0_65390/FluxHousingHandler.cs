@@ -249,16 +249,17 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
         //   + uint8 HouseLevel + uint32 PlotIndex + uint8(bit7=hasOpt) [+ uint64]
         private static void ReadJamCliHouse(Packet packet, params object[] index)
         {
-            packet.ReadPackedGuid128("HouseGuid", index);
-            packet.ReadPackedGuid128("OwnerGuid", index);
-            packet.ReadPackedGuid128("NeighborhoodGuid", index);
-            packet.ReadByte("HouseLevel", index);
-            packet.ReadUInt32("PlotIndex", index);
-            var flags = packet.ReadByte("Flags", index);
-            var hasOptional = (flags & 0x80) != 0;
-            packet.AddValue("HasOptionalField", hasOptional, index);
-            if (hasOptional)
-                packet.ReadUInt64("OptionalValue", index);
+            packet.ResetBitReader();
+            packet.ReadPackedGuid128("GUID", index);
+            packet.ReadPackedGuid128("CosmeticOwner", index);
+            packet.ReadPackedGuid128("NeighborhoodGUID", index);
+
+            packet.ReadByte("PlotID", index);
+            packet.ReadUInt32("HouseSettingFlags", index);
+
+            var hasHasReservationTime = packet.ReadBit("HasReservationTime", index);
+            if (hasHasReservationTime)
+                packet.ReadTime64("HasReservationTime", index);
         }
 
         // JamCliHouseFinderNeighborhood BASE (IDA Housing_ReadNeighborhoodDetails):
