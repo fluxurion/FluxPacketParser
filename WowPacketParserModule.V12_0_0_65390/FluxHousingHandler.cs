@@ -382,24 +382,20 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ResetBitReader();
         }
 
-        // TC HouseExteriorCommitPosition: Bits<1> HasPosition + HouseGuid + optional 7 floats
+        // Client (IDA sub_7FF7CD4FA130): PackedGUID + PackedGUID + 4 floats.
+        // TC's HouseExteriorCommitPosition (Bits<1> HasPosition + HouseGuid +
+        // optional 7 floats) does NOT match the actual client layout.
+        // Field names are inferred: GUIDs likely HouseGuid + PlotGuid,
+        // floats likely position XYZ + yaw.
         [Parser(Opcode.CMSG_HOUSE_EXTERIOR_SET_HOUSE_POSITION, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHouseExteriorSetHousePosition(Packet packet)
         {
-            packet.ResetBitReader();
-            var hasPosition = packet.ReadBit("HasPosition");
-            packet.ResetBitReader();
             packet.ReadPackedGuid128("HouseGuid");
-            if (hasPosition)
-            {
-                packet.ReadSingle("PositionX");
-                packet.ReadSingle("PositionY");
-                packet.ReadSingle("PositionZ");
-                packet.ReadSingle("RotationX");
-                packet.ReadSingle("RotationY");
-                packet.ReadSingle("RotationZ");
-                packet.ReadSingle("RotationW");
-            }
+            packet.ReadPackedGuid128("PlotGuid");
+            packet.ReadSingle("PositionX");
+            packet.ReadSingle("PositionY");
+            packet.ReadSingle("PositionZ");
+            packet.ReadSingle("Rotation");
         }
 
         [Parser(Opcode.SMSG_HOUSE_EXTERIOR_LOCK_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
