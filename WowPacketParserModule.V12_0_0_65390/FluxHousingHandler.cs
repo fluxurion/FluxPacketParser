@@ -44,17 +44,18 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
     //   CMSG_HOUSING_DECOR_REQUEST_STORAGE             = 0x320011 / 3276817
     //   CMSG_HOUSING_DECOR_REDEEM_DEFERRED_DECOR       = 0x320013 / 3276819
     //   SMSG_HOUSING_DECOR_SET_EDIT_MODE_RESPONSE      = 0x550000 / 5570560
-    //   SMSG_HOUSING_DECOR_DRAW_SERVER_LIGHTING_DEBUG_SPHERES_RESPONSE = 0x550001 / 5570561 (no TC impl)
-    //   SMSG_HOUSING_DECOR_MOVE_RESPONSE               = 0x550002 / 5570562
-    //   SMSG_HOUSING_DECOR_PLACE_RESPONSE              = 0x550003 / 5570563
-    //   SMSG_HOUSING_DECOR_REMOVE_RESPONSE             = 0x550004 / 5570564
-    //   SMSG_HOUSING_DECOR_LOCK_RESPONSE               = 0x550005 / 5570565
-    //   SMSG_HOUSING_DECOR_DELETE_FROM_STORAGE_RESPONSE= 0x550006 / 5570566
-    //   SMSG_HOUSING_DECOR_REQUEST_STORAGE_RESPONSE    = 0x550007 / 5570567
-    //   SMSG_HOUSING_DECOR_ADD_TO_HOUSE_CHEST_RESPONSE = 0x550008 / 5570568
-    //   SMSG_HOUSING_DECOR_SYSTEM_SET_DYE_SLOTS_RESPONSE = 0x550009 / 5570569
-    //   SMSG_HOUSING_REDEEM_DEFERRED_DECOR_RESPONSE    = 0x55000A / 5570570
-    //   SMSG_HOUSING_FIRST_TIME_DECOR_ACQUISITION      = 0x55000B / 5570571
+    //   (0x550001 unnamed in client opcode table)
+    //   SMSG_HOUSING_DECOR_DRAW_SERVER_LIGHTING_DEBUG_SPHERES_RESPONSE = 0x550002 / 5570562 (no TC impl)
+    //   SMSG_HOUSING_DECOR_MOVE_RESPONSE               = 0x550003 / 5570563
+    //   SMSG_HOUSING_DECOR_PLACE_RESPONSE              = 0x550004 / 5570564
+    //   SMSG_HOUSING_DECOR_REMOVE_RESPONSE             = 0x550005 / 5570565
+    //   SMSG_HOUSING_DECOR_LOCK_RESPONSE               = 0x550006 / 5570566
+    //   SMSG_HOUSING_DECOR_DELETE_FROM_STORAGE_RESPONSE= 0x550007 / 5570567
+    //   SMSG_HOUSING_DECOR_REQUEST_STORAGE_RESPONSE    = 0x550008 / 5570568
+    //   SMSG_HOUSING_DECOR_ADD_TO_HOUSE_CHEST_RESPONSE = 0x550009 / 5570569
+    //   SMSG_HOUSING_DECOR_SYSTEM_SET_DYE_SLOTS_RESPONSE = 0x55000A / 5570570
+    //   SMSG_HOUSING_REDEEM_DEFERRED_DECOR_RESPONSE    = 0x55000B / 5570571
+    //   SMSG_HOUSING_FIRST_TIME_DECOR_ACQUISITION      = 0x55000C / 5570572
     //
     // Fixtures / house structure
     //   CMSG_HOUSING_FIXTURE_SET_EDIT_MODE             = 0x330000 / 3342336
@@ -690,7 +691,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadByte("Result");
         }
 
-        // TC: guid + guid + u32 + u8 Result + u8 flags(bit7=Locked, bit6=Field_17)
+        // IDA case 6 (0x550006): PackedGUID + PackedGUID + int32 + int8 Result
+        //   + int8 flags (bit7=Locked, bit6=Field_17). Earlier "20B sniff, no
+        //   flags byte" note was wrong — the client reads the trailing byte.
         [Parser(Opcode.SMSG_HOUSING_DECOR_LOCK_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingDecorLockResponse(Packet packet)
         {
@@ -698,10 +701,14 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadPackedGuid128("PlayerGuid");
             packet.ReadUInt32("Field_16");
             packet.ReadByte("Result");
-            // Sniff shows 20B total — no trailing flags byte (TC's Locked/Field_17 byte unverified)
+            var flags = packet.ReadByte("Flags");
+            packet.AddValue("Locked", (flags & 0x80) != 0);
+            packet.AddValue("Field_17", (flags & 0x40) != 0);
         }
 
-        // IDA case 5570566: PackedGUID + PackedGUID + int32 + int8 + int8 (bit7 + bit6 bools)
+        // NOTE: the "IDA case 5570566" layout below was misattributed — that
+        // decompile is DECOR_LOCK_RESPONSE (0x550006). Real 0x550007 layout
+        // is unverified; fields kept as a guess pending a proper decompile.
         [Parser(Opcode.SMSG_HOUSING_DECOR_DELETE_FROM_STORAGE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingDecorDeleteFromStorageResponse(Packet packet)
         {
