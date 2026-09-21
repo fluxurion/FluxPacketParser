@@ -898,14 +898,14 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ResetBitReader();
         }
 
-        // TC: PackedGUID SourceRoom + uint32 + uint32 + uint32 + bit AutoFurnish
+        // Client (IDA sub_7FF7CD4F6320): PackedGUID + int32 + int32 + bit.
+        // TC's layout had a third uint32 (FloorIndex) — not present on the wire.
         [Parser(Opcode.CMSG_HOUSING_ROOM_ADD, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingRoomAdd(Packet packet)
         {
             packet.ReadPackedGuid128("SourceRoomGuid");
             packet.ReadUInt32("TargetDoorComponentID");
             packet.ReadUInt32("HouseRoomID");
-            packet.ReadUInt32("FloorIndex");
             packet.ResetBitReader();
             packet.ReadBit("AutoFurnish");
             packet.ResetBitReader();
