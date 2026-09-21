@@ -661,7 +661,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 packet.ReadPackedGuid128("AllowedEditorGuid", i);
         }
 
-        // TC: PackedGUID PlayerGuid + uint32 + PackedGUID DecorGuid + uint8 Result + uint8(bit7)
+        // IDA case 3 (0x550003): PackedGUID + int32 + PackedGUID + int8 Result
+        //   + int8 flags (bit7 bool). First guid is the "character", second is "decorGUID".
         [Parser(Opcode.SMSG_HOUSING_DECOR_MOVE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingDecorMoveResponse(Packet packet)
         {
@@ -669,6 +670,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("Field_09");
             packet.ReadPackedGuid128("DecorGuid");
             packet.ReadByte("Result");
+            var flags = packet.ReadByte("Flags");
+            packet.AddValue("Bit7Flag", (flags & 0x80) != 0);
         }
 
         [Parser(Opcode.SMSG_HOUSING_DECOR_PLACE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
