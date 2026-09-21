@@ -261,9 +261,9 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
                 packet.ReadUInt64("OptionalValue", index);
         }
 
-        // JamCliHouseFinderNeighborhood BASE (TC sub_7FF724C3F040):
+        // JamCliHouseFinderNeighborhood BASE (IDA Housing_ReadNeighborhoodDetails):
         //   PackedGUID + PackedGUID + uint64 + uint64 + uint32(housesCount)
-        //   + uint8(nameLen, size+1) + uint8(bit7=BoolFlag) + JamCliHouse[count] + String(nameLen)
+        //   + JamCliHouse[count] + uint8(nameLen, size+1) + uint8(bit7=BoolFlag) + String(nameLen)
         private static void ReadHouseFinderNeighborhoodBase(Packet packet, params object[] index)
         {
             packet.ReadPackedGuid128("NeighborhoodGuid", index);
@@ -271,15 +271,16 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt64("Field1", index);
             packet.ReadUInt64("Field2", index);
             var houseCount = packet.ReadUInt32("HousesCount", index);
+            for (uint i = 0; i < houseCount; i++)
+                ReadJamCliHouse(packet, index, i);
             var nameLen = packet.ReadByte("NameLength", index);
             var flags = packet.ReadByte("Flags", index);
             packet.AddValue("BoolFlag", (flags & 0x80) != 0, index);
-            for (uint i = 0; i < houseCount; i++)
-                ReadJamCliHouse(packet, index, i);
             packet.ReadWoWString("Name", nameLen, index);
         }
 
-        // FULL format = base + uint64 ExtraField + uint8 ExtraFlags
+        // FULL format (IDA Housing_ReadNeighborhoodResponsePayload) =
+        //   details + int64 @+120 + int8 @+128
         private static void ReadHouseFinderNeighborhood(Packet packet, params object[] index)
         {
             ReadHouseFinderNeighborhoodBase(packet, index);
@@ -684,7 +685,8 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadByte("Flags"); // 0x80 seen on success
         }
 
-        // Sniff-verified 27B (69814): PackedGUID PlayerGuid + uint32 + PackedGUID DecorGuid + uint8 Result
+        // IDA case 4 + sniff-verified 27B (69814):
+        //   PackedGUID PlayerGuid + int32 + PackedGUID DecorGuid + int8 Result
         [Parser(Opcode.SMSG_HOUSING_DECOR_REMOVE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingDecorRemoveResponse(Packet packet)
         {
@@ -1337,24 +1339,23 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("SettingsFlags");
         }
 
-        // TC: Bits<1>(Result) + FlushBits + uint32 count + JamCliHouseFinderNeighborhood full[count]
+        // IDA case 5767196: uint8 Result (ReadByte, NOT bit) + int32 count
+        //   + count x Housing_ReadNeighborhoodResponsePayload (full)
         [Parser(Opcode.SMSG_HOUSING_SVCS_GET_HOUSE_FINDER_INFO_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingSvcsGetHouseFinderInfoResponse(Packet packet)
         {
-            packet.ResetBitReader();
-            packet.ReadBit("Result");
-            packet.ResetBitReader();
+            packet.ReadByte("Result");
             var count = packet.ReadUInt32("EntryCount");
             for (uint i = 0; i < count; i++)
                 ReadHouseFinderNeighborhood(packet, i);
         }
 
+        // IDA case 5767197: uint8 Result (ReadByte, NOT bit)
+        //   + Housing_ReadNeighborhoodResponsePayload (full neighborhood)
         [Parser(Opcode.SMSG_HOUSING_SVCS_GET_HOUSE_FINDER_NEIGHBORHOOD_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
         public static void HandleHousingSvcsGetHouseFinderNeighborhoodResponse(Packet packet)
         {
-            packet.ResetBitReader();
-            packet.ReadBit("Result");
-            packet.ResetBitReader();
+            packet.ReadByte("Result");
             ReadHouseFinderNeighborhood(packet);
         }
 
