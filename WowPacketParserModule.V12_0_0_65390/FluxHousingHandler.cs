@@ -672,8 +672,6 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("Field_09");
             packet.ReadPackedGuid128("DecorGuid");
             packet.ReadByte("Result");
-            var flags = packet.ReadByte("Flags");
-            packet.AddValue("Field_26", (flags & 0x80) != 0);
         }
 
         [Parser(Opcode.SMSG_HOUSING_DECOR_PLACE_RESPONSE, ClientVersionBuild.V12_1_0_69214)]
@@ -683,7 +681,6 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             packet.ReadUInt32("Field_09");
             packet.ReadPackedGuid128("DecorGuid");
             packet.ReadByte("Result");
-            packet.ReadByte("Flags"); // 0x80 seen on success
         }
 
         // IDA case 4 + sniff-verified 27B (69814):
