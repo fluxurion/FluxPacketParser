@@ -80,7 +80,9 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32("Result");
         }
 
-        [Parser(Opcode.SMSG_ACCOUNT_DATA_TIMES)]
+        // Registration moved to FluxMiscHandler.HandleAccountDataTimesEra:
+        // 1.15.9 sends 20 account-data timestamps (full AccountDataType enum),
+        // upstream layout has 17.
         public static void HandleAccountDataTimes(Packet packet)
         {
             packet.ReadPackedGuid128("Guid");

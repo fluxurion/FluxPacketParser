@@ -67,6 +67,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 0x460225 },
             { Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 0x460226 },
             { Opcode.SMSG_TUTORIAL_FLAGS, 0x460272 },
+            { Opcode.SMSG_ACCOUNT_DATA_TIMES, 0x4601B9 },
             { Opcode.SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE, 0x460224 },
             { Opcode.SMSG_SERVER_TIME_OFFSET, 0x4601C3 },
             { Opcode.SMSG_AURA_UPDATE, 0x510011 },

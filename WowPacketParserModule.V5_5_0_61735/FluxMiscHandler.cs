@@ -603,5 +603,18 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (var i = 0u; i < count; ++i)
                 ReadMirrorVarSingleEra(packet, i);
         }
+
+        // 0x4601B9 — {PackedGuid128 Guid, u64 ServerTime, u64[20] Times};
+        // 1.15.9 loops over all 20 AccountDataType entries (upstream used 17).
+        [Parser(Opcode.SMSG_ACCOUNT_DATA_TIMES)]
+        public static void HandleAccountDataTimesEra(Packet packet)
+        {
+            packet.ReadPackedGuid128("Guid");
+            packet.ReadTime64("ServerTime");
+
+            var count = ClientVersion.AddedInVersion(ClientVersionBuild.V1_15_9_69722) ? 20 : 17;
+            for (var i = 0; i < count; ++i)
+                packet.ReadTime64($"[{(AccountDataType)i}] Time", i);
+        }
     }
 }
