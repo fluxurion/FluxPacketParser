@@ -51,6 +51,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_UPDATE_BNET_SESSION_KEY, 0x4602D8 },             
             { Opcode.SMSG_WARDEN3_ENABLED, 0x4602D5 }, 
             { Opcode.SMSG_AUTH_RESPONSE, 0x460001 }, 
+            { Opcode.SMSG_ACCOUNT_CONVERSION_STATE_UPDATE, 0x460358 },
             { Opcode.SMSG_MIRROR_VARS, 0x460368 },
             { Opcode.SMSG_TEXT_EMOTE, 0x3A011D },
             { Opcode.SMSG_EMOTE, 0x3A026C },

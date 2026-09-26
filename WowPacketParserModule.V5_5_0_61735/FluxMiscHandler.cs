@@ -565,5 +565,13 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32("UnkInt2");
             packet.ReadBit("UnkBit");
         }
+
+        // 0x460358 — {i32, flag bit (u8>>7)}; retail 12.1 pair ≈ 0x45035A
+        [Parser(Opcode.SMSG_ACCOUNT_CONVERSION_STATE_UPDATE, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleAccountConversionStateUpdateEra(Packet packet)
+        {
+            packet.ReadInt32("ConversionState");
+            packet.ReadBit("UnkBit");
+        }
     }
 }
