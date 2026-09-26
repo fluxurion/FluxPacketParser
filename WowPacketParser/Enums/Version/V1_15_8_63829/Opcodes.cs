@@ -64,6 +64,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_AUCTIONABLE_TOKEN_AUCTION_SOLD, 0x460280 },
             { Opcode.SMSG_BATTLE_NET_CONNECTION_STATUS, 0x4602BB },
             { Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 0x460225 },
+            { Opcode.SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE, 0x460226 },
             { Opcode.SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE, 0x460224 },
             { Opcode.SMSG_SERVER_TIME_OFFSET, 0x4601C3 },
             { Opcode.SMSG_AURA_UPDATE, 0x510011 },
