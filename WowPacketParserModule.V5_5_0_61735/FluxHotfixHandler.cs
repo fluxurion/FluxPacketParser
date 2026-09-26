@@ -1,6 +1,9 @@
+using Google.Protobuf.WellKnownTypes;
+using System;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Proto;
 
 namespace WowPacketParserModule.V5_5_0_61735.Parsers
 {
@@ -29,6 +32,46 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             var dataSize = packet.ReadInt32("HotfixDataSize");
             packet.ReadBytes(dataSize);
+        }
+
+        // 1.15.9 (0x4A0000): wire layout matches retail SMSG_DB_REPLY —
+        // {u32 TableHash(DB2Hash), i32 RecordId, u32 Timestamp, u8 flag byte
+        //  (top 3 bits = HotfixStatus), i32 dataSize, blob}. The shared opcode
+        //  table maps 0x4A0000 to SMSG_UPDATE_OBJECT for 1.15.8; era uses the
+        //  modern numbering where this value is DB_REPLY.
+        [Parser(Opcode.SMSG_DB_REPLY, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleDBReply(Packet packet)
+        {
+            var dbReply = packet.Holder.DbReply = new();
+            var type = packet.ReadUInt32E<DB2Hash>("TableHash");
+            dbReply.TableHash = (uint)type;
+            dbReply.RecordId = packet.ReadInt32("RecordID");
+            var timeStamp = packet.ReadUInt32();
+            var time = packet.AddValue("Timestamp", Utilities.GetDateTimeFromUnixTime(timeStamp));
+            dbReply.Time = Timestamp.FromDateTime(DateTime.SpecifyKind(time, DateTimeKind.Utc));
+            packet.ResetBitReader();
+            var status = packet.ReadBitsE<HotfixStatus>("Status", 3);
+            packet.ResetBitReader();
+            switch (status)
+            {
+                case HotfixStatus.Valid:
+                    dbReply.Status = PacketDbReplyRecordStatus.RecordStatusValid;
+                    break;
+                case HotfixStatus.RecordRemoved:
+                    dbReply.Status = PacketDbReplyRecordStatus.RecordStatusRecordRemoved;
+                    break;
+                case HotfixStatus.Invalid:
+                    dbReply.Status = PacketDbReplyRecordStatus.RecordStatusInvalid;
+                    break;
+                case HotfixStatus.NotPublic:
+                    dbReply.Status = PacketDbReplyRecordStatus.RecordStatusNotPublic;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            var size = packet.ReadInt32("Size");
+            packet.ReadBytes(size);
         }
     }
 }
