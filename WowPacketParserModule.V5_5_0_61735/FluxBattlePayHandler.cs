@@ -400,6 +400,32 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             ReadDeliverable(packet);
         }
 
+        // 0x460308 — {u32 EntitlementCount, u32 ProductCount,
+        // JamWowEntitlement[{u32 DeliverableID, i64 ExpireDate,
+        // i64 DisplayExpireDate, u32 UnitsRemaining, u8 flag(bit7)}],
+        // products[sub_1406DC0D0]}. Retail 12.1 pair 0x4502FE (+10 drift);
+        // same layout as 12.0 HandleSyncWowEntitlements. Verified on
+        // 248-byte capture: 3x25B entitlements + 3x55B products.
+        [Parser(Opcode.SMSG_SYNC_WOW_ENTITLEMENTS, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleSyncWowEntitlementsEra(Packet packet)
+        {
+            var entitlementCount = packet.ReadUInt32("EntitlementCount");
+            var productCount = packet.ReadUInt32("ProductCount");
+
+            for (uint i = 0; i < entitlementCount; i++)
+            {
+                packet.ReadUInt32("DeliverableID", i);
+                packet.ReadInt64("ExpireDate", i);
+                packet.ReadInt64("DisplayExpireDate", i);
+                packet.ReadUInt32("UnitsRemaining", i);
+                var flag = packet.ReadByte("Flags", i);
+                packet.AddValue("ManualReviewStatus", (flag & 0x80) != 0, i);
+            }
+
+            for (uint i = 0; i < productCount; i++)
+                ReadDeliverable(packet, i);
+        }
+
         // 0x460225 — {u32 Result, u32 PurchaseCount, purchases[]}
         [Parser(Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, ClientVersionBuild.V1_15_9_69722)]
         public static void HandlePurchaseListResponse(Packet packet)

@@ -627,6 +627,52 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 packet.ReadUInt64("AchievementID", i);
         }
 
+        // 0x4A0005 — {u32 VirtualRealmAddress, u8 LookupState, [if 0: name info
+        // packed MSB-first like AUTH_RESPONSE realms — 18 bits in 3 bytes:
+        // IsLocal, IsInternal, 8b actualNameLen, 8b normalizedNameLen]};
+        // retail 12.1 pair = 0x490005 (exact +0x10000 in the 0x4A0xxx family).
+        // Verified on 35-byte capture (realm "Mirage Raceway"/"MirageRaceway").
+        [Parser(Opcode.SMSG_REALM_QUERY_RESPONSE)]
+        public static void HandleRealmQueryResponseEra(Packet packet)
+        {
+            if (!ClientVersion.AddedInVersion(ClientVersionBuild.V1_15_9_69722))
+            {
+                SessionHandler.HandleRealmQueryResponse(packet);
+                return;
+            }
+
+            packet.ReadUInt32("VirtualRealmAddress");
+
+            var state = packet.ReadByte("LookupState");
+            if (state == 0)
+            {
+                var b0 = packet.ReadByte();
+                var b1 = packet.ReadByte();
+                var b2 = packet.ReadByte();
+                packet.AddValue("IsLocal", (b0 & 0x80) != 0);
+                packet.AddValue("IsInternal", (b0 & 0x40) != 0);
+                var actualNameLength = ((b0 & 0x3F) << 2) | (b1 >> 6);
+                var normalizedNameLength = ((b1 & 0x3F) << 2) | (b2 >> 6);
+
+                packet.ReadWoWString("RealmNameActual", actualNameLength);
+                packet.ReadWoWString("RealmNameNormalized", normalizedNameLength);
+            }
+        }
+
+        // 0x4602D1 — {u32, u32, u64 creation, u64 expiry, u8 len<<1, string};
+        // retail 12.1 pair 0x4502C7 (+10 region drift). Reader sub_1405CDD00
+        // matches 12.x HandleGenerateSsoTokenResponse field-for-field.
+        [Parser(Opcode.SMSG_GENERATE_SSO_TOKEN_RESPONSE, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleGenerateSsoTokenResponseEra(Packet packet)
+        {
+            packet.ReadUInt32("Field32");
+            packet.ReadUInt32("Field36");
+            packet.ReadTime64("TokenCreationTime");
+            packet.ReadTime64("TokenExpirationTime");
+            var stringLen = packet.ReadByte("StringLengthByte");
+            packet.ReadWoWString("TokenString", stringLen >> 1);
+        }
+
         // 0x4602E3 — {u8 flags (bit7 = subscribe), u32 count, u64[count]};
         // retail 12.1 pair 0x4502D9 (+10 region drift, anchored by
         // BATTLE_NET_CONNECTION_STATUS 0x4602BB<->0x4502B1 and

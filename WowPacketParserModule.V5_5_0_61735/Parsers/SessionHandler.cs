@@ -51,7 +51,8 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadSingle("FarClip", idx);
         }
 
-        [Parser(Opcode.SMSG_REALM_QUERY_RESPONSE)]
+        // [Parser] removed: 1.15.9 (69722) uses a different name-info packing;
+        // dispatched from FluxMiscHandler.HandleRealmQueryResponseEra.
         public static void HandleRealmQueryResponse(Packet packet)
         {
             packet.ReadUInt32("VirtualRealmAddress");
