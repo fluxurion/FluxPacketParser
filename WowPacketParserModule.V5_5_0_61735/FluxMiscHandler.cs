@@ -573,5 +573,35 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32("ConversionState");
             packet.ReadBit("UnkBit");
         }
+
+        // 1.15.9 (0x460368): {u8 flag (bit7), u24be>>7 nameLen, u24be>>7 valueLen,
+        // name, value} — each length is a 3-byte big-endian field encoding len<<7.
+        private static int ReadMirrorVarStringLength(Packet packet)
+        {
+            var b0 = packet.ReadByte();
+            var b1 = packet.ReadByte();
+            var b2 = packet.ReadByte();
+            return (b0 << 9) | (b1 << 1) | (b2 >> 7);
+        }
+
+        private static void ReadMirrorVarSingleEra(Packet packet, params object[] indexes)
+        {
+            packet.ReadByte("Flags", indexes);
+            var nameLength = ReadMirrorVarStringLength(packet);
+            var valueLength = ReadMirrorVarStringLength(packet);
+
+            var name = Encoding.UTF8.GetString(packet.ReadBytes(nameLength)).TrimEnd('\0');
+            var value = Encoding.UTF8.GetString(packet.ReadBytes(valueLength)).TrimEnd('\0');
+            packet.AddValue(name, value, indexes);
+        }
+
+        // 0x460368
+        [Parser(Opcode.SMSG_MIRROR_VARS, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleMirrorVarsEra(Packet packet)
+        {
+            var count = packet.ReadUInt32("Count");
+            for (var i = 0u; i < count; ++i)
+                ReadMirrorVarSingleEra(packet, i);
+        }
     }
 }
