@@ -1291,6 +1291,7 @@ namespace WowPacketParser.Enums
         CMSG_SCENE_TRIGGER_EVENT,
         CMSG_SEAMLESS_TRANSFER_COMPLETE,
         CMSG_SELECT_DELVE_ENTRANCE_TIER,
+        CMSG_UNK_NEW_CLASSIC,
         CMSG_SELECT_WOW_LABS_AREA,
         CMSG_SELF_RES,
         CMSG_SELL_ALL_JUNK_ITEMS,
@@ -3835,6 +3836,7 @@ namespace WowPacketParser.Enums
         UMSG_UPDATE_GROUP_MEMBERS,
         UMSG_UPDATE_GUILD,
         FASZTUDJA,
+        SMSG_MI_A_GECI,
 
         // Tests
         TEST_430_SYNC_PLAYER_MOVE,

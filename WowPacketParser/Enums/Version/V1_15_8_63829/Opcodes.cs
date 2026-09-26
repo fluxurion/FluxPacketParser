@@ -19,6 +19,16 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
 
         private static readonly BiDictionary<Opcode, int> ClientOpcodes = new()
         {
+            { Opcode.CMSG_SUSPEND_COMMS_ACK, 0x450000 },
+            { Opcode.CMSG_AUTH_SESSION, 0x450001 },
+            { Opcode.CMSG_AUTH_CONTINUED_SESSION, 0x450003 },
+            { Opcode.CMSG_ENTER_ENCRYPTED_MODE_ACK, 0x450005 },
+            { Opcode.CMSG_UNK_NEW_CLASSIC, 0x450007 },
+            { Opcode.CMSG_QUEUED_MESSAGES_END, 0x45000A },
+            { Opcode.CMSG_DB_QUERY_BULK, 0x440010 },
+            { Opcode.CMSG_HOTFIX_REQUEST, 0x440011 },
+            { Opcode.CMSG_ENUM_CHARACTERS, 0x440014 },
+            { Opcode.CMSG_CHARACTER_CHECK_UPGRADE, 0x4400F5 },
             { Opcode.CMSG_CHAT_MESSAGE_SAY, 0x2F0023 },
             { Opcode.CMSG_SEND_TEXT_EMOTE, 0x340013 },
             { Opcode.CMSG_USE_ITEM, 0x30016B },
@@ -26,6 +36,17 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
 
         private static readonly BiDictionary<Opcode, int> ServerOpcodes = new()
         {
+            { Opcode.SMSG_AUTH_CHALLENGE, 0x4D0000 },
+            { Opcode.SMSG_ENTER_ENCRYPTED_MODE, 0x4D0004 },
+            { Opcode.SMSG_SUSPEND_COMMS, 0x4D0005 },
+            { Opcode.SMSG_RESUME_COMMS, 0x4D0006 },
+            { Opcode.SMSG_ENUM_CHARACTERS_RESULT, 0x460018 },
+            { Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 0x460064 },
+            { Opcode.SMSG_SET_TIME_ZONE_INFORMATION, 0x460124 },
+            { Opcode.SMSG_UPDATE_BNET_SESSION_KEY, 0x4602D8 },             
+            { Opcode.SMSG_WARDEN3_ENABLED, 0x4602D5 }, 
+            { Opcode.SMSG_AUTH_RESPONSE, 0x460001 }, 
+            { Opcode.SMSG_MIRROR_VARS, 0x460368 },
             { Opcode.SMSG_TEXT_EMOTE, 0x3A011D },
             { Opcode.SMSG_EMOTE, 0x3A026C },
             { Opcode.SMSG_CHAT, 0x3F0001 },

@@ -435,7 +435,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             }
         }
 
-        [Parser(Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN)]
+        [Parser(Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, ClientVersionBuild.Zero, ClientVersionBuild.V1_15_9_69722)]
         public static void HandleFeatureSystemStatusGlueScreen(Packet packet)
         {
             if (ClientVersion.RemovedInVersion(ClientVersionBuild.V5_5_1_63311))

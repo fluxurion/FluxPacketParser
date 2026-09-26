@@ -81,7 +81,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadUInt64("Key");
         }
 
-        [Parser(Opcode.SMSG_AUTH_RESPONSE)]
+        [Parser(Opcode.SMSG_AUTH_RESPONSE, ClientVersionBuild.Zero, ClientVersionBuild.V1_15_9_69722)]
         public static void HandleAuthResponse(Packet packet)
         {
             packet.ReadUInt32E<BattlenetRpcErrorCode>("Result");

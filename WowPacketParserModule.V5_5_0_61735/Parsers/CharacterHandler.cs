@@ -358,7 +358,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadByte("RankProgress");
         }
 
-        [Parser(Opcode.SMSG_ENUM_CHARACTERS_RESULT)]
+        [Parser(Opcode.SMSG_ENUM_CHARACTERS_RESULT, ClientVersionBuild.Zero, ClientVersionBuild.V1_15_9_69722)]
         public static void HandleEnumCharactersResult(Packet packet)
         {
             packet.ReadBit("Success");
