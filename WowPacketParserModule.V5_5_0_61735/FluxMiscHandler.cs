@@ -556,5 +556,14 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadUInt32("NativeRealmAddress");
             packet.ReadUInt32("Key3");
         }
+
+        // 0x460280 — {i32, i32, flag bit (u8>>7)}; retail 12.1 pair = 0x450280
+        [Parser(Opcode.SMSG_AUCTIONABLE_TOKEN_AUCTION_SOLD, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleAuctionableTokenAuctionSoldEra(Packet packet)
+        {
+            packet.ReadInt32("UnkInt1");
+            packet.ReadInt32("UnkInt2");
+            packet.ReadBit("UnkBit");
+        }
     }
 }
