@@ -14,10 +14,12 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         //   - purchase record (JamBattlePayPurchase) = ReadPurchase below, 1:1
         //   - distribution object (JamBattlePayDistributionObject) = 12.1
         //     ReadDistributionObject121 layout, 1:1
-        //   - product/group/shop element sizes/order match the 12.1 structs;
-        //     the era product record reader (sub_1406DC0D0) is the same function
-        //     used for the optional distribution Deliverable, i.e. the 12.1
-        //     Deliverable layout.
+        //   - product record reader (sub_1406DC0D0) = JamBattlePayProduct /
+        //     DisplayCard shape (as 12.0 ReadProduct/ReadDisplayCard): items
+        //     array BEFORE the name, {6x u32, u8 flags, optional visual}
+        //     elements — NOT the 12.1 Deliverable bit-packed order. The same
+        //     reader is used for product-list Products, the optional
+        //     distribution Deliverable, and SMSG_BATTLE_PAY_DISPLAY_CARD.
         //   - ReadVisualMetadata internals are ported from 12.1 and only
         //     exercised when display info is present (unverified on era).
 
@@ -193,8 +195,12 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             Storage.BattlePayProductInfos.Add(productInfo, packet.TimeSpan);
         }
 
-        // Era product record = 12.1 Deliverable (client uses the same reader,
-        // sub_1406DC0D0, for product-list Products and distribution Deliverable).
+        // Era product/DisplayCard record — sub_1406DC0D0, verified against
+        // decompile: 13x u32, u8 NameLength, u8 Flags1, u8 Flags2, then the
+        // items array, then the name string, then optional visual metadata.
+        // Count is interleaved: (Flags2 >> 7) | ((Flags1 & 0x3F) << 1).
+        // Elements are {6x u32, u8 flags, optional visual block} — the flag
+        // bytes are byte-aligned ReadInt8 reads, not bit-packed.
         private static void ReadDeliverable(Packet packet, params object[] index)
         {
             var deliverableID = packet.ReadUInt32("DeliverableID", index);
@@ -213,21 +219,40 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             var nameLen = packet.ReadByte("NameLength", index);
 
-            packet.ResetBitReader();
-            packet.ReadBit("AlreadyOwns", index);
-            packet.ReadBit("HasPetResult", index);
-            var choicesCount = packet.ReadBits("ChoicesCount", 7, index);
-            var hasDisplayInfo = packet.ReadBit("HasDisplayInfo", index);
-            packet.ReadBits("PetResult", 6, index);
-            packet.ResetBitReader();
+            var flags1 = packet.ReadByte("Flags1", index);
+            packet.AddValue("AlreadyOwns", (flags1 & 0x80) != 0, index);
+            var hasPetResult = (flags1 & 0x40) != 0;
+            packet.AddValue("HasPetResult", hasPetResult, index);
+
+            var flags2 = packet.ReadByte("Flags2", index);
+            var itemCount = (uint)((flags2 >> 7) | ((flags1 & 0x3F) << 1));
+            packet.AddValue("ChoicesCount", itemCount, index);
+            var hasDisplayInfo = (flags2 & 0x40) != 0;
+            packet.AddValue("HasDisplayInfo", hasDisplayInfo, index);
+            if (hasPetResult)
+                packet.AddValue("PetResult", (flags2 >> 2) & 0xF, index);
+
+            for (uint i = 0; i < itemCount; i++)
+            {
+                packet.ReadUInt32("ID", index, i);
+                packet.ReadUInt32("UnknownByte", index, i);
+                packet.ReadUInt32("ItemID", index, i);
+                packet.ReadUInt32("Quantity", index, i);
+                packet.ReadUInt32("UnknownInt1", index, i);
+                packet.ReadUInt32("UnknownInt2", index, i);
+
+                var itemFlags = packet.ReadByte("ItemFlags", index, i);
+                packet.AddValue("ItemIsPet", (itemFlags & 0x80) != 0, index, i);
+                var itemHasPetResult = (itemFlags & 0x40) != 0;
+                packet.AddValue("ItemHasPetResult", itemHasPetResult, index, i);
+                if (itemHasPetResult)
+                    packet.AddValue("ItemPetResult", (itemFlags >> 1) & 0xF, index, i);
+
+                if ((itemFlags & 0x20) != 0)
+                    _ = ReadVisualMetadata(packet, 4, 0, index, i);
+            }
 
             packet.ReadWoWString("Name", nameLen, index);
-
-            for (uint i = 0; i < choicesCount; i++)
-            {
-                packet.ReadByte("ChoiceType", index, i);
-                packet.ReadUInt32("ChoiceID", index, i);
-            }
 
             if (hasDisplayInfo)
                 _ = ReadVisualMetadata(packet, 6, deliverableID, index);
@@ -364,6 +389,15 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             for (uint i = 0; i < shopCount; i++)
                 ReadShop(packet, i);
+        }
+
+        // 0x46022E — bare JamBattlePayProduct/DisplayCard record (sub_1406DC0D0);
+        // no PackedGuid128 prefix unlike 12.x SMSG_BATTLE_PAY_DISPLAY_CARD.
+        // Verified: 55-byte packet = 13x u32 + 3 flag/len bytes, fully consumed.
+        [Parser(Opcode.SMSG_BATTLE_PAY_DISPLAY_CARD, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleBattlePayDisplayCard(Packet packet)
+        {
+            ReadDeliverable(packet);
         }
 
         // 0x460225 — {u32 Result, u32 PurchaseCount, purchases[]}

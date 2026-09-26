@@ -616,5 +616,31 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (var i = 0; i < count; ++i)
                 packet.ReadTime64($"[{(AccountDataType)i}] Time", i);
         }
+
+        // 0x4600F6 — retail 12.1 pair 0x4500F6; {u32 count, u64[]}. Observed
+        // empty (count=0); element width follows the modern TC definition.
+        [Parser(Opcode.SMSG_SERVER_FIRST_ACHIEVEMENTS)]
+        public static void HandleServerFirstAchievementsEra(Packet packet)
+        {
+            var count = packet.ReadUInt32("AchievementCount");
+            for (var i = 0u; i < count; ++i)
+                packet.ReadUInt64("AchievementID", i);
+        }
+
+        // 0x4602E3 — {u8 flags (bit7 = subscribe), u32 count, u64[count]};
+        // retail 12.1 pair 0x4502D9 (+10 region drift, anchored by
+        // BATTLE_NET_CONNECTION_STATUS 0x4602BB<->0x4502B1 and
+        // WARDEN3_ENABLED 0x4602D5<->0x4502CB). Verified on 13-byte capture:
+        // 0x80 flag, count=1, one u64 bnet account id.
+        [Parser(Opcode.SMSG_BATCH_PRESENCE_SUBSCRIPTION, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleBatchPresenceSubscriptionEra(Packet packet)
+        {
+            var flags = packet.ReadByte("Flags");
+            packet.AddValue("Subscribe", (flags & 0x80) != 0);
+
+            var count = packet.ReadUInt32("Count");
+            for (var i = 0u; i < count; ++i)
+                packet.ReadUInt64("BNetAccountID", i);
+        }
     }
 }
