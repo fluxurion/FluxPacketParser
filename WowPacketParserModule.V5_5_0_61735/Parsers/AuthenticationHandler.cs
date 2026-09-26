@@ -16,7 +16,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadByte("DosZeroBits");
         }
 
-        [Parser(Opcode.CMSG_AUTH_CONTINUED_SESSION)]
+        [Parser(Opcode.CMSG_AUTH_CONTINUED_SESSION, ClientVersionBuild.Zero, ClientVersionBuild.V1_15_9_69722)]
         public static void HandleRedirectAuthProof(Packet packet)
         {
             packet.ReadInt64("DosResponse");

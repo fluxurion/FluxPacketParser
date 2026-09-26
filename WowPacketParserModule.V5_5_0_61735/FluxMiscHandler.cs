@@ -544,5 +544,17 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (var i = 0u; i < payloadCount; ++i)
                 ReadConnectPayloadEra(packet, "Payload", i);
         }
+
+        // 0x450003 — same layout as retail 11.2.7 HandleAuthContinuedSession1127
+        [Parser(Opcode.CMSG_AUTH_CONTINUED_SESSION, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleAuthContinuedSessionEra(Packet packet)
+        {
+            packet.ReadInt64("DosResponse");
+            packet.ReadBytes("LocalChallenge", 32);
+            packet.ReadBytes("Digest", 24);
+            packet.ReadInt64("Key");
+            packet.ReadUInt32("NativeRealmAddress");
+            packet.ReadUInt32("Key3");
+        }
     }
 }
