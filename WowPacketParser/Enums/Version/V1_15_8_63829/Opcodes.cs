@@ -40,6 +40,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_ENTER_ENCRYPTED_MODE, 0x4D0004 },
             { Opcode.SMSG_SUSPEND_COMMS, 0x4D0005 },
             { Opcode.SMSG_RESUME_COMMS, 0x4D0006 },
+            { Opcode.SMSG_CONNECT_TO, 0x4D0008 },
             { Opcode.SMSG_ENUM_CHARACTERS_RESULT, 0x460018 },
             { Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 0x460064 },
             { Opcode.SMSG_SET_TIME_ZONE_INFORMATION, 0x460124 },

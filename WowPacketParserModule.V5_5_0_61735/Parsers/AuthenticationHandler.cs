@@ -54,7 +54,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32("Serial");
         }
 
-        [Parser(Opcode.SMSG_CONNECT_TO)]
+        [Parser(Opcode.SMSG_CONNECT_TO, ClientVersionBuild.Zero, ClientVersionBuild.V1_15_9_69722)]
         public static void HandleRedirectClient(Packet packet)
         {
             packet.ReadBytes("Where (RSA encrypted)", 256);

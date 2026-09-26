@@ -496,5 +496,53 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (var i = 0u; i < warbandGroupsCount; ++i)
                 ReadWarbandGroupEra(packet, i, "WarbandGroups");
         }
+
+        private static void ReadBleepTokenEra(Packet packet, params object[] idx)
+        {
+            packet.ResetBitReader();
+
+            var tokenLength = packet.ReadBits(5);
+            var proxyIdLength = packet.ReadBits(24);
+            var addressLength = packet.ReadBits(6);
+            packet.ReadInt64("TokenLifespanNanoSeconds", idx);
+            packet.ReadWoWString("Token", tokenLength, idx);
+            packet.ReadDynamicString("ProxyId", proxyIdLength, idx);
+            packet.ReadWoWString("Address", addressLength, idx);
+        }
+
+        private static void ReadConnectPayloadEra(Packet packet, params object[] idx)
+        {
+            var type = packet.ReadByteE<AddressType>("Type", idx);
+            switch (type)
+            {
+                case AddressType.IPv4:
+                    packet.ReadIPAddress("Address", idx);
+                    break;
+                case AddressType.IPv6:
+                    packet.ReadIPv6Address("Address", idx);
+                    break;
+                case AddressType.NamedSocket:
+                    packet.ReadWoWString("Address", 128, idx);
+                    break;
+            }
+
+            packet.ReadUInt16("Port", idx);
+            ReadBleepTokenEra(packet, idx, "Token");
+        }
+
+        // 0x4D0008
+        [Parser(Opcode.SMSG_CONNECT_TO, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleConnectToEra(Packet packet)
+        {
+            var payloadCount = packet.ReadUInt32();
+            packet.ReadUInt32E<ConnectToSerial>("Serial");
+            packet.ReadByte("Con");
+            packet.ReadUInt64("Key");
+            packet.ReadUInt32("NativeRealmAddress");
+            packet.ReadUInt32("Key3");
+
+            for (var i = 0u; i < payloadCount; ++i)
+                ReadConnectPayloadEra(packet, "Payload", i);
+        }
     }
 }
