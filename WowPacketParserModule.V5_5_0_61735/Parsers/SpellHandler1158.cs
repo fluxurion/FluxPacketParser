@@ -257,7 +257,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 packetSpellData.TargetUnit = targetUnit;
             packet.ReadPackedGuid128("Item", idx);
 
-            if (ClientVersion.AddedInVersion(ClientBranch.TBC, ClientVersionBuild.V2_5_5_64796))
+            if (ClientVersion.AddedInVersion(ClientBranch.TBC, ClientVersionBuild.V2_5_5_64796) || ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
             {
                 packet.ReadPackedGuid128("HousingGUID", idx);
                 packet.ReadBit("HousingIsResident", idx);
