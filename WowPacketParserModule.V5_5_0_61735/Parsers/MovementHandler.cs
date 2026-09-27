@@ -422,7 +422,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             var int152 = packet.ReadInt32("RemoveForcesCount", idx);
             packet.ReadInt32("MoveIndex", idx);
-            if (ClientVersion.AddedInVersion(ClientBranch.TBC, ClientVersionBuild.V2_5_6_68502))
+            if (ClientVersion.AddedInVersion(ClientBranch.TBC, ClientVersionBuild.V2_5_6_68502) || ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
                 packet.ReadSingle("GravityModifier", idx);
 
             for (var i = 0; i < int152; i++)

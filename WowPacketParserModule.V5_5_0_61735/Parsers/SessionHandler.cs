@@ -209,7 +209,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadUInt32("Serial");
         }
 
-        [Parser(Opcode.CMSG_PLAYER_LOGIN)]
+        // [Parser] attribute moved to FluxMiscHandler.HandlePlayerLoginEra (era layout adds trailing bit)
         public static void HandlePlayerLogin(Packet packet)
         {
             var guid = packet.ReadPackedGuid128("Guid");

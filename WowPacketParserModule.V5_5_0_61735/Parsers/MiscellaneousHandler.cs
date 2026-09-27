@@ -281,7 +281,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBit("PlayHoverAnim");
         }
 
-        [Parser(Opcode.SMSG_FEATURE_SYSTEM_STATUS)]
+        // [Parser] moved to FluxMiscHandler.HandleFeatureSystemStatusEra (era layout diverges mid-packet)
         public static void HandleFeatureSystemStatus(Packet packet)
         {
             packet.ReadByte("ComplaintStatus");
@@ -1143,7 +1143,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         [Parser(Opcode.SMSG_FISH_ESCAPED)]
         [Parser(Opcode.SMSG_INVALID_PROMOTION_CODE)]
         [Parser(Opcode.CMSG_REQUEST_CEMETERY_LIST)]
-        [Parser(Opcode.CMSG_USED_FOLLOW)]
+        // CMSG_USED_FOLLOW [Parser] moved to FluxMiscHandler (era sends a u8)
         [Parser(Opcode.CMSG_GAME_EVENT_DEBUG_ENABLE)]
         [Parser(Opcode.CMSG_GAME_EVENT_DEBUG_DISABLE)]
         [Parser(Opcode.CMSG_REQUEST_VEHICLE_EXIT)]
