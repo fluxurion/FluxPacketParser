@@ -688,5 +688,37 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (var i = 0u; i < count; ++i)
                 packet.ReadUInt64("BNetAccountID", i);
         }
+
+        // 0x4601AF — era reads {u32 Response(+32), packedGuid(+40)}; upstream
+        // HandleCreateChar reads u8 Response. Retail 12.1 pair 0x4501AC
+        // (+3 region drift, anchored by ACCOUNT_DATA_TIMES 0x4601B9<->0x4501B6).
+        // Verified on 6-byte capture: Response=27, null guid (create failed).
+        [Parser(Opcode.SMSG_CREATE_CHAR)]
+        public static void HandleCreateCharEra(Packet packet)
+        {
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V1_15_9_69722))
+            {
+                packet.ReadUInt32E<ResponseCode>("Response");
+                packet.ReadPackedGuid128("GUID");
+            }
+            else
+            {
+                CharacterHandler.HandleCreateChar(packet);
+            }
+        }
+
+        // 0x4601B0 — era reads only {packedGuid(+32)} = the deleted character's
+        // guid (null on this capture). Upstream HandleDeleteChar reads {u8
+        // Response}. Retail 12.1 pair 0x4501AD (+3 region drift, anchored by
+        // CREATE_CHAR 0x4601AF<->0x4501AC). Verified on 4-byte capture:
+        // guid mask 0x0042 with two zero bytes -> null guid.
+        [Parser(Opcode.SMSG_DELETE_CHAR)]
+        public static void HandleDeleteCharEra(Packet packet)
+        {
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V1_15_9_69722))
+                packet.ReadPackedGuid128("PlayerGUID");
+            else
+                CharacterHandler.HandleDeleteChar(packet);
+        }
     }
 }

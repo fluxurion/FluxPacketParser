@@ -450,5 +450,45 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             for (uint i = 0; i < count; i++)
                 ReadDistributionObject(packet, i);
         }
+
+        // 0x4602A7 — {u8 count=(b>>2), VASPurchaseState[count]}; element wire
+        // {16B GUID, u32, u32, u64, u8 count=(b>>6), u32[count]}, 64B stride.
+        // Type name explicit in client: WowGetRawTypeName<struct VASPurchaseState>.
+        // Retail 12.1 pair 0x45029D (+10 drift); same layout as 12.0
+        // HandleEnumVasPurchaseStatesResponse. Verified on 1-byte empty capture.
+        [Parser(Opcode.SMSG_ENUM_VAS_PURCHASE_STATES_RESPONSE, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleEnumVasPurchaseStatesResponseEra(Packet packet)
+        {
+            var countByte = packet.ReadByte("CountByte");
+            var vasCount = countByte >> 2;
+            packet.AddValue("VASCount", vasCount);
+
+            for (int i = 0; i < vasCount; i++)
+            {
+                packet.ReadUInt64("GUID_Hi", i);
+                packet.ReadUInt64("GUID_Lo", i);
+                packet.ReadUInt32("uint32_0", i);
+                packet.ReadUInt32("uint32_1", i);
+                packet.ReadUInt64("uint64_0", i);
+
+                var arrayCountByte = packet.ReadByte("ArrayCountByte", i);
+                var arrayCount = arrayCountByte >> 6;
+                packet.AddValue("ArrayCount", arrayCount, i);
+
+                for (int j = 0; j < arrayCount; j++)
+                    packet.ReadUInt32("uint32", i, j);
+            }
+        }
+
+        // 0x440144 — {u32 Field1}; writer emits a single u32. Retail 12.1 pair
+        // 0x430139 (+11 drift, matching CMSG_BATTLENET_REQUEST anchor 0x44012F
+        // <-> 0x430124); same layout as 12.1 HandleVasCheckTransferOk.
+        // Verified on 4-byte capture (Field1=1). Alternative 0x43013A
+        // OPEN_CHECKOUT ruled out: its 12.1 layout is 2xu32.
+        [Parser(Opcode.CMSG_VAS_CHECK_TRANSFER_OK, ClientVersionBuild.V1_15_9_69722)]
+        public static void HandleVasCheckTransferOkEra(Packet packet)
+        {
+            packet.ReadUInt32("Field1");
+        }
     }
 }

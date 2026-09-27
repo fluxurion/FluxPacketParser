@@ -556,14 +556,12 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32("NumNewPvpTalentSlots");
         }
 
-        [Parser(Opcode.SMSG_CREATE_CHAR)]
         public static void HandleCreateChar(Packet packet)
         {
             packet.ReadByteE<ResponseCode>("Response");
             packet.ReadPackedGuid128("GUID");
         }
 
-        [Parser(Opcode.SMSG_DELETE_CHAR)]
         public static void HandleDeleteChar(Packet packet)
         {
             packet.ReadByteE<ResponseCode>("Response");

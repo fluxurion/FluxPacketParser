@@ -23,6 +23,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.CMSG_AUTH_SESSION, 0x450001 },
             { Opcode.CMSG_AUTH_CONTINUED_SESSION, 0x450003 },
             { Opcode.CMSG_ENTER_ENCRYPTED_MODE_ACK, 0x450005 },
+            { Opcode.CMSG_PING, 0x450006 },
             { Opcode.CMSG_UNK_NEW_CLASSIC, 0x450007 },
             { Opcode.CMSG_QUEUED_MESSAGES_END, 0x45000A },
             { Opcode.CMSG_DB_QUERY_BULK, 0x440010 },
@@ -32,11 +33,16 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.CMSG_BATTLE_PAY_GET_PRODUCT_LIST, 0x4400F6 },
             { Opcode.CMSG_CHANGE_REALM_TICKET, 0x440133 },
             { Opcode.CMSG_SERVER_TIME_OFFSET_REQUEST, 0x4400CC },
+            { Opcode.CMSG_CHAR_DELETE, 0x4400CD },
+            { Opcode.CMSG_QUERY_REALM_NAME, 0x4400B7 },
             { Opcode.CMSG_BATTLENET_REQUEST, 0x44012F },
+            { Opcode.CMSG_VAS_CHECK_TRANSFER_OK, 0x440144 },
+            { Opcode.CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT, 0x440118 },
             { Opcode.CMSG_GET_LAST_CATALOG_FETCH, 0x2D0036 },
             { Opcode.CMSG_CHAT_MESSAGE_SAY, 0x2F0023 },
             { Opcode.CMSG_SEND_TEXT_EMOTE, 0x340013 },
             { Opcode.CMSG_USE_ITEM, 0x30016B },
+            { Opcode.CMSG_CREATE_CHARACTER, 0x440070 },
         };
 
         private static readonly BiDictionary<Opcode, int> ServerOpcodes = new()
@@ -46,6 +52,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_SUSPEND_COMMS, 0x4D0005 },
             { Opcode.SMSG_RESUME_COMMS, 0x4D0006 },
             { Opcode.SMSG_CONNECT_TO, 0x4D0008 },
+            { Opcode.SMSG_PONG, 0x4D0009 },
             { Opcode.SMSG_ENUM_CHARACTERS_RESULT, 0x460018 },
             { Opcode.SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 0x460064 },
             { Opcode.SMSG_SET_TIME_ZONE_INFORMATION, 0x460124 },
@@ -53,6 +60,7 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_WARDEN3_ENABLED, 0x4602D5 }, 
             { Opcode.SMSG_AUTH_RESPONSE, 0x460001 }, 
             { Opcode.SMSG_ACCOUNT_CONVERSION_STATE_UPDATE, 0x460358 },
+            { Opcode.SMSG_ACCOUNT_ITEM_COLLECTION_DATA, 0x460359 },
             { Opcode.SMSG_MIRROR_VARS, 0x460368 },
             { Opcode.SMSG_UNSET_INSTANCE_LEAVER, 0x46036A },
             { Opcode.SMSG_TEXT_EMOTE, 0x3A011D },
@@ -68,6 +76,8 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_AUCTIONABLE_TOKEN_AUCTION_SOLD, 0x460280 },
             { Opcode.SMSG_BATTLE_NET_CONNECTION_STATUS, 0x4602BB },
             { Opcode.SMSG_BATTLENET_NOTIFICATION, 0x4602BA },
+            { Opcode.SMSG_BATTLENET_RESPONSE, 0x4602B9 },
+            { Opcode.SMSG_ENUM_VAS_PURCHASE_STATES_RESPONSE, 0x4602A7 },
             { Opcode.SMSG_CHANGE_REALM_TICKET_RESPONSE, 0x4602BC },
             { Opcode.SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 0x460225 },
             { Opcode.SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 0x460226 },
@@ -81,10 +91,13 @@ namespace WowPacketParser.Enums.Version.V1_15_8_63829
             { Opcode.SMSG_SERVER_FIRST_ACHIEVEMENTS, 0x4600F6 },
             { Opcode.SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE, 0x460224 },
             { Opcode.SMSG_SERVER_TIME_OFFSET, 0x4601C3 },
+            { Opcode.SMSG_CREATE_CHAR, 0x4601AF },
+            { Opcode.SMSG_DELETE_CHAR, 0x4601B0 },
             { Opcode.SMSG_AURA_UPDATE, 0x510011 },
             { Opcode.SMSG_SPELL_GO, 0x510028 },
             { Opcode.SMSG_SPELL_START, 0x510029 },
             { Opcode.SMSG_PET_SPELLS_MESSAGE, 0x510014 },
+            { Opcode.SMSG_INVALIDATE_PLAYER, 0x630007 },
         };
 
         private static readonly BiDictionary<Opcode, int> MiscOpcodes = new();
