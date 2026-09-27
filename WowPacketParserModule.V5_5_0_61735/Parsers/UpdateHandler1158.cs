@@ -232,9 +232,18 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         private static List<WowCSEntityFragment> ReadEntityFragments(Packet packet, string name, int idx)
         {
             var fragmentIds = new List<WowCSEntityFragment>();
-            WowCSEntityFragments1100 fragmentId;
-            while ((fragmentId = packet.ReadByteE<WowCSEntityFragments1100>()) != WowCSEntityFragments1100.End)
-                fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, fragmentId, idx, fragmentIds.Count)));
+            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
+            {
+                byte fragmentId1127;
+                while ((fragmentId1127 = packet.ReadByte()) != 255)
+                    fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, (WowCSEntityFragments1127)fragmentId1127, idx, fragmentIds.Count)));
+            }
+            else
+            {
+                WowCSEntityFragments1100 fragmentId;
+                while ((fragmentId = packet.ReadByteE<WowCSEntityFragments1100>()) != WowCSEntityFragments1100.End)
+                    fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, fragmentId, idx, fragmentIds.Count)));
+            }
 
             return fragmentIds;
         }
