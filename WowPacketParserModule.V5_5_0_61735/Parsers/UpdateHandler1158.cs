@@ -232,7 +232,13 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         private static List<WowCSEntityFragment> ReadEntityFragments(Packet packet, string name, int idx)
         {
             var fragmentIds = new List<WowCSEntityFragment>();
-            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
+            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_60_1_70009))
+            {
+                byte fragmentId1160;
+                while ((fragmentId1160 = packet.ReadByte()) != 255)
+                    fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, (WowCSEntityFragments1160)fragmentId1160, idx, fragmentIds.Count)));
+            }
+            else if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
             {
                 byte fragmentId1127;
                 while ((fragmentId1127 = packet.ReadByte()) != 255)
@@ -255,7 +261,9 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             WoWObject obj = CoreParsers.UpdateHandler.CreateObject(objType, guid, map);
 
             obj.CreateType = createType;
-            obj.Movement = ReadMovementUpdateBlock(packet, createObject, guid, obj, index);
+            obj.Movement = ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_60_1_70009)
+                ? ReadMovementUpdateBlock160(packet, createObject, guid, obj, index)
+                : ReadMovementUpdateBlock(packet, createObject, guid, obj, index);
 
             createObject.Values.Fields = new();
             var updatefieldSize = packet.ReadUInt32();
@@ -1001,6 +1009,403 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 if (packet.ReadBit("HasTextureKitID", index))
                     (obj as ConversationTemplate).TextureKitId = packet.ReadUInt32("TextureKitID", index);
             }
+
+            return moveInfo;
+        }
+
+        // Classic 1.60.1.70009 layout (matches TC BaseEntity::BuildMovementUpdate / retail-style):
+        // 21 header bits (GameObject at bit13, no AreaTrigger; Room/Decor/MeshObject added),
+        // PauseTimesCount right after the header, u64 movement flags, GravityModifier after
+        // MoveIndex, sub-block order StandingOn->Transport->Fall->Inertia->AdvFlying->DriveStatus,
+        // movement forces written before the HasSpline bit, PauseTimes at the very end.
+        private static MovementInfo ReadMovementUpdateBlock160(Packet packet, CreateObject createObject, WowGuid guid, WoWObject obj, object index)
+        {
+            var moveInfo = new MovementInfo();
+
+            packet.ResetBitReader();
+
+            packet.ReadBit("HasPositionFragment", index);
+            moveInfo.NoBirthAnim = packet.ReadBit("NoBirthAnim", index);
+            packet.ReadBit("EnablePortals", index);
+            moveInfo.PlayHoverAnim = packet.ReadBit("PlayHoverAnim", index);
+            packet.ReadBit("ThisIsYou", index);
+
+            var hasMovementUpdate = packet.ReadBit("HasMovementUpdate", index);
+            var hasMovementTransport = packet.ReadBit("HasMovementTransport", index);
+            var hasStationaryPosition = packet.ReadBit("Stationary", index);
+            var hasCombatVictim = packet.ReadBit("HasCombatVictim", index);
+            var hasServerTime = packet.ReadBit("HasServerTime", index);
+            var hasVehicleCreate = packet.ReadBit("HasVehicleCreate", index);
+            var hasAnimKitCreate = packet.ReadBit("HasAnimKitCreate", index);
+            var hasRotation = packet.ReadBit("HasRotation", index);
+            var hasGameObject = packet.ReadBit("HasGameObject", index);
+            var hasSmoothPhasing = packet.ReadBit("HasSmoothPhasing", index);
+            var sceneObjCreate = packet.ReadBit("SceneObjCreate", index);
+            var playerCreateData = packet.ReadBit("HasPlayerCreateData", index);
+            var hasConversation = packet.ReadBit("HasConversation", index);
+            var hasRoom = packet.ReadBit("HasRoom", index);
+            var hasDecor = packet.ReadBit("HasDecor", index);
+            var hasMeshObject = packet.ReadBit("HasMeshObject", index);
+
+            var pauseTimesCount = packet.ReadUInt32("PauseTimesCount", index);
+
+            if (hasMovementUpdate)
+            {
+                var movementUpdate = createObject.Movement = new();
+                packet.ResetBitReader();
+                movementUpdate.Mover = moveInfo.MoverGuid = packet.ReadPackedGuid128("MoverGUID", index);
+
+                moveInfo.Flags64 = (ulong)packet.ReadUInt64E<WowPacketParser.Enums.v12.MovementFlag>("MovementFlags", index);
+
+                movementUpdate.MoveTime = packet.ReadUInt32("MoveTime", index);
+                movementUpdate.Position = moveInfo.Position = packet.ReadVector3("Position", index);
+                movementUpdate.Orientation = moveInfo.Orientation = packet.ReadSingle("Orientation", index);
+
+                movementUpdate.Pitch = packet.ReadSingle("Pitch", index);
+                movementUpdate.StepUpStartElevation = packet.ReadSingle("StepUpStartElevation", index);
+
+                var removeForcesIDsCount = packet.ReadInt32();
+                movementUpdate.MoveIndex = packet.ReadInt32("MoveIndex", index);
+
+                packet.ReadSingle("GravityModifier", index);
+
+                for (var i = 0; i < removeForcesIDsCount; i++)
+                    packet.ReadPackedGuid128("RemoveForcesIDs", index, i);
+
+                var hasStandingOnGameObjectGUID = packet.ReadBit("HasStandingOnGameObjectGUID", index);
+                var hasTransport = packet.ReadBit("Has Transport Data", index);
+                var hasFall = packet.ReadBit("Has Fall Data", index);
+                packet.ReadBit("HasSpline", index);
+                packet.ReadBit("HeightChangeFailed", index);
+                packet.ReadBit("RemoteTimeValid", index);
+                var hasInertia = packet.ReadBit("HasInertia", index);
+                var hasAdvFlying = packet.ReadBit("HasAdvFlying", index);
+                var hasDriveStatus = packet.ReadBit("HasDriveStatus", index);
+
+                if (hasStandingOnGameObjectGUID)
+                    packet.ReadPackedGuid128("StandingOnGameObjectGUID", index);
+
+                if (hasTransport)
+                    movementUpdate.Transport = ReadTransportData(moveInfo, guid, packet, index);
+
+                if (hasFall)
+                {
+                    packet.ResetBitReader();
+                    movementUpdate.FallTime = packet.ReadUInt32("Fall Time", index);
+                    movementUpdate.JumpVelocity = packet.ReadSingle("JumpVelocity", index);
+
+                    var hasFallDirection = packet.ReadBit("Has Fall Direction", index);
+                    if (hasFallDirection)
+                    {
+                        packet.ReadVector2("Fall", index);
+                        packet.ReadSingle("Horizontal Speed", index);
+                    }
+                }
+
+                if (hasInertia)
+                {
+                    packet.ReadInt32("ID", "Inertia");
+                    packet.ReadVector3("Force", index, "Inertia");
+                    packet.ReadUInt32("Lifetime", index, "Inertia");
+                }
+
+                if (hasAdvFlying)
+                {
+                    packet.ReadSingle("ForwardVelocity", index, "AdvFlying");
+                    packet.ReadSingle("UpVelocity", index, "AdvFlying");
+                }
+
+                if (hasDriveStatus)
+                {
+                    packet.ResetBitReader();
+                    packet.ReadSingle("Speed", index, "DriveStatus");
+                    packet.ReadSingle("MovementAngle", index, "DriveStatus");
+                    packet.ReadBit("Accelerating", index, "DriveStatus");
+                    packet.ReadBit("Drifting", index, "DriveStatus");
+                }
+
+                movementUpdate.WalkSpeed = moveInfo.WalkSpeed = packet.ReadSingle("WalkSpeed", index) / 2.5f;
+                movementUpdate.RunSpeed = moveInfo.RunSpeed = packet.ReadSingle("RunSpeed", index) / 7.0f;
+                packet.ReadSingle("RunBackSpeed", index);
+                packet.ReadSingle("SwimSpeed", index);
+                packet.ReadSingle("SwimBackSpeed", index);
+                packet.ReadSingle("FlightSpeed", index);
+                packet.ReadSingle("FlightBackSpeed", index);
+                packet.ReadSingle("TurnRate", index);
+                packet.ReadSingle("PitchRate", index);
+
+                var movementForceCount = packet.ReadUInt32("MovementForceCount", index);
+                packet.ReadSingle("MovementForcesModMagnitude", index);
+
+                packet.ReadSingle("AdvFlyingAirFriction", index);
+                packet.ReadSingle("AdvFlyingMaxVel", index);
+                packet.ReadSingle("AdvFlyingLiftCoefficient", index);
+                packet.ReadSingle("AdvFlyingDoubleJumpVelMod", index);
+                packet.ReadSingle("AdvFlyingGlideStartMinHeight", index);
+                packet.ReadSingle("AdvFlyingAddImpulseMaxSpeed", index);
+                packet.ReadSingle("AdvFlyingMinBankingRate", index);
+                packet.ReadSingle("AdvFlyingMaxBankingRate", index);
+                packet.ReadSingle("AdvFlyingMinPitchingRateDown", index);
+                packet.ReadSingle("AdvFlyingMaxPitchingRateDown", index);
+                packet.ReadSingle("AdvFlyingMinPitchingRateUp", index);
+                packet.ReadSingle("AdvFlyingMaxPitchingRateUp", index);
+                packet.ReadSingle("AdvFlyingMinTurnVelocityThreshold", index);
+                packet.ReadSingle("AdvFlyingMaxTurnVelocityThreshold", index);
+                packet.ReadSingle("AdvFlyingSurfaceFriction", index);
+                packet.ReadSingle("AdvFlyingOverMaxDeceleration", index);
+                packet.ReadSingle("AdvFlyingLaunchSpeedCoefficient", index);
+
+                for (var i = 0; i < movementForceCount; ++i)
+                    MovementHandler1158.ReadMovementForce(packet, "MovementForces", i);
+
+                packet.ResetBitReader();
+                moveInfo.HasSplineData = packet.ReadBit("HasMovementSpline", index);
+
+                if (moveInfo.HasSplineData)
+                {
+                    var splineData = movementUpdate.SplineData = new();
+                    packet.ResetBitReader();
+                    splineData.Id = packet.ReadInt32("ID", index);
+                    splineData.Destination = packet.ReadVector3("Destination", index);
+
+                    var hasMovementSplineMove = packet.ReadBit("MovementSplineMove", index);
+                    if (hasMovementSplineMove)
+                    {
+                        var moveData = splineData.MoveData = new();
+                        packet.ResetBitReader();
+
+                        moveData.Flags = packet.ReadUInt32E<SplineFlag>("SplineFlags", index).ToUniversal();
+                        var face = packet.ReadByte("Face", index);
+                        moveData.Elapsed = packet.ReadInt32("Elapsed", index);
+                        moveData.Duration = packet.ReadUInt32("Duration", index);
+                        moveData.DurationModifier = packet.ReadSingle("DurationModifier", index);
+                        moveData.NextDurationModifier = packet.ReadSingle("NextDurationModifier", index);
+
+                        switch (face)
+                        {
+                            case 1:
+                                moveData.LookPosition = packet.ReadVector3("FaceSpot", index);
+                                break;
+                            case 2:
+                                moveData.LookTarget = new() { Target = packet.ReadPackedGuid128("FaceGUID", index) };
+                                break;
+                            case 3:
+                                moveData.LookOrientation = packet.ReadSingle("FaceDirection", index);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        var hasSpecialTime = packet.ReadBit("HasSpecialTime", index);
+
+                        var pointsCount = packet.ReadBits("PointsCount", 16, index);
+
+                        var hasSplineFilterKey = packet.ReadBit("HasSplineFilterKey", index);
+                        var hasSpellEffectExtraData = packet.ReadBit("HasSpellEffectExtraData", index);
+                        var hasJumpExtraData = packet.ReadBit("HasJumpExtraData", index);
+                        var hasTurnData = packet.ReadBit("HasTurnData", index);
+                        var hasAnimationTierTransition = packet.ReadBit("HasAnimationTierTransition", index);
+                        var hasSpellVisualData = packet.ReadBit("HasSpellVisualData", index);
+
+                        if (hasSpecialTime)
+                            packet.ReadUInt32("SpecialTime", index);
+
+                        if (hasSplineFilterKey)
+                        {
+                            packet.ResetBitReader();
+                            var filterKeysCount = packet.ReadUInt32("FilterKeysCount", index);
+                            for (var i = 0; i < filterKeysCount; ++i)
+                            {
+                                packet.ReadSingle("In", index, i);
+                                packet.ReadSingle("Out", index, i);
+                            }
+
+                            packet.ReadBits("FilterFlags", 2, index);
+                        }
+
+                        for (var i = 0; i < pointsCount; ++i)
+                            moveData.Points.Add(packet.ReadVector3("Points", index, i));
+
+                        if (hasSpellEffectExtraData)
+                            MovementHandler.ReadMonsterSplineSpellEffectExtraData(packet, index);
+
+                        if (hasJumpExtraData)
+                            moveData.Jump = MovementHandler.ReadMonsterSplineJumpExtraData(packet, index);
+
+                        if (hasTurnData)
+                            MovementHandler.ReadMonsterSplineTurnData(packet, index, "MonsterSplineTurnData");
+
+                        if (hasAnimationTierTransition)
+                        {
+                            packet.ReadInt32("TierTransitionID", index);
+                            packet.ReadByte("AnimTier", index);
+                            packet.ReadInt32("StartTime", index);
+                            packet.ReadInt32("EndTime", index);
+                        }
+
+                        if (hasSpellVisualData)
+                        {
+                            for (var i = 0; i < 16; ++i)
+                            {
+                                packet.ReadInt32("SpellID", index, "SpellVisualData", i);
+                                V9_0_1_36216.Parsers.SpellHandler.ReadSpellCastVisual(packet, index, "SpellVisualData", i, "Visual");
+                                packet.ReadInt32("StartNodeIndex", index, "SpellVisualData", i);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (hasMovementTransport)
+                createObject.Transport = ReadTransportData(moveInfo, guid, packet, index);
+
+            if (hasStationaryPosition)
+            {
+                moveInfo.Position = packet.ReadVector3();
+                moveInfo.Orientation = packet.ReadSingle();
+
+                packet.AddValue("Stationary Position", moveInfo.Position, index);
+                packet.AddValue("Stationary Orientation", moveInfo.Orientation, index);
+                createObject.Stationary = new() { Position = moveInfo.Position, Orientation = moveInfo.Orientation };
+            }
+
+            if (hasCombatVictim)
+                packet.ReadPackedGuid128("CombatVictim Guid", index);
+
+            if (hasServerTime)
+                packet.ReadUInt32("ServerTime", index);
+
+            if (hasVehicleCreate)
+            {
+                var vehicle = createObject.Vehicle = new();
+                moveInfo.VehicleId = (uint)packet.ReadInt32("RecID", index);
+                vehicle.VehicleId = (int)moveInfo.VehicleId;
+                vehicle.InitialRawFacing = packet.ReadSingle("InitialRawFacing", index);
+            }
+
+            if (hasAnimKitCreate)
+            {
+                var aiId = packet.ReadUInt16("AiID", index);
+                var movementId = packet.ReadUInt16("MovementID", index);
+                var meleeId = packet.ReadUInt16("MeleeID", index);
+                if (obj is Unit unit)
+                {
+                    unit.AIAnimKit = aiId;
+                    unit.MovementAnimKit = movementId;
+                    unit.MeleeAnimKit = meleeId;
+                }
+                else if (obj is GameObject gob)
+                {
+                    gob.AIAnimKitID = aiId;
+                }
+            }
+
+            if (hasRotation)
+                createObject.Rotation = moveInfo.Rotation = packet.ReadPackedQuaternion("GameObject Rotation", index);
+
+            if (hasGameObject)
+            {
+                packet.ResetBitReader();
+                var worldEffectId = packet.ReadUInt32("WorldEffectID", index);
+                if (worldEffectId != 0 && obj is GameObject gob)
+                    gob.WorldEffectID = worldEffectId;
+
+                var hasInt1 = packet.ReadBit("bit8", index);
+                var hasShipPath = packet.ReadBit("HasShipPath", index);
+                var hasTransportStatePercent = packet.ReadBit("HasTransportStatePercent", index);
+                if (hasShipPath)
+                {
+                    packet.ResetBitReader();
+                    packet.ReadUInt32("Period", index, "ShipPath");
+                    packet.ReadUInt32("Progress", index, "ShipPath");
+                    packet.ReadBit("StopRequested", index, "ShipPath");
+                    packet.ReadBit("Stopped", index, "ShipPath");
+                    packet.ReadBit("Field_16", index, "ShipPath");
+                }
+
+                if (hasInt1)
+                    packet.ReadUInt32("Int1", index);
+
+                if (hasTransportStatePercent)
+                    packet.ReadSingle("TransportStatePercent", index);
+            }
+
+            if (hasSmoothPhasing)
+            {
+                packet.ResetBitReader();
+                packet.ReadBit("ReplaceActive", index);
+                packet.ReadBit("StopAnimKits", index);
+
+                var replaceObject = packet.ReadBit();
+                if (replaceObject)
+                    packet.ReadPackedGuid128("ReplaceObject", index);
+            }
+
+            if (sceneObjCreate)
+            {
+                packet.ResetBitReader();
+
+                var hasSceneLocalScriptData = packet.ReadBit("HasSceneLocalScriptData", index);
+                var petBattleFullUpdate = packet.ReadBit("HasPetBattleFullUpdate", index);
+
+                if (hasSceneLocalScriptData)
+                {
+                    packet.ResetBitReader();
+                    var dataLength = packet.ReadBits(7);
+                    packet.ReadWoWString("Data", dataLength, index);
+                }
+
+                if (petBattleFullUpdate)
+                    BattlePetHandler.ReadPetBattleFullUpdate(packet, index);
+            }
+
+            if (playerCreateData)
+            {
+                packet.ResetBitReader();
+                var hasSceneInstanceIDs = packet.ReadBit("ScenePendingInstances", index);
+                var hasRuneState = packet.ReadBit("Runes", index);
+
+                if (hasSceneInstanceIDs)
+                {
+                    var sceneInstanceIDs = packet.ReadUInt32("SceneInstanceIDsCount");
+                    for (var i = 0; i < sceneInstanceIDs; ++i)
+                        packet.ReadInt32("SceneInstanceIDs", index, i);
+                }
+
+                if (hasRuneState)
+                {
+                    packet.ReadByte("RechargingRuneMask", index);
+                    packet.ReadByte("UsableRuneMask", index);
+                    var runeCount = packet.ReadUInt32();
+                    for (var i = 0; i < runeCount; ++i)
+                        packet.ReadByte("RuneCooldown", index, i);
+                }
+            }
+
+            if (hasConversation)
+            {
+                packet.ResetBitReader();
+                if (packet.ReadBit("HasTextureKitID", index))
+                    (obj as ConversationTemplate).TextureKitId = packet.ReadUInt32("TextureKitID", index);
+            }
+
+            if (hasRoom)
+                packet.ReadPackedGuid128("HouseGUID", index);
+
+            if (hasDecor)
+                packet.ReadPackedGuid128("RoomGUID", index);
+
+            if (hasMeshObject)
+            {
+                packet.ReadPackedGuid128("AttachParentGUID", index);
+                packet.ReadVector3("PositionLocalSpace", index);
+                packet.ReadQuaternion("RotationLocalSpace", index);
+                packet.ReadSingle("ScaleLocalSpace", index);
+                packet.ReadByte("AttachmentFlags", index);
+            }
+
+            for (var i = 0; i < pauseTimesCount; ++i)
+                packet.ReadUInt32("PauseTimes", index, i);
 
             return moveInfo;
         }
