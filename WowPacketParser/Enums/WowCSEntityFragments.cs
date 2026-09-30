@@ -54,6 +54,7 @@ namespace WowPacketParser.Enums
         FHousingStorage_C,
         FHousingFixture_C,
         PlayerInitiativeComponent_C,
+        FWorldStateListenerData_C,
         End
     }
 
@@ -112,6 +113,7 @@ namespace WowPacketParser.Enums
         FHousingStorage_C = 33,
         FHousingFixture_C = 34,
         PlayerInitiativeComponent_C = 37,
+        FWorldStateListenerData_C = 42,
         Tag_Item = 200,
         Tag_Container = 201,
         Tag_AzeriteEmpoweredItem = 202,
@@ -269,6 +271,7 @@ namespace WowPacketParser.Enums
                 WowCSEntityFragments1127.FHousingStorage_C => WowCSEntityFragments.FHousingStorage_C,
                 WowCSEntityFragments1127.FHousingFixture_C => WowCSEntityFragments.FHousingFixture_C,
                 WowCSEntityFragments1127.PlayerInitiativeComponent_C => WowCSEntityFragments.PlayerInitiativeComponent_C,
+                WowCSEntityFragments1127.FWorldStateListenerData_C => WowCSEntityFragments.FWorldStateListenerData_C,
                 WowCSEntityFragments1127.Tag_Item => WowCSEntityFragments.Tag_Item,
                 WowCSEntityFragments1127.Tag_Container => WowCSEntityFragments.Tag_Container,
                 WowCSEntityFragments1127.Tag_AzeriteEmpoweredItem => WowCSEntityFragments.Tag_AzeriteEmpoweredItem,

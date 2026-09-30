@@ -71,7 +71,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBits("Reason", 4);
         }
 
-        [Parser(Opcode.CMSG_TRAITS_COMMIT_CONFIG)]
+        [Parser(Opcode.CMSG_TRAITS_COMMIT_CONFIG, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void ReadTraitsCommitConfig(Packet packet)
         {
             ReadTraitConfig(packet, "Config");

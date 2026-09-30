@@ -93,7 +93,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         }
 
         [HasSniffData]
-        [Parser(Opcode.SMSG_QUERY_CREATURE_RESPONSE)]
+        [Parser(Opcode.SMSG_QUERY_CREATURE_RESPONSE, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleCreatureQueryResponse(Packet packet)
         {
             PacketQueryCreatureResponse response = packet.Holder.QueryCreatureResponse = new PacketQueryCreatureResponse();
@@ -519,7 +519,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadPackedGuid128("Id");
         }
 
-        [Parser(Opcode.CMSG_QUERY_CREATURE)]
+        [Parser(Opcode.CMSG_QUERY_CREATURE, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleCreatureQuery(Packet packet)
         {
             packet.ReadInt32("Entry");

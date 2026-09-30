@@ -196,7 +196,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBytes("SessionKey", sessionKeyLength);
         }
 
-        [Parser(Opcode.CMSG_LOGOUT_REQUEST)]
+        [Parser(Opcode.CMSG_LOGOUT_REQUEST, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleLogoutRequest(Packet packet)
         {
             packet.ReadBit("IdleLogout");

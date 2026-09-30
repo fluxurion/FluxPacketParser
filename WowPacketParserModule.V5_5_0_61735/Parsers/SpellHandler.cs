@@ -627,7 +627,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             ReadTalentInfoUpdateClassic(packet, "Info");
         }
 
-        [Parser(Opcode.SMSG_RESPEC_WIPE_CONFIRM)]
+        [Parser(Opcode.SMSG_RESPEC_WIPE_CONFIRM, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleRespecWipeConfirm(Packet packet)
         {
             packet.ReadSByte("RespecType");

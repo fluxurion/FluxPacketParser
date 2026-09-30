@@ -240,7 +240,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             CoreParsers.NpcHandler.TempGossipOptionPOI.Reset();
         }
 
-        [Parser(Opcode.SMSG_TRAINER_LIST)]
+        [Parser(Opcode.SMSG_TRAINER_LIST, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleServerTrainerList(Packet packet)
         {
             Trainer trainer = new Trainer();

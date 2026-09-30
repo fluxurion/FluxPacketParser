@@ -279,7 +279,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadWoWString("NewLeaderName", newLeaderNameLength);
         }
 
-        [Parser(Opcode.SMSG_GUILD_EVENT_PLAYER_JOINED)]
+        [Parser(Opcode.SMSG_GUILD_EVENT_PLAYER_JOINED, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleGuildEventPlayerJoined(Packet packet)
         {
             packet.ReadPackedGuid128("Guid");
@@ -308,7 +308,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadWoWString("LeaverName", lenLeaverName);
         }
 
-        [Parser(Opcode.SMSG_GUILD_EVENT_PRESENCE_CHANGE)]
+        [Parser(Opcode.SMSG_GUILD_EVENT_PRESENCE_CHANGE, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleGuildEventPresenceChange(Packet packet)
         {
             packet.ReadPackedGuid128("Guid");
@@ -503,7 +503,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             }
         }
 
-        [Parser(Opcode.SMSG_GUILD_ROSTER)]
+        [Parser(Opcode.SMSG_GUILD_ROSTER, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleGuildRoster(Packet packet)
         {
             packet.ReadUInt32("NumAccounts");
@@ -595,7 +595,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadInt32E<GuildEmblemError>("Error");
         }
 
-        [Parser(Opcode.SMSG_QUERY_GUILD_INFO_RESPONSE)]
+        [Parser(Opcode.SMSG_QUERY_GUILD_INFO_RESPONSE, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleGuildQueryResponse(Packet packet)
         {
             packet.ReadPackedGuid128("Guild Guid");
@@ -1044,7 +1044,6 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         [Parser(Opcode.SMSG_GUILD_EVENT_TAB_ADDED)]
         [Parser(Opcode.SMSG_GUILD_MEMBER_DAILY_RESET)]
         [Parser(Opcode.CMSG_GUILD_CHALLENGE_UPDATE_REQUEST)]
-        [Parser(Opcode.CMSG_GUILD_DECLINE_INVITATION)]
         [Parser(Opcode.CMSG_GUILD_DELETE)]
         [Parser(Opcode.CMSG_GUILD_EVENT_LOG_QUERY)]
         [Parser(Opcode.CMSG_GUILD_GET_ROSTER)]

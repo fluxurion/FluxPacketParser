@@ -9,7 +9,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 {
     public static class ActionBarHandler
     {
-        [Parser(Opcode.SMSG_UPDATE_ACTION_BUTTONS)]
+        [Parser(Opcode.SMSG_UPDATE_ACTION_BUTTONS, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleActionButtons(Packet packet)
         {
             for (int i = 0; i < 180; ++i)
@@ -60,7 +60,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadByte("ActionBar");
         }
 
-        [Parser(Opcode.CMSG_SET_ACTION_BUTTON)]
+        [Parser(Opcode.CMSG_SET_ACTION_BUTTON, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleActionButton(Packet packet)
         {
             var data = packet.ReadUInt64();

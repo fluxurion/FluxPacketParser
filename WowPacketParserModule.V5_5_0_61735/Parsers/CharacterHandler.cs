@@ -789,7 +789,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBit("IsFavorite");
         }
 
-        [Parser(Opcode.CMSG_CREATE_CHARACTER)]
+        [Parser(Opcode.CMSG_CREATE_CHARACTER, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleClientCharCreate(Packet packet)
         {
             var nameLen = packet.ReadBits(6);
