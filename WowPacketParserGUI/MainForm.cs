@@ -97,10 +97,10 @@ public partial class MainForm : Form
     private Label keyHintLabel = null!;
     private Panel separatorFooter = null!;
     private List<string> allPackets = new();
-    private Dictionary<string, List<List<string>>> packetLines = new();
+    private Dictionary<string, List<PacketOccurrence>> packetLines = new();
     private Dictionary<string, string> packetTimestamps = new();
     private string? currentFilePath;
-    private string? parsedContent;
+    private ParsedFileIndex? parsedIndex;
     private Process? currentProcess;
     private int lastReportedProgress = -1;
     private bool isReparsing = false;
@@ -744,6 +744,8 @@ public partial class MainForm : Form
         questFlowButton.Enabled = false;
         outputTextBox.Clear();
         allPackets.Clear();
+        packetLines.Clear();
+        parsedIndex = null;
         packetComboBox.Items.Clear();
         packetComboBox.Enabled = false;
         occurrenceLabel.Visible = false;
@@ -759,43 +761,28 @@ public partial class MainForm : Form
 
     private void LoadExistingParsedFile(string parsedFile)
     {
-        outputTextBox.Text = "Loading existing parsed file...\n";
+        outputTextBox.Text = "Indexing parsed file...\n";
 
-        Task.Run(async () =>
+        Task.Run(() =>
         {
             try
             {
                 var fileInfo = new FileInfo(parsedFile);
-                var totalBytes = fileInfo.Length;
-                var totalRead = 0L;
 
-                using var fileStream = new FileStream(parsedFile, FileMode.Open, FileAccess.Read);
-                using var reader = new StreamReader(fileStream);
-
-                var content = new System.Text.StringBuilder();
-                var readBuffer = new char[4096];
-                int bytesRead;
-
-                while ((bytesRead = await reader.ReadAsync(readBuffer, 0, readBuffer.Length)) > 0)
+                var index = ParsedFileIndexer.Build(parsedFile, p =>
                 {
-                    content.Append(readBuffer, 0, bytesRead);
-                    totalRead += bytesRead;
-
-                    var progress = (int)((totalRead * 100) / totalBytes);
                     this.Invoke(() =>
                     {
-                        outputTextBox.Text = $"Loading existing parsed file... {Math.Min(progress, 100)}%\n";
+                        outputTextBox.Text = $"Indexing parsed file... {p}%\n";
                     });
-                }
-
-                parsedContent = content.ToString();
+                });
 
                 this.Invoke(() =>
                 {
                     outputTextBox.Text = "Existing parsed file loaded. Select a packet to view.\n" +
                                         $"File date: {fileInfo.LastWriteTime}";
 
-                    ExtractPackets(parsedContent);
+                    ApplyIndex(index);
                     UpdatePacketComboBox();
 
                     // Enable buttons
@@ -1099,14 +1086,13 @@ public partial class MainForm : Form
             return;
 
         var occurrences = packetLines[selectedPacket];
-        if (currentPage < 0 || currentPage >= occurrences.Count)
+        if (currentPage < 0 || currentPage >= occurrences.Count || parsedIndex == null)
         {
             currentPage = 0;
             return;
         }
 
-        var packetContent = string.Join("\n", occurrences[currentPage]);
-        outputTextBox.Text = packetContent;
+        outputTextBox.Text = parsedIndex.ReadOccurrenceText(occurrences[currentPage]);
 
         outputTextBox.SelectionStart = 0;
         outputTextBox.ScrollToCaret();
@@ -1224,42 +1210,24 @@ public partial class MainForm : Form
                         outputTextBox.AppendText("\nLoading parsed data...\n");
                     }
 
-                    await Task.Run(async () =>
+                    await Task.Run(() =>
                     {
-                        var fileInfo = new FileInfo(parsedFile);
-                        var totalBytes = fileInfo.Length;
-                        var totalRead = 0L;
-
-                        using var fileStream = new FileStream(parsedFile, FileMode.Open, FileAccess.Read);
-                        using var reader = new StreamReader(fileStream);
-
-                        var content = new System.Text.StringBuilder();
-                        var readBuffer = new char[4096];
-                        int bytesRead;
-
-                        while ((bytesRead = await reader.ReadAsync(readBuffer, 0, readBuffer.Length)) > 0)
+                        var fileIndex = ParsedFileIndexer.Build(parsedFile, p =>
                         {
-                            content.Append(readBuffer, 0, bytesRead);
-                            totalRead += bytesRead * sizeof(char);
-
-                            var fileProgress = (int)((totalRead * 5) / totalBytes);
-                            var newProgress = Math.Min(95 + fileProgress, 100);
+                            var newProgress = Math.Min(95 + p / 20, 100);
                             progressBar.Invoke(() =>
                             {
                                 progressBar.Value = newProgress;
                                 progressLabel.Text = $"{newProgress}%";
                             });
-                        }
-
-                        var parsedContent = content.ToString();
-                        this.parsedContent = parsedContent;
+                        });
 
                         if (!isReparsing)
                         {
-                            outputTextBox.Invoke(() => outputTextBox.AppendText("Parsing complete. Select a packet to view.\n"));
+                            outputTextBox.Invoke(() => outputTextBox.AppendText("Indexing complete. Select a packet to view.\n"));
                         }
 
-                        ExtractPackets(parsedContent);
+                        ApplyIndex(fileIndex);
                         UpdatePacketComboBox();
 
                         progressBar.Invoke(() =>
@@ -1332,65 +1300,12 @@ public partial class MainForm : Form
         }
     }
 
-    private void ExtractPackets(string output)
+    private void ApplyIndex(ParsedFileIndex index)
     {
-        allPackets.Clear();
-        packetLines.Clear();
-        packetTimestamps.Clear();
-        var lines = output.Split('\n');
-        var packetRegex = new Regex(@"(ServerToClient|ClientToServer):\s+(\w+)\s+\(0x[0-9A-F]+\)");
-        var timeRegex = new Regex(@"Time:\s+(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})");
-
-        string? currentPacket = null;
-        var currentPacketLines = new List<string>();
-
-        foreach (var line in lines)
-        {
-            var match = packetRegex.Match(line);
-            if (match.Success)
-            {
-                if (currentPacket != null && currentPacketLines.Count > 0)
-                {
-                    if (!packetLines.ContainsKey(currentPacket))
-                    {
-                        packetLines[currentPacket] = new List<List<string>>();
-                    }
-                    packetLines[currentPacket].Add(new List<string>(currentPacketLines));
-                }
-
-                currentPacket = $"{match.Groups[1].Value}: {match.Groups[2].Value}";
-                if (!allPackets.Contains(currentPacket))
-                {
-                    allPackets.Add(currentPacket);
-                    var timeMatch = timeRegex.Match(line);
-                    if (timeMatch.Success)
-                        packetTimestamps[currentPacket] = timeMatch.Groups[1].Value;
-                }
-
-                currentPacketLines.Clear();
-                currentPacketLines.Add(line);
-            }
-            else if (currentPacket != null)
-            {
-                currentPacketLines.Add(line);
-            }
-        }
-
-        if (currentPacket != null && currentPacketLines.Count > 0)
-        {
-            if (!packetLines.ContainsKey(currentPacket))
-            {
-                packetLines[currentPacket] = new List<List<string>>();
-            }
-            packetLines[currentPacket].Add(new List<string>(currentPacketLines));
-        }
-
-        allPackets.Sort((a, b) =>
-        {
-            var ta = packetTimestamps.GetValueOrDefault(a, "");
-            var tb = packetTimestamps.GetValueOrDefault(b, "");
-            return string.Compare(ta, tb, StringComparison.Ordinal);
-        });
+        parsedIndex = index;
+        allPackets = index.UniqueKeys;
+        packetLines = index.ByKey;
+        packetTimestamps = index.FirstTimestamp;
     }
 
     private void UpdatePacketComboBox()
@@ -1520,7 +1435,7 @@ public partial class MainForm : Form
 
     private void TimeOrderButton_Click(object? sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(parsedContent))
+        if (parsedIndex == null)
         {
             MessageBox.Show("No parsed data available. Please parse a file first.", "No Data",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1528,20 +1443,18 @@ public partial class MainForm : Form
         }
 
         var entries = new List<PacketTimeEntry>();
-        var packetRegex = new Regex(
-            @"^(ServerToClient|ClientToServer):\s+(\w+)\s+\((0x[0-9A-F]+)\).*Time:\s+" +
-            @"(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3}).*Number:\s+(\d+)",
-            RegexOptions.Multiline);
-
-        foreach (Match m in packetRegex.Matches(parsedContent))
+        foreach (var occ in parsedIndex.Ordered)
         {
+            if (occ.Time.Length == 0 || occ.Number.Length == 0)
+                continue;
+
             entries.Add(new PacketTimeEntry
             {
-                Direction = m.Groups[1].Value,
-                Name = m.Groups[2].Value,
-                Opcode = m.Groups[3].Value,
-                Time = m.Groups[4].Value,
-                Number = m.Groups[5].Value
+                Direction = occ.Direction,
+                Name = occ.Name,
+                Opcode = occ.Opcode,
+                Time = occ.Time,
+                Number = occ.Number
             });
         }
 
@@ -1617,7 +1530,7 @@ public partial class MainForm : Form
 
     private void QuestFlowButton_Click(object? sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(parsedContent))
+        if (parsedIndex == null)
         {
             MessageBox.Show("No parsed data available. Please parse a file first.", "No Data",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1635,64 +1548,8 @@ public partial class MainForm : Form
             return;
         }
 
-        // Parse all packets with their full content
-        var allEntries = new List<QuestFlowEntry>();
-        var headerRegex = new Regex(
-            @"^(ServerToClient|ClientToServer):\s+(\w+)\s+\((0x[0-9A-F]+)\).*Time:\s+" +
-            @"(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3}).*Number:\s+(\d+)",
-            RegexOptions.Multiline);
-
-        var lines = parsedContent.Split('\n');
-        string? currentDirection = null;
-        string? currentName = null;
-        string? currentOpcode = null;
-        string? currentTime = null;
-        string? currentNumber = null;
-        var currentLines = new List<string>();
-
-        void FlushEntry()
-        {
-            if (currentDirection != null && currentName != null)
-            {
-                allEntries.Add(new QuestFlowEntry
-                {
-                    Direction = currentDirection,
-                    Name = currentName,
-                    Opcode = currentOpcode ?? "",
-                    Time = currentTime ?? "",
-                    Number = currentNumber ?? "",
-                    FullContent = string.Join("\n", currentLines)
-                });
-            }
-            currentDirection = null;
-            currentName = null;
-            currentOpcode = null;
-            currentTime = null;
-            currentNumber = null;
-            currentLines.Clear();
-        }
-
-        foreach (var line in lines)
-        {
-            var match = headerRegex.Match(line);
-            if (match.Success)
-            {
-                FlushEntry();
-                currentDirection = match.Groups[1].Value;
-                currentName = match.Groups[2].Value;
-                currentOpcode = match.Groups[3].Value;
-                currentTime = match.Groups[4].Value;
-                currentNumber = match.Groups[5].Value;
-                currentLines.Add(line);
-            }
-            else if (currentDirection != null)
-            {
-                currentLines.Add(line);
-            }
-        }
-        FlushEntry();
-
-        if (allEntries.Count == 0)
+        var ordered = parsedIndex.Ordered;
+        if (ordered.Count == 0)
         {
             MessageBox.Show("No packets found in the parsed data.", "No Data",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1703,11 +1560,11 @@ public partial class MainForm : Form
 
         // Find the ACCEPT packet with matching quest ID
         int acceptIdx = -1;
-        for (int i = 0; i < allEntries.Count; i++)
+        for (int i = 0; i < ordered.Count; i++)
         {
-            if (allEntries[i].Name == "CMSG_QUEST_GIVER_ACCEPT_QUEST")
+            if (ordered[i].Name == "CMSG_QUEST_GIVER_ACCEPT_QUEST")
             {
-                var qm = questIdRegex.Match(allEntries[i].FullContent);
+                var qm = questIdRegex.Match(parsedIndex.ReadOccurrenceText(ordered[i]));
                 if (qm.Success && uint.TryParse(qm.Groups[1].Value, out var qid) && qid == questId)
                 {
                     acceptIdx = i;
@@ -1725,11 +1582,11 @@ public partial class MainForm : Form
 
         // Find the COMPLETE packet with matching quest ID after the ACCEPT
         int completeIdx = -1;
-        for (int i = acceptIdx + 1; i < allEntries.Count; i++)
+        for (int i = acceptIdx + 1; i < ordered.Count; i++)
         {
-            if (allEntries[i].Name == "SMSG_QUEST_GIVER_QUEST_COMPLETE")
+            if (ordered[i].Name == "SMSG_QUEST_GIVER_QUEST_COMPLETE")
             {
-                var qm = questIdRegex.Match(allEntries[i].FullContent);
+                var qm = questIdRegex.Match(parsedIndex.ReadOccurrenceText(ordered[i]));
                 if (qm.Success && uint.TryParse(qm.Groups[1].Value, out var qid) && qid == questId)
                 {
                     completeIdx = i;
@@ -1739,8 +1596,21 @@ public partial class MainForm : Form
         }
 
         // Collect entries from ACCEPT to COMPLETE (or to end if COMPLETE not found)
-        int endIdx = completeIdx >= 0 ? completeIdx : allEntries.Count - 1;
-        var flowEntries = allEntries.GetRange(acceptIdx, endIdx - acceptIdx + 1);
+        int endIdx = completeIdx >= 0 ? completeIdx : ordered.Count - 1;
+        var flowEntries = new List<QuestFlowEntry>(endIdx - acceptIdx + 1);
+        for (int i = acceptIdx; i <= endIdx; i++)
+        {
+            var occ = ordered[i];
+            flowEntries.Add(new QuestFlowEntry
+            {
+                Direction = occ.Direction,
+                Name = occ.Name,
+                Opcode = occ.Opcode,
+                Time = occ.Time,
+                Number = occ.Number,
+                FullContent = parsedIndex.ReadOccurrenceText(occ)
+            });
+        }
 
         using var dialog = new QuestFlowDialog(flowEntries, questId);
         dialog.ShowDialog(this);
@@ -1748,7 +1618,7 @@ public partial class MainForm : Form
 
     private async void FirstCraftButton_Click(object? sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(parsedContent))
+        if (parsedIndex == null)
         {
             MessageBox.Show("No parsed data available. Please parse a file first.", "No Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
@@ -1781,7 +1651,7 @@ public partial class MainForm : Form
         try
         {
             // Run extraction on background thread
-            var treasures = await Task.Run(() => ExtractFirstCraftTreasures(parsedContent));
+            var treasures = await Task.Run(() => ExtractFirstCraftTreasures(parsedIndex.FilePath));
 
             progressForm.Close();
 
@@ -1794,10 +1664,9 @@ public partial class MainForm : Form
         }
     }
 
-    private List<FirstCraftTreasure> ExtractFirstCraftTreasures(string content)
+    private List<FirstCraftTreasure> ExtractFirstCraftTreasures(string filePath)
     {
         var treasures = new List<FirstCraftTreasure>();
-        var lines = content.Split('\n');
 
         string? currentPacket = null;
         string? currentPacketName = null;
@@ -1806,53 +1675,48 @@ public partial class MainForm : Form
 
         // Track spell casts to link to First Craft treasures
         string? lastPlayerSpell = null;
-        int spellSearchStartIdx = 0;
 
-        for (int lineIdx = 0; lineIdx < lines.Length; lineIdx++)
+        // Pending spell-info scan (equivalent of the old 30-line look-ahead)
+        int spellScanRemaining = 0;
+        bool isPlayerCaster = false;
+
+        foreach (var line in File.ReadLines(filePath))
         {
-            var line = lines[lineIdx];
-
             // Detect spell cast packets (SMSG_SPELL_GO indicates a spell was cast)
             if (line.Contains("SMSG_SPELL_GO") || line.Contains("SMSG_SPELL_START"))
             {
-                spellSearchStartIdx = lineIdx + 1;
-                bool isPlayerCaster = false;
-                string? spellId = null;
-
-                // Scan next 30 lines for spell info and caster
-                for (int i = spellSearchStartIdx; i < Math.Min(spellSearchStartIdx + 30, lines.Length); i++)
-                {
-                    var spellLine = lines[i];
-
-                    // Check for player caster
-                    if (spellLine.Contains("CasterGUID:") || spellLine.Contains("CasterUnit:"))
-                    {
-                        if (spellLine.Contains("Player/"))
-                            isPlayerCaster = true;
-                    }
-
-                    // Extract spell ID
-                    if (spellLine.Contains("SpellID:"))
-                    {
-                        var spellMatch = Regex.Match(spellLine, @"SpellID:\s+(\d+)");
-                        if (spellMatch.Success)
-                        {
-                            spellId = spellMatch.Groups[1].Value;
-                        }
-                        break;
-                    }
-
-                    // Stop if we hit another packet header
-                    if (spellLine.Contains("ServerToClient:") || spellLine.Contains("ClientToServer:"))
-                        break;
-                }
-
-                // Only update lastPlayerSpell if caster is a player
-                if (isPlayerCaster && spellId != null)
-                {
-                    lastPlayerSpell = spellId;
-                }
+                spellScanRemaining = 30;
+                isPlayerCaster = false;
                 continue;
+            }
+
+            if (spellScanRemaining > 0)
+            {
+                spellScanRemaining--;
+
+                // Check for player caster
+                if (line.Contains("CasterGUID:") || line.Contains("CasterUnit:"))
+                {
+                    if (line.Contains("Player/"))
+                        isPlayerCaster = true;
+                }
+
+                // Extract spell ID
+                if (line.Contains("SpellID:"))
+                {
+                    var spellMatch = Regex.Match(line, @"SpellID:\s+(\d+)");
+
+                    // Only update lastPlayerSpell if caster is a player
+                    if (spellMatch.Success && isPlayerCaster)
+                        lastPlayerSpell = spellMatch.Groups[1].Value;
+
+                    spellScanRemaining = 0;
+                }
+                // Stop if we hit another packet header
+                else if (line.Contains("ServerToClient:") || line.Contains("ClientToServer:"))
+                {
+                    spellScanRemaining = 0;
+                }
             }
 
             // Detect SMSG_CRAFT_ENCHANT_RESULT for CraftingDataID
