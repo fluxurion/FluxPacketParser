@@ -6,8 +6,9 @@ using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
+using WowPacketParserModule.V5_5_0_61735.Parsers;
 
-namespace WowPacketParserModule.V5_5_0_61735.Parsers
+namespace WowPacketParserModule.V1_60_1_70009.Parsers
 {
     // Classic 1.60.1.70009 packet layouts. Sourced from TrinityCoreLuaSol
     // (E:\TrinityCoreLuaSol) packet writers/readers — the 1.60 client speaks

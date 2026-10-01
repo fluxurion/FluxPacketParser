@@ -9,39 +9,22 @@ using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.UpdateFields;
+using WowPacketParserModule.V5_5_0_61735.Parsers;
 using WowPacketParserModule.V6_0_2_19033.Enums;
 using CoreFields = WowPacketParser.Enums.Version;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
-using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
-using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
 using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
-namespace WowPacketParserModule.V5_5_0_61735.Parsers
+namespace WowPacketParserModule.V1_60_1_70009.Parsers
 {
-    public static class UpdateHandler1158
+    // Classic 1.60.1.70009 update-object handling. Same wrapper layout as era,
+    // but the create-object movement block follows TC BaseEntity::BuildMovementUpdate
+    // (retail-style, see ReadMovementUpdateBlock160) and entity fragment ids use
+    // the 1.60 wire set (WowCSEntityFragments1160, every non-tag id = retail + 1).
+    public static class UpdateHandler160
     {
-        [Parser(Opcode.SMSG_MAP_OBJ_EVENTS, ClientBranch.Classic, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
-        public static void HandleMapObjEvents(Packet packet)
-        {
-            packet.ReadInt32("UniqueID");
-            packet.ReadInt32("DataSize");
-
-            var count = packet.ReadByte("Unk1");
-            for (var i = 0; i < count; i++)
-            {
-                var byte20 = packet.ReadByte("Unk2", i);
-                packet.ReadInt32(byte20 == 1 ? "Unk3" : "Unk4", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_DESTROY_ARENA_UNIT, ClientBranch.Classic, ClientVersionBuild.Zero, ClientVersionBuild.V1_60_1_70009)]
-        public static void HandleDestroyArenaUnit(Packet packet)
-        {
-            packet.ReadPackedGuid128("Guid");
-        }
-
         [HasSniffData] // in ReadCreateObjectBlock
-        [Parser(Opcode.SMSG_UPDATE_OBJECT, ClientBranch.Classic)]
+        [Parser(Opcode.SMSG_UPDATE_OBJECT, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleUpdateObject(Packet packet)
         {
             var updateObject = packet.Holder.UpdateObject = new();
@@ -229,25 +212,16 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             }
         }
 
+
         private static List<WowCSEntityFragment> ReadEntityFragments(Packet packet, string name, int idx)
         {
             var fragmentIds = new List<WowCSEntityFragment>();
-            if (ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_9_69722))
-            {
-                byte fragmentId1127;
-                while ((fragmentId1127 = packet.ReadByte()) != 255)
-                    fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, (WowCSEntityFragments1127)fragmentId1127, idx, fragmentIds.Count)));
-            }
-            else
-            {
-                WowCSEntityFragments1100 fragmentId;
-                while ((fragmentId = packet.ReadByteE<WowCSEntityFragments1100>()) != WowCSEntityFragments1100.End)
-                    fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, fragmentId, idx, fragmentIds.Count)));
-            }
+            byte fragmentId;
+            while ((fragmentId = packet.ReadByte()) != 255)
+                fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, (WowCSEntityFragments1160)fragmentId, idx, fragmentIds.Count)));
 
             return fragmentIds;
         }
-
         private static void ReadCreateObjectBlock(Packet packet, CreateObject createObject, WowGuid guid, uint map, CreateObjectType createType, int index)
         {
             ObjectType objType = ObjectTypeConverter.Convert(packet.ReadByteE<ObjectType801>("Object Type", index));
@@ -255,7 +229,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             WoWObject obj = CoreParsers.UpdateHandler.CreateObject(objType, guid, map);
 
             obj.CreateType = createType;
-            obj.Movement = ReadMovementUpdateBlock(packet, createObject, guid, obj, index);
+            obj.Movement = ReadMovementUpdateBlock160(packet, createObject, guid, obj, index);
 
             createObject.Values.Fields = new();
             var updatefieldSize = packet.ReadUInt32();
@@ -394,43 +368,12 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             if (guid.HasEntry() && (objType == ObjectType.Unit || objType == ObjectType.GameObject))
                 packet.AddSniffData(Utilities.ObjectTypeToStore(objType), (int)guid.GetEntry(), "SPAWN");
         }
-
-        public static MovementUpdateTransport ReadTransportData(MovementInfo moveInfo, WowGuid guid, Packet packet, object index)
-        {
-            moveInfo.Transport = new MovementInfo.TransportInfo();
-            MovementUpdateTransport transport = new();
-            packet.ResetBitReader();
-            transport.TransportGuid = moveInfo.Transport.Guid = packet.ReadPackedGuid128("TransportGUID", index);
-            transport.Position = moveInfo.Transport.Offset = packet.ReadVector4("TransportPosition", index);
-            var seat = packet.ReadByte("VehicleSeatIndex", index);
-            transport.Seat = seat;
-            transport.MoveTime = packet.ReadUInt32("MoveTime", index);
-
-            var hasPrevMoveTime = packet.ReadBit("HasPrevMoveTime", index);
-            var hasVehicleRecID = packet.ReadBit("HasVehicleRecID", index);
-
-            if (hasPrevMoveTime)
-                transport.PrevMoveTime = packet.ReadUInt32("PrevMoveTime", index);
-
-            if (hasVehicleRecID)
-                transport.VehicleId = packet.ReadInt32("VehicleRecID", index);
-
-            if (moveInfo.Transport.Guid.HasEntry() && moveInfo.Transport.Guid.GetHighType() == HighGuidType.Vehicle &&
-                guid.HasEntry() && guid.GetHighType() == HighGuidType.Creature)
-            {
-                VehicleTemplateAccessory vehicleAccessory = new VehicleTemplateAccessory
-                {
-                    Entry = moveInfo.Transport.Guid.GetEntry(),
-                    AccessoryEntry = guid.GetEntry(),
-                    SeatId = seat
-                };
-                Storage.VehicleTemplateAccessories.Add(vehicleAccessory, packet.TimeSpan);
-            }
-
-            return transport;
-        }
-
-        private static MovementInfo ReadMovementUpdateBlock(Packet packet, CreateObject createObject, WowGuid guid, WoWObject obj, object index)
+        // Classic 1.60.1.70009 layout (matches TC BaseEntity::BuildMovementUpdate / retail-style):
+        // 21 header bits (GameObject at bit13, no AreaTrigger; Room/Decor/MeshObject added),
+        // PauseTimesCount right after the header, u64 movement flags, GravityModifier after
+        // MoveIndex, sub-block order StandingOn->Transport->Fall->Inertia->AdvFlying->DriveStatus,
+        // movement forces written before the HasSpline bit, PauseTimes at the very end.
+        private static MovementInfo ReadMovementUpdateBlock160(Packet packet, CreateObject createObject, WowGuid guid, WoWObject obj, object index)
         {
             var moveInfo = new MovementInfo();
 
@@ -446,28 +389,28 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             var hasMovementTransport = packet.ReadBit("HasMovementTransport", index);
             var hasStationaryPosition = packet.ReadBit("Stationary", index);
             var hasCombatVictim = packet.ReadBit("HasCombatVictim", index);
-
             var hasServerTime = packet.ReadBit("HasServerTime", index);
             var hasVehicleCreate = packet.ReadBit("HasVehicleCreate", index);
             var hasAnimKitCreate = packet.ReadBit("HasAnimKitCreate", index);
             var hasRotation = packet.ReadBit("HasRotation", index);
-            var hasAreaTrigger = packet.ReadBit("HasAreaTrigger", index);
             var hasGameObject = packet.ReadBit("HasGameObject", index);
             var hasSmoothPhasing = packet.ReadBit("HasSmoothPhasing", index);
-
             var sceneObjCreate = packet.ReadBit("SceneObjCreate", index);
             var playerCreateData = packet.ReadBit("HasPlayerCreateData", index);
             var hasConversation = packet.ReadBit("HasConversation", index);
+            var hasRoom = packet.ReadBit("HasRoom", index);
+            var hasDecor = packet.ReadBit("HasDecor", index);
+            var hasMeshObject = packet.ReadBit("HasMeshObject", index);
+
+            var pauseTimesCount = packet.ReadUInt32("PauseTimesCount", index);
 
             if (hasMovementUpdate)
             {
                 var movementUpdate = createObject.Movement = new();
                 packet.ResetBitReader();
-                movementUpdate.Mover = packet.ReadPackedGuid128("MoverGUID", index);
+                movementUpdate.Mover = moveInfo.MoverGuid = packet.ReadPackedGuid128("MoverGUID", index);
 
-                moveInfo.Flags = (uint)packet.ReadUInt32E<MovementFlag>("MovementFlags", index);
-                moveInfo.Flags2 = (uint)packet.ReadUInt32E<MovementFlag2>("MovementFlags2", index);
-                moveInfo.Flags3 = (uint)packet.ReadUInt32E<MovementFlag3>("MovementFlags3", index);
+                moveInfo.Flags64 = (ulong)packet.ReadUInt64E<WowPacketParser.Enums.v12.MovementFlag>("MovementFlags", index);
 
                 movementUpdate.MoveTime = packet.ReadUInt32("MoveTime", index);
                 movementUpdate.Position = moveInfo.Position = packet.ReadVector3("Position", index);
@@ -478,6 +421,8 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
                 var removeForcesIDsCount = packet.ReadInt32();
                 movementUpdate.MoveIndex = packet.ReadInt32("MoveIndex", index);
+
+                packet.ReadSingle("GravityModifier", index);
 
                 for (var i = 0; i < removeForcesIDsCount; i++)
                     packet.ReadPackedGuid128("RemoveForcesIDs", index, i);
@@ -492,24 +437,11 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 var hasAdvFlying = packet.ReadBit("HasAdvFlying", index);
                 var hasDriveStatus = packet.ReadBit("HasDriveStatus", index);
 
-                if (hasTransport)
-                    movementUpdate.Transport = ReadTransportData(moveInfo, guid, packet, index);
-
                 if (hasStandingOnGameObjectGUID)
                     packet.ReadPackedGuid128("StandingOnGameObjectGUID", index);
 
-                if (hasInertia)
-                {
-                    packet.ReadInt32("ID", "Inertia");
-                    packet.ReadVector3("Force", index, "Inertia");
-                    packet.ReadUInt32("Lifetime", index, "Inertia");
-                }
-
-                if (hasAdvFlying)
-                {
-                    packet.ReadSingle("ForwardVelocity", index, "AdvFlying");
-                    packet.ReadSingle("UpVelocity", index, "AdvFlying");
-                }
+                if (hasTransport)
+                    movementUpdate.Transport = UpdateHandler1158.ReadTransportData(moveInfo, guid, packet, index);
 
                 if (hasFall)
                 {
@@ -523,6 +455,19 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                         packet.ReadVector2("Fall", index);
                         packet.ReadSingle("Horizontal Speed", index);
                     }
+                }
+
+                if (hasInertia)
+                {
+                    packet.ReadInt32("ID", "Inertia");
+                    packet.ReadVector3("Force", index, "Inertia");
+                    packet.ReadUInt32("Lifetime", index, "Inertia");
+                }
+
+                if (hasAdvFlying)
+                {
+                    packet.ReadSingle("ForwardVelocity", index, "AdvFlying");
+                    packet.ReadSingle("UpVelocity", index, "AdvFlying");
                 }
 
                 if (hasDriveStatus)
@@ -565,11 +510,11 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 packet.ReadSingle("AdvFlyingOverMaxDeceleration", index);
                 packet.ReadSingle("AdvFlyingLaunchSpeedCoefficient", index);
 
-                packet.ResetBitReader();
-                moveInfo.HasSplineData = packet.ReadBit("HasMovementSpline", index);
-
                 for (var i = 0; i < movementForceCount; ++i)
                     MovementHandler1158.ReadMovementForce(packet, "MovementForces", i);
+
+                packet.ResetBitReader();
+                moveInfo.HasSplineData = packet.ReadBit("HasMovementSpline", index);
 
                 if (moveInfo.HasSplineData)
                 {
@@ -585,34 +530,11 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                         packet.ResetBitReader();
 
                         moveData.Flags = packet.ReadUInt32E<SplineFlag>("SplineFlags", index).ToUniversal();
+                        var face = packet.ReadByte("Face", index);
                         moveData.Elapsed = packet.ReadInt32("Elapsed", index);
                         moveData.Duration = packet.ReadUInt32("Duration", index);
                         moveData.DurationModifier = packet.ReadSingle("DurationModifier", index);
                         moveData.NextDurationModifier = packet.ReadSingle("NextDurationModifier", index);
-
-                        var face = packet.ReadBits("Face", 2, index);
-                        var hasSpecialTime = packet.ReadBit("HasSpecialTime", index);
-
-                        var pointsCount = packet.ReadBits("PointsCount", 16, index);
-
-                        var hasSplineFilterKey = packet.ReadBit("HasSplineFilterKey", index);
-                        var hasSpellEffectExtraData = packet.ReadBit("HasSpellEffectExtraData", index);
-                        var hasJumpExtraData = packet.ReadBit("HasJumpExtraData", index);
-                        var hasTurnData = packet.ReadBit("HasTurnData", index);
-                        var hasAnimationTierTransition = packet.ReadBit("HasAnimationTierTransition", index);
-
-                        if (hasSplineFilterKey)
-                        {
-                            packet.ResetBitReader();
-                            var filterKeysCount = packet.ReadUInt32("FilterKeysCount", index);
-                            for (var i = 0; i < filterKeysCount; ++i)
-                            {
-                                packet.ReadSingle("In", index, i);
-                                packet.ReadSingle("Out", index, i);
-                            }
-
-                            packet.ReadBits("FilterFlags", 2, index);
-                        }
 
                         switch (face)
                         {
@@ -629,8 +551,32 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                                 break;
                         }
 
+                        var hasSpecialTime = packet.ReadBit("HasSpecialTime", index);
+
+                        var pointsCount = packet.ReadBits("PointsCount", 16, index);
+
+                        var hasSplineFilterKey = packet.ReadBit("HasSplineFilterKey", index);
+                        var hasSpellEffectExtraData = packet.ReadBit("HasSpellEffectExtraData", index);
+                        var hasJumpExtraData = packet.ReadBit("HasJumpExtraData", index);
+                        var hasTurnData = packet.ReadBit("HasTurnData", index);
+                        var hasAnimationTierTransition = packet.ReadBit("HasAnimationTierTransition", index);
+                        var hasSpellVisualData = packet.ReadBit("HasSpellVisualData", index);
+
                         if (hasSpecialTime)
                             packet.ReadUInt32("SpecialTime", index);
+
+                        if (hasSplineFilterKey)
+                        {
+                            packet.ResetBitReader();
+                            var filterKeysCount = packet.ReadUInt32("FilterKeysCount", index);
+                            for (var i = 0; i < filterKeysCount; ++i)
+                            {
+                                packet.ReadSingle("In", index, i);
+                                packet.ReadSingle("Out", index, i);
+                            }
+
+                            packet.ReadBits("FilterFlags", 2, index);
+                        }
 
                         for (var i = 0; i < pointsCount; ++i)
                             moveData.Points.Add(packet.ReadVector3("Points", index, i));
@@ -650,13 +596,23 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                             packet.ReadByte("AnimTier", index);
                             packet.ReadInt32("StartTime", index);
                             packet.ReadInt32("EndTime", index);
-                            packet.ReadByte("AnimTier", index);
+                        }
+
+                        if (hasSpellVisualData)
+                        {
+                            for (var i = 0; i < 16; ++i)
+                            {
+                                packet.ReadInt32("SpellID", index, "SpellVisualData", i);
+                                V9_0_1_36216.Parsers.SpellHandler.ReadSpellCastVisual(packet, index, "SpellVisualData", i, "Visual");
+                                packet.ReadInt32("StartNodeIndex", index, "SpellVisualData", i);
+                            }
                         }
                     }
                 }
             }
 
-            var pauseTimesCount = packet.ReadUInt32("PauseTimesCount", index);
+            if (hasMovementTransport)
+                createObject.Transport = UpdateHandler1158.ReadTransportData(moveInfo, guid, packet, index);
 
             if (hasStationaryPosition)
             {
@@ -701,213 +657,6 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             if (hasRotation)
                 createObject.Rotation = moveInfo.Rotation = packet.ReadPackedQuaternion("GameObject Rotation", index);
-
-            for (var i = 0; i < pauseTimesCount; ++i)
-                packet.ReadUInt32("PauseTimes", index, i);
-
-            if (hasMovementTransport)
-                createObject.Transport = ReadTransportData(moveInfo, guid, packet, index);
-
-            if (hasAreaTrigger && obj is AreaTriggerCreateProperties)
-            {
-                AreaTriggerTemplate areaTriggerTemplate = new AreaTriggerTemplate
-                {
-                    Id = guid.GetEntry(),
-                    IsCustom = 0
-                };
-
-                AreaTriggerCreateProperties createProperties = (AreaTriggerCreateProperties)obj;
-                createProperties.AreaTriggerId = guid.GetEntry();
-                createProperties.IsAreatriggerCustom = areaTriggerTemplate.IsCustom;
-
-                packet.ResetBitReader();
-
-                // CliAreaTrigger
-                packet.ReadUInt32("ElapsedMs", index);
-
-                createProperties.RollPitchYaw = packet.ReadVector3("RollPitchYaw", index);
-
-                areaTriggerTemplate.Type = (byte)packet.ReadSByteE<AreaTriggerType>("Type", index);
-                switch ((AreaTriggerType)areaTriggerTemplate.Type)
-                {
-                    case AreaTriggerType.Sphere:
-                        areaTriggerTemplate.Data[0] = packet.ReadSingle("Radius", index);
-                        areaTriggerTemplate.Data[1] = packet.ReadSingle("RadiusTarget", index);
-                        break;
-                    case AreaTriggerType.Box:
-                    {
-                        Vector3 extents = packet.ReadVector3("Extents", index);
-                        areaTriggerTemplate.Data[0] = extents.X;
-                        areaTriggerTemplate.Data[1] = extents.Y;
-                        areaTriggerTemplate.Data[2] = extents.Z;
-
-                        Vector3 extentsTarget = packet.ReadVector3("ExtentsTarget", index);
-                        areaTriggerTemplate.Data[3] = extentsTarget.X;
-                        areaTriggerTemplate.Data[4] = extentsTarget.Y;
-                        areaTriggerTemplate.Data[5] = extentsTarget.Z;
-                        break;
-                    }
-                    case AreaTriggerType.Quad2D:
-                    case AreaTriggerType.Polygon:
-                    case AreaTriggerType.Script:
-                    case AreaTriggerType.FromUnit:
-                    {
-                        var verticesCount = packet.ReadUInt32("VerticesCount", index);
-                        var verticesTargetCount = packet.ReadUInt32("VerticesTargetCount", index);
-
-                        List<AreaTriggerCreatePropertiesPolygonVertex> verticesList = new List<AreaTriggerCreatePropertiesPolygonVertex>();
-
-                        areaTriggerTemplate.Data[0] = packet.ReadSingle("Height", index);
-                        areaTriggerTemplate.Data[1] = packet.ReadSingle("HeightTarget", index);
-
-                        for (uint i = 0; i < verticesCount; ++i)
-                        {
-                            AreaTriggerCreatePropertiesPolygonVertex spellAreatriggerVertices = new AreaTriggerCreatePropertiesPolygonVertex
-                            {
-                                areatriggerGuid = guid,
-                                Idx = i
-                            };
-
-                            Vector2 vertices = packet.ReadVector2("Vertices", index, i);
-
-                            spellAreatriggerVertices.VerticeX = vertices.X;
-                            spellAreatriggerVertices.VerticeY = vertices.Y;
-
-                            verticesList.Add(spellAreatriggerVertices);
-                        }
-
-                        for (var i = 0; i < verticesTargetCount; ++i)
-                        {
-                            Vector2 verticesTarget = packet.ReadVector2("VerticesTarget", index, i);
-
-                            verticesList[i].VerticeTargetX = verticesTarget.X;
-                            verticesList[i].VerticeTargetY = verticesTarget.Y;
-                        }
-
-                        foreach (AreaTriggerCreatePropertiesPolygonVertex vertice in verticesList)
-                            Storage.AreaTriggerCreatePropertiesPolygonVertices.Add(vertice);
-
-                        break;
-                    }
-                    case AreaTriggerType.Cylinder:
-                        areaTriggerTemplate.Data[0] = packet.ReadSingle("Radius", index);
-                        areaTriggerTemplate.Data[1] = packet.ReadSingle("RadiusTarget", index);
-                        areaTriggerTemplate.Data[2] = packet.ReadSingle("Height", index);
-                        areaTriggerTemplate.Data[3] = packet.ReadSingle("HeightTarget", index);
-                        areaTriggerTemplate.Data[4] = packet.ReadSingle("LocationZOffset", index);
-                        areaTriggerTemplate.Data[5] = packet.ReadSingle("LocationZOffsetTarget", index);
-                        break;
-                    case AreaTriggerType.Disk:
-                        areaTriggerTemplate.Data[0] = packet.ReadSingle("InnerRadius", index);
-                        areaTriggerTemplate.Data[1] = packet.ReadSingle("InnerRadiusTarget", index);
-                        areaTriggerTemplate.Data[2] = packet.ReadSingle("OuterRadius", index);
-                        areaTriggerTemplate.Data[3] = packet.ReadSingle("OuterRadiusTarget", index);
-                        areaTriggerTemplate.Data[4] = packet.ReadSingle("Height", index);
-                        areaTriggerTemplate.Data[5] = packet.ReadSingle("HeightTarget", index);
-                        areaTriggerTemplate.Data[6] = packet.ReadSingle("LocationZOffset", index);
-                        areaTriggerTemplate.Data[7] = packet.ReadSingle("LocationZOffsetTarget", index);
-                        break;
-                    case AreaTriggerType.BoundedPlane:
-                    {
-                        Vector2 extents = packet.ReadVector2("Extents", index);
-                        areaTriggerTemplate.Data[0] = extents.X;
-                        areaTriggerTemplate.Data[1] = extents.Y;
-
-                        Vector2 extentsTarget = packet.ReadVector2("ExtentsTarget", index);
-                        areaTriggerTemplate.Data[2] = extentsTarget.X;
-                        areaTriggerTemplate.Data[3] = extentsTarget.Y;
-                        break;
-                    }
-                }
-
-                areaTriggerTemplate.Flags = 0;
-                createProperties.Flags = 0;
-
-                createProperties.AbsoluteOrientation = packet.ReadBit("AbsoluteOrientation", index);
-                createProperties.DynamicShape = packet.ReadBit("DynamicShape", index);
-                createProperties.Attached = packet.ReadBit("Attached", index);
-                createProperties.FaceMovementDir = packet.ReadBit("FaceMovementDir", index);
-                createProperties.FollowsTerrain = packet.ReadBit("FollowsTerrain", index);
-                createProperties.AlwaysExterior = packet.ReadBit("AlwaysExterior", index);
-                createProperties.UsesUnitRawFacing = packet.ReadBit("UsesUnitRawFacing", index);
-
-                if (packet.ReadBit("HasTargetRollPitchYaw", index))
-                    createProperties.Flags |= (uint)AreaTriggerCreatePropertiesLegacyFlags.HasTargetRollPitchYaw;
-
-                bool hasScaleCurveID = packet.ReadBit("HasScaleCurveID", index);
-                bool hasMorphCurveID = packet.ReadBit("HasMorphCurveID", index);
-                bool hasFacingCurveID = packet.ReadBit("HasFacingCurveID", index);
-                bool hasMoveCurveID = packet.ReadBit("HasMoveCurveID", index);
-                bool hasPositionalSoundKitID = packet.ReadBit("HasPositionalSoundKitID", index);
-
-                if (packet.ReadBit("HasAnimID", index))
-                    areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesLegacyFlags.HasAnimId;
-
-                if (packet.ReadBit("HasAnimKitID", index))
-                    areaTriggerTemplate.Flags |= (uint)AreaTriggerCreatePropertiesLegacyFlags.HasAnimKitId;
-
-                bool hasVisualAnimIsDecay = packet.ReadBit("HasVisualAnimIsDecay", index);
-                bool hasAnimProgress = packet.ReadBit("HasAnimProgress", index);
-                bool hasAreaTriggerSpline = packet.ReadBit("HasAreaTriggerSpline", index);
-
-                if (packet.ReadBit("HasAreaTriggerOrbit", index))
-                    createProperties.Flags |= (uint)AreaTriggerCreatePropertiesLegacyFlags.HasOrbit;
-
-                if (packet.ReadBit("HasAreaTriggerMovementScript", index)) // seen with spellid 343597
-                    createProperties.Flags |= (uint)AreaTriggerCreatePropertiesLegacyFlags.HasMovementScript;
-
-                if (hasVisualAnimIsDecay)
-                    createProperties.VisualAnimIsDecay = packet.ReadBit("VisualAnimIsDecay", index);
-
-                if (hasAreaTriggerSpline)
-                    foreach (var splinePoint in AreaTriggerHandler.ReadAreaTriggerSpline(createProperties, packet, index, "AreaTriggerSpline"))
-                        Storage.AreaTriggerCreatePropertiesSplinePoints.Add(splinePoint);
-
-                if ((createProperties.Flags & (uint)AreaTriggerCreatePropertiesLegacyFlags.HasTargetRollPitchYaw) != 0)
-                    createProperties.TargetRollPitchYaw = packet.ReadVector3("TargetRollPitchYaw", index);
-
-                if (hasScaleCurveID)
-                    createProperties.ScaleCurveId = (int)packet.ReadUInt32("ScaleCurveID", index);
-
-                if (hasMorphCurveID)
-                    createProperties.MorphCurveId = (int)packet.ReadUInt32("MorphCurveID", index);
-
-                if (hasFacingCurveID)
-                    createProperties.FacingCurveId = (int)packet.ReadUInt32("FacingCurveID", index);
-
-                if (hasMoveCurveID)
-                    createProperties.MoveCurveId = (int)packet.ReadUInt32("MoveCurveID", index);
-
-                if (hasPositionalSoundKitID)
-                    createProperties.PositionalSoundKitId = packet.ReadInt32("PositionalSoundKitID", index);
-
-                if ((areaTriggerTemplate.Flags & (int)AreaTriggerCreatePropertiesLegacyFlags.HasAnimId) != 0)
-                    createProperties.AnimId = packet.ReadInt32("AnimId", index);
-
-                if ((areaTriggerTemplate.Flags & (int)AreaTriggerCreatePropertiesLegacyFlags.HasAnimKitId) != 0)
-                    createProperties.AnimKitId = packet.ReadInt32("AnimKitId", index);
-
-                if (hasAnimProgress)
-                    packet.ReadUInt32("AnimProgress", index);
-
-                if ((createProperties.Flags & (uint)AreaTriggerCreatePropertiesLegacyFlags.HasMovementScript) != 0)
-                {
-                    packet.ReadInt32("SpellScriptID");
-                    packet.ReadVector3("Center");
-                }
-
-                if ((createProperties.Flags & (uint)AreaTriggerCreatePropertiesLegacyFlags.HasOrbit) != 0)
-                    Storage.AreaTriggerCreatePropertiesOrbits.Add(AreaTriggerHandler.ReadAreaTriggerOrbit(createProperties, packet, index, "AreaTriggerOrbit"));
-
-                // TargetedDatabase.Shadowlands stores AreaTriggerCreatePropertiesFlags in Template
-                if (Settings.TargetedDatabase < TargetedDatabase.Dragonflight)
-                    areaTriggerTemplate.Flags = createProperties.Flags;
-
-                createProperties.Shape = areaTriggerTemplate.Type;
-                Array.Copy(areaTriggerTemplate.Data, createProperties.ShapeData, Math.Min(areaTriggerTemplate.Data.Length, createProperties.ShapeData.Length));
-
-                Storage.AreaTriggerTemplates.Add(areaTriggerTemplate);
-            }
 
             if (hasGameObject)
             {
@@ -970,7 +719,6 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 packet.ResetBitReader();
                 var hasSceneInstanceIDs = packet.ReadBit("ScenePendingInstances", index);
                 var hasRuneState = packet.ReadBit("Runes", index);
-                var hasActionButtons = packet.ReadBit("HasActionButtons", index);
 
                 if (hasSceneInstanceIDs)
                 {
@@ -987,12 +735,6 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                     for (var i = 0; i < runeCount; ++i)
                         packet.ReadByte("RuneCooldown", index, i);
                 }
-
-                if (hasActionButtons)
-                {
-                    for (int i = 0; i < 180; i++)
-                        packet.ReadInt64("Action", index, i);
-                }
             }
 
             if (hasConversation)
@@ -1001,6 +743,24 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
                 if (packet.ReadBit("HasTextureKitID", index))
                     (obj as ConversationTemplate).TextureKitId = packet.ReadUInt32("TextureKitID", index);
             }
+
+            if (hasRoom)
+                packet.ReadPackedGuid128("HouseGUID", index);
+
+            if (hasDecor)
+                packet.ReadPackedGuid128("RoomGUID", index);
+
+            if (hasMeshObject)
+            {
+                packet.ReadPackedGuid128("AttachParentGUID", index);
+                packet.ReadVector3("PositionLocalSpace", index);
+                packet.ReadQuaternion("RotationLocalSpace", index);
+                packet.ReadSingle("ScaleLocalSpace", index);
+                packet.ReadByte("AttachmentFlags", index);
+            }
+
+            for (var i = 0; i < pauseTimesCount; ++i)
+                packet.ReadUInt32("PauseTimes", index, i);
 
             return moveInfo;
         }
