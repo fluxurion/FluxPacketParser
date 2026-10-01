@@ -280,6 +280,26 @@ namespace WowPacketParserModule.V1_60_1_70009.Parsers
                 ReadMirrorVarSingle160(packet, i);
         }
 
+        // 0x4B0003 — Classic 1.60.1.70009 (TC MOTD::Write, SystemPackets.cpp):
+        // {4b lineCount, FlushBits, per line: 7b len, FlushBits, len bytes}.
+        // The Zero-build default handler reads u32 count + CStrings, which
+        // misreads this layout into a ~2G iteration loop (ReadCString returns
+        // empty at EOF without throwing) — the Writer grows until OOM and the
+        // parse pipeline deadlocks.
+        [Parser(Opcode.SMSG_MOTD, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleMessageOfTheDay160(Packet packet)
+        {
+            var lineCount = packet.ReadBits("Line Count", 4);
+            packet.ResetBitReader();
+
+            for (var i = 0; i < lineCount; i++)
+            {
+                var lineLength = (int)packet.ReadBits(7);
+                packet.ResetBitReader();
+                packet.ReadWoWString("Line", lineLength, i);
+            }
+        }
+
         private static void ReadQuickJoinConfig160(Packet packet, params object[] idx)
         {
             packet.ReadSingle("ToastDuration", idx);
