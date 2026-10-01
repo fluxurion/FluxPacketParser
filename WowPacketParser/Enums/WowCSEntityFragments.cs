@@ -411,6 +411,8 @@ namespace WowPacketParser.Enums
             };
         }
     }
+
+    public readonly record struct WowCSEntityFragment : IComparable<WowCSEntityFragment>
     {
         public readonly WowCSEntityFragments UniversalValue;
         public readonly int VersionValue;
