@@ -706,5 +706,38 @@ namespace WowPacketParserModule.V1_60_1_70009.Parsers
             for (var i = 0u; i < warbandGroupsCount; ++i)
                 ReadWarbandGroup160(packet, i, "WarbandGroups");
         }
+
+        // 0x4600CD — Classic 1.60.1.70009 (client reader rva 0x3AA5060,
+        // TC DisplayToast::Write): standard retail layout. One flag byte
+        // packs Mailed(b7), Type(b6-5), IsSecondaryResult(b4) — and for
+        // NewItem also BonusRoll(b3) + ForceToast(b2). The embedded
+        // ItemInstance uses the 12.1 form ({i32 ItemID, 7-bit ItemModList
+        // count byte, {u8 Type, i32 Value} mods, hasBonus flag byte,
+        // optional {u8 Context, u32 count, i32[] BonusListIDs}}) which
+        // ReadItemInstance resolves to ReadItemInstance1210 for 70009.
+        [Parser(Opcode.SMSG_DISPLAY_TOAST, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleDisplayToast160(Packet packet)
+        {
+            packet.ReadUInt64("Quantity");
+            packet.ReadUInt32("DisplayToastMethod");
+            packet.ReadUInt32("QuestID");
+
+            packet.ResetBitReader();
+            packet.ReadBit("Mailed");
+            var type = packet.ReadBits("Type", 2);
+            packet.ReadBit("IsSecondaryResult");
+
+            if (type == 0) // DisplayToastType::NewItem
+            {
+                packet.ReadBit("BonusRoll");
+                packet.ReadBit("ForceToast");
+                Substructures.ItemHandler.ReadItemInstance(packet);
+                packet.ReadInt32("LootSpec");
+                packet.ReadSByte("Gender");
+            }
+
+            if (type == 1) // DisplayToastType::NewCurrency
+                packet.ReadUInt32("CurrencyID");
+        }
     }
 }
