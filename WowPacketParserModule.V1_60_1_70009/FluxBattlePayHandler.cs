@@ -80,5 +80,39 @@ namespace WowPacketParserModule.V1_60_1_70009.Parsers
             for (uint i = 0; i < shopCount; i++)
                 EraBattlePay.ReadShop(packet, i);
         }
+
+        // 0x460221 — the 1.60 client reader is an opaque blob (reads all
+        // remaining bytes into a pointer field) with a datasize==8 assert,
+        // so the payload is a single u64 (retail analog: DistributionID).
+        [Parser(Opcode.SMSG_BATTLE_PAY_DELIVERY_STARTED, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleDeliveryStarted160(Packet packet)
+        {
+            packet.ReadUInt64("Data");
+        }
+
+        // 0x460223 — opaque blob with datasize==4 assert → single u32.
+        [Parser(Opcode.SMSG_BATTLE_PAY_MOUNT_DELIVERED, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleMountDelivered160(Packet packet)
+        {
+            packet.ReadUInt32("Data");
+        }
+
+        // 0x460224 — structured reader: { u32, packed guid } (same layout as
+        // the retail DisplayID + BattlePetGuid pair).
+        [Parser(Opcode.SMSG_BATTLE_PAY_BATTLE_PET_DELIVERED, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleBattlePetDelivered160(Packet packet)
+        {
+            packet.ReadUInt32("DisplayID");
+            packet.ReadPackedGuid128("BattlePetGUID");
+        }
+
+        // 0x460225 — opaque blob with datasize==8 assert → single u64 (the
+        // LuaSol writer's flag+count+items payload is tolerated by the client
+        // reader but trips its datasize diagnostic).
+        [Parser(Opcode.SMSG_BATTLE_PAY_COLLECTION_ITEM_DELIVERED, ClientVersionBuild.V1_60_1_70009)]
+        public static void HandleCollectionItemDelivered160(Packet packet)
+        {
+            packet.ReadUInt64("Data");
+        }
     }
 }
