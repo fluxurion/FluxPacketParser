@@ -4725,10 +4725,6 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
     {
     data.TransmogCostMinScalingLevel = packet.ReadByte("TransmogCostMinScalingLevel", indexes);
     }
-    if (false) // classic: retail bit 116 not serialized
-    {
-    data.PetSpellPower = packet.ReadInt32("PetSpellPower", indexes);
-    }
     if (changesMask[118])
     {
     data.UiHitModifier = packet.ReadSingle("UiHitModifier", indexes);
