@@ -16,6 +16,11 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<int> ConditionalItemAppearanceID { get; set; }
         public System.Nullable<ushort> ItemAppearanceModID { get; set; }
         public System.Nullable<ushort> ItemVisual { get; set; }
+        public System.Nullable<uint> ItemModifiedAppearanceID { get; set; }
+        public System.Nullable<byte> TransmogSlotOption { get; set; }
+        public System.Nullable<byte> SheatheCategory { get; set; }
+        public System.Nullable<bool> HasTransmog { get; set; }
+        public System.Nullable<bool> HasIllusion { get; set; }
     }
 }
 

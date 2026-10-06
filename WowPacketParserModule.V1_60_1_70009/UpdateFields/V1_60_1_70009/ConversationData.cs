@@ -12,6 +12,10 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
     public class ConversationData : IMutableConversationData
     {
         public System.Nullable<int> LastLineEndTime { get; set; }
+        public System.Nullable<uint> Progress { get; set; }
+        public System.Nullable<uint> Flags { get; set; }
+        public System.Nullable<bool> DontPlayBroadcastTextSounds { get; set; }
+        public System.Nullable<bool> Field_33 { get; set; }
         public IConversationLine[] Lines { get; set; }
         public DynamicUpdateField<IConversationActor> Actors { get; } = new DynamicUpdateField<IConversationActor>();
     }

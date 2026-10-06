@@ -131,6 +131,7 @@ namespace WowPacketParser.Enums.Version.V1_60_1_70009
             { Opcode.CMSG_BUY_ACCOUNT_BANK_TAB, 0x3F0128 },  // retail 0x3E0128
             { Opcode.CMSG_BUY_BACK_ITEM, 0x3F003C },  // retail 0x3E003A
             { Opcode.CMSG_BUY_ITEM, 0x3F003B },  // retail 0x3E0039
+            // { Opcode.CMSG_BUY_STABLE_SLOT, 0xFF3E0011 }, // no Classic counterpart — dead in core
             { Opcode.CMSG_CAGE_BATTLE_PET, 0x3E00A7 },  // retail 0x3D00A6
             { Opcode.CMSG_CALENDAR_ADD_EVENT, 0x4400A9 },  // retail 0x4300A9
             { Opcode.CMSG_CALENDAR_COMMUNITY_INVITE, 0x44009D },  // retail 0x43009D
@@ -534,6 +535,7 @@ namespace WowPacketParser.Enums.Version.V1_60_1_70009
             { Opcode.CMSG_LFG_LIST_JOIN, 0x3E0259 },  // retail 0x3D0257
             // { Opcode.CMSG_LFG_LIST_LEAVE, 0xFF430038 }, // no Classic counterpart — dead in core
             // { Opcode.CMSG_LFG_LIST_SEARCH, 0xFF43003A }, // no Classic counterpart — dead in core
+            // { Opcode.CMSG_LFG_LIST_SET_ROLES, 0xFF3E02B3 }, // no Classic counterpart — dead in core
             { Opcode.CMSG_LFG_LIST_UPDATE_REQUEST, 0x3E025A },  // retail 0x3D0258
             { Opcode.CMSG_LFG_LOREWALKING_UPDATE_REQUEST, 0x3E025B },  // retail 0x3D0259
             { Opcode.CMSG_LIST_INVENTORY, 0x3F0038 },  // retail 0x3E0036

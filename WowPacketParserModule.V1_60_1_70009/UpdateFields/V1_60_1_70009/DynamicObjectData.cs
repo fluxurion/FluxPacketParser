@@ -14,6 +14,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public WowGuid Caster { get; set; }
         public System.Nullable<byte> Type { get; set; }
         public System.Nullable<int> SpellXSpellVisualID { get; set; }
+        public System.Nullable<int> ScriptVisualID { get; set; }
         public System.Nullable<int> SpellID { get; set; }
         public System.Nullable<float> Radius { get; set; }
         public System.Nullable<uint> CastTime { get; set; }

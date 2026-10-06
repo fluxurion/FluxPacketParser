@@ -20,6 +20,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<uint> StateAnimID { get; set; }
         public System.Nullable<uint> StateAnimKitID { get; set; }
         public System.Nullable<uint> StateWorldEffectsQuestObjectiveID { get; set; } = null;
+        public System.Nullable<int> SpellOverrideNameID { get; set; }
         public System.Nullable<uint>[] StateWorldEffectIDs { get; set; }
         public WowGuid Charm { get; set; }
         public WowGuid Summon { get; set; }
@@ -32,7 +33,10 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public WowGuid Target { get; set; }
         public WowGuid BattlePetCompanionGUID { get; set; }
         public System.Nullable<ulong> BattlePetDBID { get; set; }
+        public WowGuid BattlePetAttachedToDecorGUID { get; set; }
+        public WowGuid BattlePetDecorHouseGUID { get; set; }
         public IUnitChannel ChannelData { get; set; }
+        public System.Nullable<sbyte> SpellEmpowerStage { get; set; }
         public System.Nullable<uint> SummonedByHomeRealm { get; set; }
         public System.Nullable<byte> Race { get; set; }
         public System.Nullable<byte> ClassId { get; set; }
@@ -64,9 +68,11 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<float> BoundingRadius { get; set; }
         public System.Nullable<float> CombatReach { get; set; }
         public System.Nullable<float> DisplayScale { get; set; }
+        public System.Nullable<byte> OverrideCreatureType { get; set; }
         public System.Nullable<int> NativeDisplayID { get; set; }
         public System.Nullable<float> NativeXDisplayScale { get; set; }
         public System.Nullable<int> MountDisplayID { get; set; }
+        public System.Nullable<int> CosmeticMountDisplayID { get; set; }
         public System.Nullable<float> MinDamage { get; set; }
         public System.Nullable<float> MaxDamage { get; set; }
         public System.Nullable<float> MinOffHandDamage { get; set; }
@@ -80,6 +86,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<uint> PetExperience { get; set; }
         public System.Nullable<uint> PetNextLevelExperience { get; set; }
         public System.Nullable<float> ModCastingSpeed { get; set; }
+        public System.Nullable<float> ModCastingSpeedNeg { get; set; }
         public System.Nullable<float> ModSpellHaste { get; set; }
         public System.Nullable<float> ModHaste { get; set; }
         public System.Nullable<float> ModRangedHaste { get; set; }
@@ -92,11 +99,10 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<int>[] Stats { get; } = new System.Nullable<int>[5];
         public System.Nullable<int>[] StatPosBuff { get; } = new System.Nullable<int>[5];
         public System.Nullable<int>[] StatNegBuff { get; } = new System.Nullable<int>[5];
+        public System.Nullable<int>[] StatSupportBuff { get; } = new System.Nullable<int>[5];
         public System.Nullable<int>[] Resistances { get; } = new System.Nullable<int>[7];
-        public System.Nullable<int>[] ResistanceBuffModsPositive { get; } = new System.Nullable<int>[7];
-        public System.Nullable<int>[] ResistanceBuffModsNegative { get; } = new System.Nullable<int>[7];
-        public System.Nullable<int>[] PowerCostModifier { get; } = new System.Nullable<int>[7];
-        public System.Nullable<float>[] PowerCostMultiplier { get; } = new System.Nullable<float>[7];
+        public System.Nullable<int>[] BonusResistanceMods { get; } = new System.Nullable<int>[7];
+        public System.Nullable<int>[] ManaCostModifier { get; } = new System.Nullable<int>[7];
         public System.Nullable<int> BaseMana { get; set; }
         public System.Nullable<int> BaseHealth { get; set; }
         public System.Nullable<byte> SheatheState { get; set; }
@@ -107,20 +113,28 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<int> AttackPowerModPos { get; set; }
         public System.Nullable<int> AttackPowerModNeg { get; set; }
         public System.Nullable<float> AttackPowerMultiplier { get; set; }
+        public System.Nullable<int> AttackPowerModSupport { get; set; }
         public System.Nullable<int> RangedAttackPower { get; set; }
         public System.Nullable<int> RangedAttackPowerModPos { get; set; }
         public System.Nullable<int> RangedAttackPowerModNeg { get; set; }
         public System.Nullable<float> RangedAttackPowerMultiplier { get; set; }
+        public System.Nullable<int> RangedAttackPowerModSupport { get; set; }
+        public System.Nullable<int> MainHandWeaponAttackPower { get; set; }
+        public System.Nullable<int> OffHandWeaponAttackPower { get; set; }
+        public System.Nullable<int> RangedWeaponAttackPower { get; set; }
         public System.Nullable<int> SetAttackSpeedAura { get; set; }
         public System.Nullable<float> Lifesteal { get; set; }
         public System.Nullable<float> MinRangedDamage { get; set; }
         public System.Nullable<float> MaxRangedDamage { get; set; }
+        public System.Nullable<float> ManaCostMultiplier { get; set; }
         public System.Nullable<float> MaxHealthModifier { get; set; }
         public System.Nullable<float> HoverHeight { get; set; }
         public System.Nullable<int> MinItemLevelCutoff { get; set; }
         public System.Nullable<int> MinItemLevel { get; set; }
         public System.Nullable<int> MaxItemLevel { get; set; }
+        public System.Nullable<int> AzeriteItemLevel { get; set; }
         public System.Nullable<int> WildBattlePetLevel { get; set; }
+        public System.Nullable<int> BattlePetCompanionExperience { get; set; }
         public System.Nullable<uint> BattlePetCompanionNameTimestamp { get; set; }
         public System.Nullable<int> InteractSpellID { get; set; }
         public System.Nullable<int> ScaleDuration { get; set; }
@@ -128,13 +142,19 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<int> LooksLikeCreatureID { get; set; }
         public System.Nullable<int> LookAtControllerID { get; set; }
         public System.Nullable<int> PerksVendorItemID { get; set; }
+        public System.Nullable<int> TaxiNodesID { get; set; }
         public WowGuid GuildGUID { get; set; }
         public WowGuid SkinningOwnerGUID { get; set; }
         public System.Nullable<int> FlightCapabilityID { get; set; }
         public System.Nullable<float> GlideEventSpeedDivisor { get; set; }
         public System.Nullable<int> DriveCapabilityID { get; set; }
+        public System.Nullable<int> MaxHealthModifierFlatNeg { get; set; }
+        public System.Nullable<int> MaxHealthModifierFlatPos { get; set; }
         public System.Nullable<uint> SilencedSchoolMask { get; set; }
         public System.Nullable<uint> CurrentAreaID { get; set; }
+        public System.Nullable<float> NameplateDistanceMod { get; set; }
+        public System.Nullable<float> AutoAttackRangeMod { get; set; }
+        public WowGuid NameplateAttachToGUID { get; set; }
         public WowGuid ComboTarget { get; set; }
         public System.Nullable<float> Field_2F0 { get; set; }
         public System.Nullable<float> Field_2F4 { get; set; }

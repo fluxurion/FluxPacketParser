@@ -75,7 +75,7 @@ namespace WowPacketParserModule.V1_60_1_70009.Parsers
                             WoWObject obj;
                             Storage.Objects.TryGetValue(guid, out obj);
 
-                            var fragments = obj != null ? obj.EntityFragments : [new WowCSEntityFragment(WowCSEntityFragments1100.CGObject)];
+                            var fragments = obj?.EntityFragments ?? [new WowCSEntityFragment(WowCSEntityFragments1100.CGObject)];
 
                             fieldsData.ReadBool("IsOwned", i);
                             if (fieldsData.ReadBool("HasFragmentUpdates", i))

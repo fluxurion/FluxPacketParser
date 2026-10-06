@@ -17,8 +17,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public WowGuid ActorGUID { get; set; }
         public uint Type { get; set; }
 
-        // dummies required by interface
-        public uint NoActorObject { get; }
+        public uint NoActorObject { get; set; }
     }
 }
 

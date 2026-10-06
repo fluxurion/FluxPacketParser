@@ -29,6 +29,12 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<byte> PercentHealth { get; set; }
         public System.Nullable<uint> ArtKit { get; set; }
         public System.Nullable<uint> CustomParam { get; set; }
+        public System.Nullable<uint> FlagsB { get; set; }
+        public System.Nullable<uint> AnimGroupInstance { get; set; }
+        public System.Nullable<uint> UiWidgetItemID { get; set; }
+        public System.Nullable<uint> UiWidgetItemQuality { get; set; }
+        public System.Nullable<uint> UiWidgetItemCount { get; set; }
+        public IUnitAssistActionData AssistActionData { get; set; }
         public DynamicUpdateField<System.Nullable<int>> EnableDoodadSets { get; } = new DynamicUpdateField<System.Nullable<int>>();
         public DynamicUpdateField<System.Nullable<int>> WorldEffects { get; } = new DynamicUpdateField<System.Nullable<int>>();
     }

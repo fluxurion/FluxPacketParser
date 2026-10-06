@@ -18,8 +18,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public byte ActorIndex { get; set; }
         public byte Flags { get; set; }
 
-        // dummies required by interface
-        public byte ChatType { get; }
+        public byte ChatType { get; set; }
     }
 }
 

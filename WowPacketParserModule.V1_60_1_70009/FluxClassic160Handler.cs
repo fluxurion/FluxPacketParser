@@ -968,7 +968,7 @@ namespace WowPacketParserModule.V1_60_1_70009.Parsers
         [Parser(Opcode.CMSG_MOVE_ADD_IMPULSE_ACK, ClientVersionBuild.V1_60_1_70009)]
         public static void HandleMoveAddImpulseAck160(Packet packet)
         {
-            MovementHandler.ReadMovementAck(packet);
+            FluxMovementHandler.ReadMovementAck160(packet);
         }
 
         // 0x680044 — LuaSol: SMSG_PUSH_SPELL_TO_ACTION_BAR sends a spell ID to

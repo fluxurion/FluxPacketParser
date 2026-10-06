@@ -4,18 +4,17 @@
 
 using System.CodeDom.Compiler;
 using WowPacketParser.Misc;
+using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.UpdateFields;
 
 namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
 {
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
-    public class UnitChannel : IUnitChannel
+    public class CraftingOrder : ICraftingOrder
     {
-        public int SpellID { get; set; }
-        public int SpellXSpellVisualID { get; set; }
-        public int ScriptVisualID { get; set; }
-        public uint StartTimeMs { get; set; }
-        public uint Duration { get; set; }
+        public ICraftingOrderData Data { get; set; }
+        public DynamicUpdateField<ItemEnchantData> Enchantments { get; } = new();
+        public DynamicUpdateField<ItemGemData> Gems { get; } = new();
     }
 }
 

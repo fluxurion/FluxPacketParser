@@ -9,13 +9,11 @@ using WowPacketParser.Store.Objects.UpdateFields;
 namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
 {
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
-    public class UnitChannel : IUnitChannel
+    public class CTROptions : ICTROptions
     {
-        public int SpellID { get; set; }
-        public int SpellXSpellVisualID { get; set; }
-        public int ScriptVisualID { get; set; }
-        public uint StartTimeMs { get; set; }
-        public uint Duration { get; set; }
+        public byte FactionGroup { get; set; }
+        public uint ChromieTimeExpansionMask { get; set; }
+        public uint[] ConditionalFlags { get; set; }
     }
 }
 

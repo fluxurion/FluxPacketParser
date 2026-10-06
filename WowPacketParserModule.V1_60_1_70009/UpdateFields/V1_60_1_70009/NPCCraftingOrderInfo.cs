@@ -9,13 +9,12 @@ using WowPacketParser.Store.Objects.UpdateFields;
 namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
 {
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
-    public class UnitChannel : IUnitChannel
+    public class NPCCraftingOrderInfo : INPCCraftingOrderInfo
     {
-        public int SpellID { get; set; }
-        public int SpellXSpellVisualID { get; set; }
-        public int ScriptVisualID { get; set; }
-        public uint StartTimeMs { get; set; }
-        public uint Duration { get; set; }
+        public System.Nullable<ulong> OrderID { get; set; }
+        public System.Nullable<int> NpcCraftingOrderSetID { get; set; }
+        public System.Nullable<int> NpcTreasureID { get; set; }
+        public System.Nullable<int> NpcCraftingOrderCustomerID { get; set; }
     }
 }
 

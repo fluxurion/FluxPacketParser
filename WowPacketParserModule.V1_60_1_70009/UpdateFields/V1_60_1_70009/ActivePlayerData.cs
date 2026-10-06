@@ -11,7 +11,9 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
     public class ActivePlayerData : IActivePlayerData
     {
-        public WowGuid[] InvSlots { get; } = new WowGuid[146];
+        public WowGuid[] InvSlots { get; } = new WowGuid[145];
+        public System.Nullable<int> AmmoID { get; set; }
+        public WowGuid FrozenPerksVendorItem { get; set; }
         public WowGuid FarsightObject { get; set; }
         public WowGuid SummonedBattlePetGUID { get; set; }
         public System.Nullable<ulong> Coinage { get; set; }
@@ -23,7 +25,6 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<int> CharacterPoints { get; set; }
         public System.Nullable<int> MaxTalentTiers { get; set; }
         public System.Nullable<uint> TrackCreatureMask { get; set; }
-        public System.Nullable<uint>[] TrackResourceMask { get; } = new System.Nullable<uint>[2];
         public System.Nullable<float> MainhandExpertise { get; set; }
         public System.Nullable<float> OffhandExpertise { get; set; }
         public System.Nullable<float> RangedExpertise { get; set; }
@@ -36,10 +37,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<float> CritPercentage { get; set; }
         public System.Nullable<float> RangedCritPercentage { get; set; }
         public System.Nullable<float> OffhandCritPercentage { get; set; }
-        public System.Nullable<float>[] SpellCritPercentage { get; } = new System.Nullable<float>[7];
-        public System.Nullable<int>[] ModDamageDonePos { get; } = new System.Nullable<int>[7];
-        public System.Nullable<int>[] ModDamageDoneNeg { get; } = new System.Nullable<int>[7];
-        public System.Nullable<float>[] ModDamageDonePercent { get; } = new System.Nullable<float>[7];
+        public System.Nullable<float> SpellCritPercentage { get; set; }
         public System.Nullable<int> ShieldBlock { get; set; }
         public System.Nullable<float> ShieldBlockCritPercentage { get; set; }
         public System.Nullable<float> Mastery { get; set; }
@@ -52,9 +50,12 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<float> PvpPowerHealing { get; set; }
         public IBitVectors BitVectors { get; set; }
         public IRestInfo[] RestInfo { get; } = new IRestInfo[2];
+        public System.Nullable<int>[] ModDamageDonePos { get; } = new System.Nullable<int>[7];
+        public System.Nullable<int>[] ModDamageDoneNeg { get; } = new System.Nullable<int>[7];
+        public System.Nullable<float>[] ModDamageDonePercent { get; } = new System.Nullable<float>[7];
+        public System.Nullable<float>[] ModHealingDonePercent { get; } = new System.Nullable<float>[7];
         public System.Nullable<int> ModHealingDonePos { get; set; }
         public System.Nullable<float> ModHealingPercent { get; set; }
-        public System.Nullable<float> ModHealingDonePercent { get; set; }
         public System.Nullable<float> ModPeriodicHealingDonePercent { get; set; }
         public System.Nullable<float>[] WeaponDmgMultipliers { get; } = new System.Nullable<float>[3];
         public System.Nullable<float>[] WeaponAtkSpeedMultipliers { get; } = new System.Nullable<float>[3];
@@ -69,30 +70,18 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<byte> MultiActionBars { get; set; }
         public System.Nullable<byte> LifetimeMaxRank { get; set; }
         public System.Nullable<byte> NumRespecs { get; set; }
-        public System.Nullable<int> AmmoID { get; set; }
         public System.Nullable<uint> PvpMedals { get; set; }
         public System.Nullable<uint>[] BuybackPrice { get; } = new System.Nullable<uint>[12];
         public System.Nullable<long>[] BuybackTimestamp { get; } = new System.Nullable<long>[12];
         public System.Nullable<ushort> TodayHonorableKills { get; set; }
-        public System.Nullable<ushort> TodayDishonorableKills { get; set; }
         public System.Nullable<ushort> YesterdayHonorableKills { get; set; }
-        public System.Nullable<ushort> YesterdayDishonorableKills { get; set; }
-        public System.Nullable<ushort> LastWeekHonorableKills { get; set; }
-        public System.Nullable<ushort> LastWeekDishonorableKills { get; set; }
-        public System.Nullable<ushort> ThisWeekHonorableKills { get; set; }
-        public System.Nullable<ushort> ThisWeekDishonorableKills { get; set; }
-        public System.Nullable<uint> ThisWeekContribution { get; set; }
         public System.Nullable<uint> LifetimeHonorableKills { get; set; }
-        public System.Nullable<uint> LifetimeDishonorableKills { get; set; }
-        public System.Nullable<uint> Field_F24 { get; set; }
-        public System.Nullable<uint> YesterdayContribution { get; set; }
-        public System.Nullable<uint> LastWeekContribution { get; set; }
-        public System.Nullable<uint> LastWeekRank { get; set; }
         public System.Nullable<int> WatchedFactionIndex { get; set; }
         public System.Nullable<int>[] CombatRatings { get; } = new System.Nullable<int>[32];
         public System.Nullable<int> MaxLevel { get; set; }
         public System.Nullable<int> ScalingPlayerLevelDelta { get; set; }
         public System.Nullable<int> MaxCreatureScalingLevel { get; set; }
+        public System.Nullable<byte> TransmogCostMinScalingLevel { get; set; }
         public System.Nullable<uint>[] NoReagentCostMask { get; } = new System.Nullable<uint>[4];
         public System.Nullable<int> PetSpellPower { get; set; }
         public System.Nullable<int>[] ProfessionSkillLine { get; } = new System.Nullable<int>[2];
@@ -100,63 +89,98 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<float> UiSpellHitModifier { get; set; }
         public System.Nullable<int> HomeRealmTimeOffset { get; set; }
         public System.Nullable<float> ModPetHaste { get; set; }
+        public System.Nullable<sbyte> JailersTowerLevelMax { get; set; }
+        public System.Nullable<sbyte> JailersTowerLevel { get; set; }
         public System.Nullable<byte> LocalRegenFlags { get; set; }
         public System.Nullable<byte> AuraVision { get; set; }
         public System.Nullable<byte> NumBackpackSlots { get; set; }
         public System.Nullable<int> OverrideSpellsID { get; set; }
-        public System.Nullable<int> LfgBonusFactionID { get; set; }
         public System.Nullable<ushort> LootSpecID { get; set; }
         public System.Nullable<uint> OverrideZonePVPType { get; set; }
-        public System.Nullable<uint>[] BagSlotFlags { get; } = new System.Nullable<uint>[4];
-        public System.Nullable<uint>[] BankBagSlotFlags { get; } = new System.Nullable<uint>[7];
+        public System.Nullable<uint>[] BagSlotFlags { get; } = new System.Nullable<uint>[5];
         public System.Nullable<int> Honor { get; set; }
         public System.Nullable<int> HonorNextLevel { get; set; }
-        public System.Nullable<int> Field_F74 { get; set; }
-        public System.Nullable<byte> Field_1261 { get; set; }
-        public System.Nullable<int> PvpTierMaxFromWins { get; set; }
-        public System.Nullable<int> PvpLastWeeksTierMaxFromWins { get; set; }
-        public System.Nullable<byte> PvpRankProgress { get; set; }
         public System.Nullable<int> PerksProgramCurrency { get; set; }
+        public System.Nullable<byte> NumBankSlots { get; set; }
+        public System.Nullable<byte> NumCharacterBankTabs { get; set; }
+        public System.Nullable<byte> NumAccountBankTabs { get; set; }
         public IResearchHistory ResearchHistory { get; set; }
+        public IDiscordPlayerInfo DiscordInfo { get; set; }
+        public ILevelLinkInfo LevelLinkInfo { get; set; }
+        public System.Nullable<int> UiChromieTimeExpansionID { get; set; }
         public System.Nullable<int> TimerunningSeasonID { get; set; }
         public System.Nullable<int> TransportServerTime { get; set; }
+        public System.Nullable<uint> WeeklyRewardsPeriodSinceOrigin { get; set; }
+        public System.Nullable<short> DEBUGSoulbindConduitRank { get; set; }
+        public MapUpdateField<System.Nullable<int>, ITraitConfig> TraitConfigs { get; set; } = new();
         public System.Nullable<uint> ActiveCombatTraitConfigID { get; set; }
-        public System.Nullable<uint>[] GlyphSlots { get; } = new System.Nullable<uint>[9];
-        public System.Nullable<uint>[] Glyphs { get; } = new System.Nullable<uint>[9];
-        public System.Nullable<ushort> GlyphsEnabled { get; set; }
-        public System.Nullable<byte> LfgRoles { get; set; }
-        public IStableInfo PetStable { get; set; }
-        public System.Nullable<byte> NumStableSlots { get; set; }
-        public System.Nullable<ulong>[] Field_4348 { get; } = new System.Nullable<ulong>[13];
-        public System.Nullable<int> Field_17B8 { get; set; }
-        public DynamicUpdateField<System.Nullable<ushort>>[] ResearchSites { get; } = new DynamicUpdateField<System.Nullable<ushort>>[1] { new DynamicUpdateField<System.Nullable<ushort>>() };
-        public DynamicUpdateField<System.Nullable<uint>>[] ResearchSiteProgress { get; } = new DynamicUpdateField<System.Nullable<uint>>[1] { new DynamicUpdateField<System.Nullable<uint>>() };
-        public DynamicUpdateField<IResearch>[] Research { get; } = new DynamicUpdateField<IResearch>[1] { new DynamicUpdateField<IResearch>() };
-        public DynamicUpdateField<System.Nullable<ulong>> KnownTitles { get; } = new DynamicUpdateField<System.Nullable<ulong>>();
-        public DynamicUpdateField<System.Nullable<int>> DailyQuestsCompleted { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<int>> Field_1000 { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<int>> AvailableQuestLineXQuestIDs { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<int>> Heirlooms { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<uint>> HeirloomFlags { get; } = new DynamicUpdateField<System.Nullable<uint>>();
-        public DynamicUpdateField<System.Nullable<int>> Toys { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<uint>> ToyFlags { get; } = new DynamicUpdateField<System.Nullable<uint>>();
-        public DynamicUpdateField<System.Nullable<uint>> Transmog { get; } = new DynamicUpdateField<System.Nullable<uint>>();
-        public DynamicUpdateField<System.Nullable<int>> ConditionalTransmog { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<int>> SelfResSpells { get; } = new DynamicUpdateField<System.Nullable<int>>();
-        public DynamicUpdateField<System.Nullable<uint>> WarbandScenes { get; } = new DynamicUpdateField<System.Nullable<uint>>();
-        public DynamicUpdateField<ISpellPctModByLabel> SpellPctModByLabel { get; } = new DynamicUpdateField<ISpellPctModByLabel>();
-        public DynamicUpdateField<ISpellFlatModByLabel> SpellFlatModByLabel { get; } = new DynamicUpdateField<ISpellFlatModByLabel>();
-        public DynamicUpdateField<IQuestLog> TaskQuests { get; } = new DynamicUpdateField<IQuestLog>();
-        public DynamicUpdateField<ICategoryCooldownMod> CategoryCooldownMods { get; } = new DynamicUpdateField<ICategoryCooldownMod>();
-        public DynamicUpdateField<IWeeklySpellUse> WeeklySpellUses { get; } = new DynamicUpdateField<IWeeklySpellUse>();
-        public IPVPInfo[] PvpInfo { get; } = new IPVPInfo[9];
+        public System.Nullable<float>[] ItemUpgradeHighWatermark { get; } = new System.Nullable<float>[17];
+        public System.Nullable<int> ItemUpgradeHighOnehandWeaponItemID { get; set; }
+        public System.Nullable<int> ItemUpgradeHighFingerItemID { get; set; }
+        public System.Nullable<float> ItemUpgradeHighFingerWatermark { get; set; }
+        public System.Nullable<int> ItemUpgradeHighTrinketItemID { get; set; }
+        public System.Nullable<float> ItemUpgradeHighTrinketWatermark { get; set; }
+        public System.Nullable<ulong> LootHistoryInstanceID { get; set; }
+        public System.Nullable<byte> RequiredMountCapabilityFlags { get; set; }
+        public MapUpdateField<System.Nullable<int>, IDelveData> DelveData { get; set; } = new();
+        public MapUpdateField<System.Nullable<uint>, ITransmogOutfitData> TransmogOutfits { get; set; } = new();
+        public ITransmogOutfitData ViewedOutfit { get; set; }
+        public ITransmogOutfitMetadata TransmogMetadata { get; set; }
+        public DynamicUpdateField<System.Nullable<ushort>>[] ResearchSites { get; } = new DynamicUpdateField<System.Nullable<ushort>>[1] { new() } ;
+        public DynamicUpdateField<System.Nullable<uint>>[] ResearchSiteProgress { get; } = new DynamicUpdateField<System.Nullable<uint>>[1] { new() } ;
+        public DynamicUpdateField<IResearch>[] Research { get; } = new DynamicUpdateField<IResearch>[1] { new() } ;
+        public DynamicUpdateField<System.Nullable<ulong>> KnownTitles { get; } = new();
+        public DynamicUpdateField<IPlayerDataElement> CharacterDataElements { get; } = new();
+        public DynamicUpdateField<IPlayerDataElement> AccountDataElements { get; } = new();
+        public DynamicUpdateField<IPVPInfo> PvpInfo { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> DailyQuestsCompleted { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> Field_1328 { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> AvailableQuestLineXQuestIDs { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> Heirlooms { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HeirloomFlags { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> Toys { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> ToyFlags { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> Transmog { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> ConditionalTransmog { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> SelfResSpells { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> RuneforgePowers { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> TransmogIllusions { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> WarbandScenes { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HouseRooms { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HouseExteriorComponents { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HouseThemes { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HouseRoomComponentTextures { get; } = new();
+        public DynamicUpdateField<System.Nullable<uint>> HouseTypes { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> UnlockedTransmogOutfits { get; } = new();
+        public DynamicUpdateField<ICharacterRestriction> CharacterRestrictions { get; } = new();
+        public DynamicUpdateField<ISpellPctModByLabel> SpellPctModByLabel { get; } = new();
+        public DynamicUpdateField<ISpellFlatModByLabel> SpellFlatModByLabel { get; } = new();
+        public DynamicUpdateField<ISpellPctPVPModByLabel> SpellPctModPVPByLabel { get; } = new();
+        public DynamicUpdateField<ISpellFlatPVPModByLabel> SpellFlatModPVPByLabel { get; } = new();
+        public DynamicUpdateField<IMawPower> MawPowers { get; } = new();
+        public DynamicUpdateField<IMultiFloorExplore> MultiFloorExploration { get; } = new();
+        public DynamicUpdateField<IRecipeProgressionInfo> RecipeProgression { get; } = new();
+        public DynamicUpdateField<IReplayedQuest> ReplayedQuests { get; } = new();
+        public DynamicUpdateField<IQuestLog> TaskQuests { get; } = new();
+        public DynamicUpdateField<System.Nullable<int>> DisabledSpells { get; } = new();
+        public DynamicUpdateField<ICraftingOrder> CraftingOrders { get; } = new();
+        public DynamicUpdateField<IPersonalCraftingOrderCount> PersonalCraftingOrderCounts { get; } = new();
+        public DynamicUpdateField<INPCCraftingOrderInfo> NpcCraftingOrders { get; } = new();
+        public DynamicUpdateField<ICategoryCooldownMod> CategoryCooldownMods { get; } = new();
+        public DynamicUpdateField<IWeeklySpellUse> WeeklySpellUses { get; } = new();
+        public DynamicUpdateField<ICollectableSourceTrackedData> TrackedCollectableSources { get; } = new();
+        public DynamicUpdateField<IBankTabSettings> CharacterBankTabSettings { get; } = new();
+        public DynamicUpdateField<IBankTabSettings> AccountBankTabSettings { get; } = new();
+        public System.Nullable<bool> BackpackAutoSortDisabled { get; set; }
+        public System.Nullable<bool> BackpackSellJunkDisabled { get; set; }
+        public System.Nullable<bool> BankAutoSortDisabled { get; set; }
         public System.Nullable<bool> SortBagsRightToLeft { get; set; }
         public System.Nullable<bool> InsertItemsLeftToRight { get; set; }
-        public DynamicUpdateField<IPlayerDataElement> CharacterDataElements { get; } = new DynamicUpdateField<IPlayerDataElement>();
-        public DynamicUpdateField<IPlayerDataElement> AccountDataElements { get; } = new DynamicUpdateField<IPlayerDataElement>();
-        public DynamicUpdateField<ICharacterRestriction> CharacterRestrictions { get; } = new DynamicUpdateField<ICharacterRestriction>();
-        public DynamicUpdateField<ITraitConfig> TraitConfigs { get; } = new DynamicUpdateField<ITraitConfig>();
-        public DynamicUpdateField<IBankTabSettings> AccountBankTabSettings { get; } = new DynamicUpdateField<IBankTabSettings>();
+        public System.Nullable<bool> HasPerksProgramPendingReward { get; set; }
+        public IQuestSession QuestSession { get; set; }
+        public IStableInfo PetStable { get; set; }
+        public IWalkInData WalkInData { get; set; }
+        public IChallengeModeData ChallengeModeData { get; set; }
     }
 }
 

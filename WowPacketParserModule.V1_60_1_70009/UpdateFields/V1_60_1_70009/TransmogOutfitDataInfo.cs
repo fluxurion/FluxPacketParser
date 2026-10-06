@@ -9,13 +9,12 @@ using WowPacketParser.Store.Objects.UpdateFields;
 namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
 {
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
-    public class UnitChannel : IUnitChannel
+    public class TransmogOutfitDataInfo : ITransmogOutfitDataInfo
     {
-        public int SpellID { get; set; }
-        public int SpellXSpellVisualID { get; set; }
-        public int ScriptVisualID { get; set; }
-        public uint StartTimeMs { get; set; }
-        public uint Duration { get; set; }
+        public System.Nullable<byte> SetType { get; set; }
+        public string Name { get; set; }
+        public System.Nullable<uint> Icon { get; set; }
+        public System.Nullable<bool> SituationsEnabled { get; set; }
     }
 }
 

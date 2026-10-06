@@ -22,6 +22,7 @@ namespace WowPacketParserModule.V1_60_1_70009.UpdateFields.V1_60_1_70009
         public System.Nullable<byte> Class { get; set; }
         public System.Nullable<uint> Flags { get; set; }
         public System.Nullable<int> FactionTemplate { get; set; }
+        public System.Nullable<uint> StateSpellVisualKitID { get; set; }
         public DynamicUpdateField<IChrCustomizationChoice> Customizations { get; } = new DynamicUpdateField<IChrCustomizationChoice>();
     }
 }
